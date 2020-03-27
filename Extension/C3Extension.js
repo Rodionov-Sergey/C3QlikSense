@@ -4,18 +4,31 @@
 define(
 	// Список зависимостей
 	[
-		// Qlik API
+		// Qlik API - API Qlik Sense, приложения для визуализации, исследования и мониторинга данных
 		"qlik",
-		// jQuery API
-		'jquery'
+		// jQuery - библиотека для работы с HTML
+		'jquery',
+		// С3.js - библиотека для построения графиков
+		'./packages/c3.min',
+		// Стили С3.js
+		'text!./packages/c3.min.css'
 	],
 
 	/**
 	 * Создаёт модуль расширения
-	 * @param {*} qlik Qlik API
-	 * @param {*} $ jQuery API
+	 * @param {*} qlik API Qlik Sense
+	 * @param {*} $ jQuery - библиотека для работы с HTML
+	 * @param {*} c3 C3.js - библиотека для построения графиков
+	 * @param {*} c3Css Содержимое стилей C3.js
 	 */
-	function (qlik, $) {
+	function (qlik, $, c3, c3Css) {
+
+		console.log('c3', c3);
+		
+		// Добавление стилей расширения
+		$('<style>')
+			.html(c3Css)
+			.appendTo($('head'));
 
 		// Определения свойств
 		var propertyDefinitions = {
@@ -25,12 +38,14 @@ define(
 				// Блок свойств Измерения
 				dimensions: {
 					uses: 'dimensions',
-					min: 0
+					min: 1,
+					max: 1
 				},
 				// Блок свойств Меры
 				measures: {
 					uses: 'measures',
-					min: 0
+					min: 1,
+					max: 1
 				},
 				// Блок свойств Сортировка
 				sorting: {
