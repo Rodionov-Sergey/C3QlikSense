@@ -8,6 +8,8 @@ define(
 		"qlik",
 		// jQuery - библиотека для работы с HTML
 		'jquery',
+		// D3.js - библиотека для манипулирования документами на основе данных
+		'./packages/d3.v5.min',
 		// С3.js - библиотека для построения графиков
 		'./packages/c3.min',
 		// Стили С3.js
@@ -21,9 +23,10 @@ define(
 	 * @param {*} c3 C3.js - библиотека для построения графиков
 	 * @param {*} c3Css Содержимое стилей C3.js
 	 */
-	function (qlik, $, c3, c3Css) {
+	function (qlik, $, d3, c3, c3Css) {
 
-		console.log('c3', c3);
+		// HACK: Так C3.js найдёт свою зависимость D3.js по имени d3
+		window.d3 = d3;
 		
 		// Добавление стилей расширения
 		$('<style>')
@@ -91,7 +94,30 @@ define(
 			 */
 			paint: function ($element) {
 
-				$element.html( "C3QlikSense" );
+				try {
+
+					$element
+						.empty();
+
+					$element
+						.append($('<div>')
+							.attr('id', 'chart'));
+					
+					var chart = c3.generate({
+						bindto: '#chart',
+						data: {
+						columns: [
+							['data1', 30, 200, 100, 400, 150, 250],
+							['data2', 50, 20, 10, 40, 15, 25]
+						]
+						}
+					});
+
+                }
+                catch (error) {
+                    console.log(error);
+					throw error;
+                }
 
 				return qlik.Promise.resolve();
 			}
