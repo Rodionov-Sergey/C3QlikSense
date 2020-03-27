@@ -1,0 +1,15 @@
+{
+	"name": "C3Extension",
+	"description": "Расширение Qlik Sense для визуализации данных в виде графиков, использующее C3.js для отрисовки",
+	"type": "visualization",
+	"version": "1.0.0",
+	"icon": "line-chart",
+	"author": "Rodionov-Sergey",
+	"homepage": "https://github.com/Rodionov-Sergey/C3QlikSense",
+	"keywords": "qlik-sense, visualization, chart, c3",
+	"license": "",
+	"repository": "https://github.com/Rodionov-Sergey/C3QlikSense",
+	"dependencies": {
+		"qlik-sense": ">=3.0.x"
+	}
+}
