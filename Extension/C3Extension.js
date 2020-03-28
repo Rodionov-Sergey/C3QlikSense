@@ -32,6 +32,9 @@ define(
 
 		// HACK: Так C3.js найдёт свою зависимость D3.js по имени d3
 		window.d3 = d3;
+
+		// DEBUG: Отладка настроек свойств расширения
+		console.log('Свойства расширения', properties);
 		
 		// Добавление стилей расширения
 		$('<style>')
@@ -159,7 +162,7 @@ define(
 			};
 
 			// DEBUG: Отладка данных графика
-			// console.log('chartData', c3Settings);
+			// console.log('Данные графика C3', c3Settings);
 
 			// Отрисовка графика
 			c3.generate(c3Settings);
@@ -173,6 +176,10 @@ define(
 		 * @returns {Chart} Данные диаграммы
 		 */
 		function getQlikChartData(qlikHyperCube) {
+			
+			// DEBUG: Отладка настроек свойств расширения
+			console.log('Данные расширения', qlikHyperCube);
+			
 			/** @type {Chart} */
 			var chart = {
 				argumentSeries: getQlikArgumentSeriesData(qlikHyperCube),
@@ -180,7 +187,7 @@ define(
 			};
 
 			// DEBUG: Отладка промежуточных данных графика
-			// console.log('chart', chart);
+			// console.log('Данные графика', chart);
 
 			return chart;
 		}
@@ -195,6 +202,7 @@ define(
 				qlikHyperCube.qDimensionInfo[0],
 				qlikHyperCube.qDataPages[0].qMatrix,
 				0,
+				true,
 				false);
 		}
 
@@ -210,6 +218,7 @@ define(
 						qlikHyperCube.qMeasureInfo[measureIndex],
 						qlikHyperCube.qDataPages[0].qMatrix,
 						qlikHyperCube.qDimensionInfo.length + measureIndex,
+						false,
 						true);
 				});
 		}
@@ -219,18 +228,40 @@ define(
 		 * @param {NxDimension|NxMeasure} qlikColumn Столбец данных
 		 * @param {NxCell[][]} qlikCells Ячейки данных
 		 * @param {number} columnIndex Индекс столбца
+		 * @param {boolean} isArgument Признак серии аргумента
 		 * @param {boolean} isNumeric Признак числовой серии
 		 * @returns {Series[]} Серии данных диаграммы
 		 */
-		function getQlikSeriesData(qlikColumn, qlikCells, columnIndex, isNumeric) {
+		function getQlikSeriesData(qlikColumn, qlikCells, columnIndex, isArgument, isNumeric) {
 			/** @type {Series} */
 			var series = {
 				id: qlikColumn.qFallbackTitle,
 				title: qlikColumn.qFallbackTitle,
-				type: 'line',
+				type: !isArgument ? getQlikColumnChartType(qlikColumn) : null,
 				values: getQlikColumnValuesData(qlikColumn, qlikCells, columnIndex, isNumeric)
 			};
 			return series;
+		}
+
+		/**
+		 * Возвращает тип графика для столбца данных
+		 * @param {*} qlikColumn Столбец данных
+		 * @returns {C3ChartType} Тип графика
+		 */
+		function getQlikColumnChartType(qlikColumn) {
+			var customProperties = qlikColumn.customProperties || { };
+			var propertiesChartType = customProperties.chartType;
+			switch (propertiesChartType) {
+				case properties.chartTypes.LineChart: {
+					return 'line';
+				}
+				case properties.chartTypes.BarChart: {
+					return 'bar';
+				}
+				default: {
+					throw Error('Неизвестный тип графика: ' + propertiesChartType);
+				}
+			}
 		}
 
 		/**
