@@ -15,7 +15,21 @@
  * @typedef {object} C3Data
  * @property {string} x Название столбца данных для оси X
  * @property {C3Value[][]} columns Массив столбцов; Столбец - массив, где первое знаение - название столбца, далее значения
- * @property {C3Value[][]} rows Масси строк; Строка - массив значений
+ * @property {C3Value[][]} rows Массив строк; Строка - массив значений
+ * @property {C3Types} types Настройки типов столбцов
+ */
+
+/**
+ * Настройки типов столбцов. 
+ * Объект состоит из полей, где название - идентификатор столбца, значение - тип графика
+ * @typedef {object} C3Types
+ */
+
+/**
+ * Тип графика
+ * @typedef {string} C3ChartType
+ * - 'line' - Линейный график
+ * - 'bar' - Столбчатая диаграмма
  */
 
 /**
@@ -30,10 +44,15 @@
  * Настройки оси
  * @typedef {object} C3Axis
  * @property {boolean} show true для отображения оси, иначе false
- * @property {string} type Тип:
- * - 'category' - Категориальная ось - фиксированный список значений, не сравнимых по значению
+ * @property {C3AxisType} type Тип
  * @property {string[]} categories Список заголовков категорий
  * @property {C3AxisLabel} label Настройки подписи оси
+ */
+
+/**
+ * Тип оси
+ * @typedef {string} C3AxisType
+ * - 'category' - Категориальная ось - фиксированный список значений, не сравнимых по значению
  */
 
 /**

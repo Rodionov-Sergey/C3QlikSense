@@ -96,56 +96,14 @@ define(
 			paint: function ($element, qlikExtension) {
 
 				try {
+					// Подготовка контенера для графика
+					var containerElement = prepareContainer($element);
 
-					// Удаление старого содержимого
-					$element
-						.empty();
+					// Получение данных из Qlik
+					var chartData = getQlikChartData(qlikExtension.qHyperCube);
 
-					// Создание контейнера
-					$element
-						.append($('<div>')
-							.attr('id', 'chart'));
-					
-					// Подготовка данных
-
-					var xColumn = getQlikColumnDataWithTitle(qlikExtension.qHyperCube, 0, false);
-					var xTitle = xColumn[0];
-					var yColumns = qlikExtension.qHyperCube.qMeasureInfo.map(
-						function (qlikMeasure, measureIndex) {
-							return getQlikColumnDataWithTitle(
-								qlikExtension.qHyperCube,
-								qlikExtension.qHyperCube.qDimensionInfo.length + measureIndex,
-								true);
-						});
-					var columns = [xColumn].concat(yColumns);
-
-					// Формирование настроек графика C3
-
-					/** @type {C3Settings} */
-					var chartData = {
-						bindto: '#chart',
-						data: {
-							// Название стоолбцы, определяющего значения X
-							x: xTitle,
-							// Значения X и значения Y кривых
-							columns: columns
-						},
-						axis: {
-							// Ось X
-							x: {
-								// Категориальная ось
-								type: 'category',
-								// Подпись оси
-								label: {
-									text: xTitle,
-									position: 'outer-center'
-								}
-							}
-						}
-					};
-
-					// Отрисовка графика
-					c3.generate(chartData);
+					// Отрисовка данных на диаграмме
+					drawChart(containerElement.get(0), chartData);
                 }
                 catch (error) {
                     console.log(error);
@@ -160,54 +118,200 @@ define(
 		return extensionModule;
 
 		/**
-		 * Возвращает данные столбца Qlik
-		 * @param {NxHyperCube} qlikHyperCube Данные гиперкуба
-		 * @param {number} columnIndex Индекс столбца
-		 * @param {boolean} isNumeric true, если необходимо взять числовое значение; иначе false
-		 * @returns {C3Value[]} Значения столбца
+		 * Подготавливает контейнер
+		 * @param {*} $parentElement Родительский jQuery-элемент
 		 */
-		function getQlikColumnDataWithTitle(qlikHyperCube, columnIndex, isNumeric) {
-			// Значения
-			var values = getQlikColumnData(qlikHyperCube, columnIndex, isNumeric);
-			// Заголовок
-			var columnTitle = getQlikColumnTitle(qlikHyperCube, columnIndex);
-			// Массив из заголовка и значений
-			values.unshift(columnTitle);
-			return values;
+		function prepareContainer($parentElement) {
+			var containerClass = 'chart-container';
+
+			var $existingElement = $parentElement.find('div.' + containerClass);
+			if ($existingElement.length > 0) {
+				return $existingElement;
+			}
+
+			// Создание контейнера
+			var $newElement = $('<div>')
+				.addClass(containerClass)
+				.appendTo($parentElement);
+			return $newElement;
+		}
+		
+		/* Отрисовка графика */
+
+		/**
+		 * Отрисовывает график
+		 * @param {*} parentElement Родительский DOM-элемент для встраивания графика
+		 * @param {Chart} chartData Данные графика
+		 */
+		function drawChart(parentElement, chartData) {
+			
+			// Подготовка данных для настроек
+
+			var series = [chartData.argumentSeries].concat(chartData.valueSeries);
+			var getValue = function(value) { return value.value; };
+			var getColumn = function (series) { return [series.id].concat(series.values.map(getValue)); };
+			var columns = series.map(getColumn);
+			var columnTypes = chartData.valueSeries.reduce(
+				function (types, series) { types[series.id] = series.type; return types; },
+				{});
+
+			// Формирование настроек графика C3
+
+			/** @type {C3Settings} */
+			var c3Settings = {
+				bindto: parentElement,
+				data: {
+					// Название столбца, определяющего значения X
+					x: chartData.argumentSeries.id,
+					// Значения X и значения Y кривых
+					columns: columns,
+					// Типы графиков для линий
+					types: columnTypes
+				},
+				axis: {
+					// Ось X
+					x: {
+						// Категориальная ось
+						type: 'category',
+						// Подпись оси
+						label: {
+							text: chartData.argumentSeries.title,
+							position: 'outer-center'
+						}
+					}
+				}
+			};
+
+			console.log('chartData', c3Settings);
+
+			// Отрисовка графика
+			c3.generate(c3Settings);
+		}
+
+		/* Преобразование данных из Qlik в промежуточное представление */
+
+		/**
+		 * Возвращает данные диаграммы
+		 * @param {NxHyperCube} qlikHyperCube Данные гиперкуба
+		 * @returns {Chart} Данные диаграммы
+		 */
+		function getQlikChartData(qlikHyperCube) {
+			/** @type {Chart} */
+			var chart = {
+				argumentSeries: getQlikArgumentSeriesData(qlikHyperCube),
+				valueSeries: getQlikValuesSeriesData(qlikHyperCube)
+			};
+
+			console.log('chart', chart);
+
+			return chart;
 		}
 
 		/**
-		 * Возвращает данные столбца Qlik
+		 * Возвращает серии диаграммы
 		 * @param {NxHyperCube} qlikHyperCube Данные гиперкуба
-		 * @param {number} columnIndex Индекс столбца
-		 * @param {boolean} isNumeric true, если необходимо взять числовое значение; иначе false
-		 * @param {withHeader} withHeader true, если необходимо добавить название заголовка; иначе false
-		 * @returns {C3Value[]} Значения столбца
+		 * @returns {Chart} Данные диаграммы
 		 */
-		function getQlikColumnData(qlikHyperCube, columnIndex, isNumeric) {
-			return qlikHyperCube.qDataPages[0].qMatrix.map(
-				function (qlikRow) {
-					return isNumeric ? qlikRow[columnIndex].qNum : qlikRow[columnIndex].qText;
+		function getQlikArgumentSeriesData(qlikHyperCube) {
+			return getQlikSeriesData(
+				qlikHyperCube.qDimensionInfo[0],
+				qlikHyperCube.qDataPages[0].qMatrix,
+				0,
+				false);
+		}
+
+		/**
+		 * Возвращает серии диаграммы
+		 * @param {NxHyperCube} qlikHyperCube Данные гиперкуба
+		 * @returns {Chart} Данные диаграммы
+		 */
+		function getQlikValuesSeriesData(qlikHyperCube) {
+			return qlikHyperCube.qMeasureInfo.map(
+				function (qlikMeasure, measureIndex) {
+					return getQlikSeriesData(
+						qlikHyperCube.qMeasureInfo[measureIndex],
+						qlikHyperCube.qDataPages[0].qMatrix,
+						qlikHyperCube.qDimensionInfo.length + measureIndex,
+						true);
 				});
 		}
-		
+
 		/**
-		 * Возвращает заголовок столбца Qlik
-		 * @param {NxHyperCube} qlikHyperCube Данные гиперкуба
+		 * Возвращает серию данных для столбца
+		 * @param {NxDimension|NxMeasure} qlikColumn Столбец данных
+		 * @param {NxCell[][]} qlikCells Ячейки данных
 		 * @param {number} columnIndex Индекс столбца
-		 * @param {boolean} isNumeric true, если необходимо взять числовое значение; иначе false
-		 * @param {withHeader} withHeader true, если необходимо добавить название заголовка; иначе false
-		 * @returns {C3Value[]} Значения столбца
+		 * @param {boolean} isNumeric Признак числовой серии
+		 * @returns {Series[]} Серии данных диаграммы
 		 */
-		function getQlikColumnTitle(qlikHyperCube, columnIndex) {
-			var qlikColumn = columnIndex < qlikHyperCube.qDimensionInfo.length ?
-				qlikHyperCube.qDimensionInfo[columnIndex] :
-				qlikHyperCube.qMeasureInfo[columnIndex - qlikHyperCube.qDimensionInfo.length];
-			var columnTitle = qlikColumn.qFallbackTitle;
-			return columnTitle;
+		function getQlikSeriesData(qlikColumn, qlikCells, columnIndex, isNumeric) {
+			/** @type {Series} */
+			var series = {
+				id: qlikColumn.qFallbackTitle,
+				title: qlikColumn.qFallbackTitle,
+				type: 'line',
+				values: getQlikColumnValuesData(qlikColumn, qlikCells, columnIndex, isNumeric)
+			};
+			return series;
+		}
+
+		/**
+		 * Возвращает значения для столбца данных
+		 * @param {NxDimension|NxMeasure} qlikColumn Столбец данных
+		 * @param {NxCell[][]} qlikCells Ячейки данных
+		 * @param {number} columnIndex Индекс столбца
+		 * @param {boolean} isNumeric Признак числовой серии
+		 * @returns {Value[]} Значения столбца
+		 */
+		function getQlikColumnValuesData(qlikColumn, qlikCells, columnIndex, isNumeric) {
+			return qlikCells.map(
+				function (qlikRow) {
+					return getQlikCellValueData(qlikColumn, qlikRow[columnIndex], isNumeric);
+				});
+		}
+
+		/**
+		 * Возвращает значение для ячкейки данных
+		 * @param {NxDimension|NxMeasure} qlikCell Столбец данных
+		 * @param {NxCell} qlikCells Ячейка данных
+		 * @param {number} columnIndex Индекс столбца
+		 * @param {boolean} isNumeric Признак числовой серии
+		 * @returns {Value} Значение
+		 */
+		function getQlikCellValueData(qlikColumn, qlikCell, isNumeric) {
+			/** @type {Value} */
+			var value = {
+				value: isNumeric ? qlikCell.qNum : qlikCell.qText,
+				title: qlikCell.qText
+			};
+			return value;
 		}
 	}
 );
+
+/**
+ * JSDoc-определения для промежуточной модели данных
+ */
+
+/**
+ * @typedef {object} Chart
+ * @property {Series} argumentSeries Последовательность аргументов
+ * @property {Series[]} valueSeries Последовательность точек данных
+ */
+
+/**
+ * @typedef {object} Series
+ * @property {string} id Идентификатор серии
+ * @property {string} title Заголовок серии
+ * @property {C3ChartType} type Тип графика
+ * @property {Value[]} values Последовательность значений серии
+ */
+
+/**
+ * @typedef {object} Value
+ * @property {number|string} value Значение в точке
+ * @property {string} title Отображаемое значение в точке
+ */
 
 /**
  * JSDoc-определения для кастомных свойств расширения
