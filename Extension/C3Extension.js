@@ -49,7 +49,7 @@ define(
 				measures: {
 					uses: 'measures',
 					min: 1,
-					max: 1
+					max: 10
 				},
 				// Блок свойств Сортировка
 				sorting: {
@@ -74,8 +74,8 @@ define(
 					qDimensions: [],
 					qMeasures: [],
 					qInitialDataFetch: [{
-						qWidth: 10,
-						qHeight: 1000
+						qWidth: 11,
+						qHeight: 900
 					}]
 				}
 			},
@@ -97,45 +97,55 @@ define(
 
 				try {
 
+					// Удаление старого содержимого
 					$element
 						.empty();
 
+					// Создание контейнера
 					$element
 						.append($('<div>')
 							.attr('id', 'chart'));
 					
-					var xColumn = getQlikColumnData(qlikExtension.qHyperCube, 0, false);
-					var xTitle = getQlikColumnTitle(qlikExtension.qHyperCube, 0);
-					var yColumn = getQlikColumnDataWithTitle(qlikExtension.qHyperCube, 1, true);
-					var yTitle = getQlikColumnTitle(qlikExtension.qHyperCube, 1);
+					// Подготовка данных
+
+					var xColumn = getQlikColumnDataWithTitle(qlikExtension.qHyperCube, 0, false);
+					var xTitle = xColumn[0];
+					var yColumns = qlikExtension.qHyperCube.qMeasureInfo.map(
+						function (qlikMeasure, measureIndex) {
+							return getQlikColumnDataWithTitle(
+								qlikExtension.qHyperCube,
+								qlikExtension.qHyperCube.qDimensionInfo.length + measureIndex,
+								true);
+						});
+					var columns = [xColumn].concat(yColumns);
+
+					// Формирование настроек графика C3
 
 					/** @type {C3Settings} */
 					var chartData = {
 						bindto: '#chart',
 						data: {
-							columns: [
-								yColumn
-							],
+							// Название стоолбцы, определяющего значения X
+							x: xTitle,
+							// Значения X и значения Y кривых
+							columns: columns
 						},
 						axis: {
+							// Ось X
 							x: {
+								// Категориальная ось
 								type: 'category',
-								categories: xColumn,
+								// Подпись оси
 								label: {
 									text: xTitle,
 									position: 'outer-center'
-								}
-							},
-							y: {
-								label: {
-									text: yTitle,
-									position: 'outer-middle'
 								}
 							}
 						}
 					};
 
-					var chart = c3.generate(chartData);
+					// Отрисовка графика
+					c3.generate(chartData);
                 }
                 catch (error) {
                     console.log(error);
