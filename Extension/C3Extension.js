@@ -18,8 +18,9 @@ define(
 
 	/**
 	 * Создаёт модуль расширения
-	 * @param {*} qlik API Qlik Sense
+	 * @param {QlikApi} qlik API Qlik Sense
 	 * @param {*} $ jQuery - библиотека для работы с HTML
+	 * @param {*} d3 D3.js - библиотека для манипулирования документами на основе данных
 	 * @param {*} c3 C3.js - библиотека для построения графиков
 	 * @param {*} c3Css Содержимое стилей C3.js
 	 */
@@ -89,10 +90,10 @@ define(
 			/**
 			 * Создаёт и обновляет интерфейс расширения
 			 * @param {*} $element Родительский jQuery-элемент
-			 * @param {QlikLayout} qlikLayout Данные расширения
+			 * @param {NxExtension} qlikExtension Данные расширения
 			 * @returns {Promise} Promise завершения отрисовки
 			 */
-			paint: function ($element) {
+			paint: function ($element, qlikExtension) {
 
 				try {
 

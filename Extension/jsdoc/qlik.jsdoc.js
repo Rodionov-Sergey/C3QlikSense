@@ -21,7 +21,7 @@
 /**
  * Данные расширения Qlik
  * @see https://help.qlik.com/en-US/sense-developer/February2020/Subsystems/APIs/Content/Sense_ClientAPIs/ExtensionAPI/paint-method.htm
- * @typedef {Object} QlikLayout
+ * @typedef {Object} NxExtension
  * @property {String} title - Заголовок расширения
  * @property {NxHyperCube} qHyperCube - Гиперкуб данных
  * @property {ExtensionCustomProperties} customProperties - Кастомные свойства расширения (определяются расширением)
@@ -58,13 +58,19 @@
   * Страница данных гиперкуба 
   * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxDataPage.html
   * @typedef {Object} NxDataPage
-  * @property {NxCell[][]} qMatrix - Матрица ячеек страницы гиперкуба
+  * @property {NxRow[]} qMatrix - Массив строк данных гиперкуба
+  */
+
+  /**
+  * Страница данных гиперкуба 
+  * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxCellRows.html
+  * @typedef {NxCell[]} NxRow
   */
 
  /**
   * Ячейка данных гиперкуба
-  * @typedef {Object} NxCell
   * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxCell.html
+  * @typedef {Object} NxCell
   * @property {Boolean} qIsEmpty - Признак пустоты ячейки
   * @property {Boolean} qIsNull - Признак null-значения в ячейке
   * @property {String} qText - Текстовые данные ячейки
