@@ -8,6 +8,8 @@ define(
 		"qlik",
 		// jQuery - библиотека для работы с HTML
 		'jquery',
+		// Свойства расширения
+		'./C3ExtensionProperties',
 		// D3.js - библиотека для манипулирования документами на основе данных
 		'./packages/d3.v5.min',
 		// С3.js - библиотека для построения графиков
@@ -20,11 +22,13 @@ define(
 	 * Создаёт модуль расширения
 	 * @param {QlikApi} qlik API Qlik Sense
 	 * @param {*} $ jQuery - библиотека для работы с HTML
+	 * @param {*} properties - Настройки расширения
 	 * @param {*} d3 D3.js - библиотека для манипулирования документами на основе данных
 	 * @param {*} c3 C3.js - библиотека для построения графиков
 	 * @param {*} c3Css Содержимое стилей C3.js
 	 */
-	function (qlik, $, d3, c3, c3Css) {
+	function (qlik, $, properties, d3, c3, c3Css) {
+        'use strict';
 
 		// HACK: Так C3.js найдёт свою зависимость D3.js по имени d3
 		window.d3 = d3;
@@ -34,39 +38,11 @@ define(
 			.html(c3Css)
 			.appendTo($('head'));
 
-		// Определения свойств
-		var propertyDefinitions = {
-			type: 'items',
-			component: 'accordion',
-			items: {
-				// Блок свойств Измерения
-				dimensions: {
-					uses: 'dimensions',
-					min: 1,
-					max: 1
-				},
-				// Блок свойств Меры
-				measures: {
-					uses: 'measures',
-					min: 1,
-					max: 10
-				},
-				// Блок свойств Сортировка
-				sorting: {
-					uses: 'sorting'
-				},
-				// Блок свойств Вид
-				settings: {
-					uses: 'settings'
-				}
-			}
-		};
-
 		// Модуль расширения Qlik Sense
 		var extensionModule = {
 
 			// Определения свойств
-			definition: propertyDefinitions,
+			definition: properties.definitions,
 
 			// Настройки первичной загрузки данных
 			initialProperties: {
@@ -182,7 +158,8 @@ define(
 				}
 			};
 
-			console.log('chartData', c3Settings);
+			// DEBUG: Отладка данных графика
+			// console.log('chartData', c3Settings);
 
 			// Отрисовка графика
 			c3.generate(c3Settings);
@@ -202,7 +179,8 @@ define(
 				valueSeries: getQlikValuesSeriesData(qlikHyperCube)
 			};
 
-			console.log('chart', chart);
+			// DEBUG: Отладка промежуточных данных графика
+			// console.log('chart', chart);
 
 			return chart;
 		}

@@ -1,2 +1,6 @@
 C3Extension.qext;
 C3Extension.js
+C3ExtensionProperties.js
+packages/c3.min.js
+packages/c3.min.css
+packages/d3.v5.min.js
