@@ -104,16 +104,38 @@ define(
 						.append($('<div>')
 							.attr('id', 'chart'));
 					
-					var chart = c3.generate({
+					var xColumn = getQlikColumnData(qlikExtension.qHyperCube, 0, false);
+					var xTitle = getQlikColumnTitle(qlikExtension.qHyperCube, 0);
+					var yColumn = getQlikColumnDataWithTitle(qlikExtension.qHyperCube, 1, true);
+					var yTitle = getQlikColumnTitle(qlikExtension.qHyperCube, 1);
+
+					/** @type {C3Settings} */
+					var chartData = {
 						bindto: '#chart',
 						data: {
-						columns: [
-							['data1', 30, 200, 100, 400, 150, 250],
-							['data2', 50, 20, 10, 40, 15, 25]
-						]
+							columns: [
+								yColumn
+							],
+						},
+						axis: {
+							x: {
+								type: 'category',
+								categories: xColumn,
+								label: {
+									text: xTitle,
+									position: 'outer-center'
+								}
+							},
+							y: {
+								label: {
+									text: yTitle,
+									position: 'outer-middle'
+								}
+							}
 						}
-					});
+					};
 
+					var chart = c3.generate(chartData);
                 }
                 catch (error) {
                     console.log(error);
@@ -126,6 +148,54 @@ define(
 		};
 
 		return extensionModule;
+
+		/**
+		 * Возвращает данные столбца Qlik
+		 * @param {NxHyperCube} qlikHyperCube Данные гиперкуба
+		 * @param {number} columnIndex Индекс столбца
+		 * @param {boolean} isNumeric true, если необходимо взять числовое значение; иначе false
+		 * @returns {C3Value[]} Значения столбца
+		 */
+		function getQlikColumnDataWithTitle(qlikHyperCube, columnIndex, isNumeric) {
+			// Значения
+			var values = getQlikColumnData(qlikHyperCube, columnIndex, isNumeric);
+			// Заголовок
+			var columnTitle = getQlikColumnTitle(qlikHyperCube, columnIndex);
+			// Массив из заголовка и значений
+			values.unshift(columnTitle);
+			return values;
+		}
+
+		/**
+		 * Возвращает данные столбца Qlik
+		 * @param {NxHyperCube} qlikHyperCube Данные гиперкуба
+		 * @param {number} columnIndex Индекс столбца
+		 * @param {boolean} isNumeric true, если необходимо взять числовое значение; иначе false
+		 * @param {withHeader} withHeader true, если необходимо добавить название заголовка; иначе false
+		 * @returns {C3Value[]} Значения столбца
+		 */
+		function getQlikColumnData(qlikHyperCube, columnIndex, isNumeric) {
+			return qlikHyperCube.qDataPages[0].qMatrix.map(
+				function (qlikRow) {
+					return isNumeric ? qlikRow[columnIndex].qNum : qlikRow[columnIndex].qText;
+				});
+		}
+		
+		/**
+		 * Возвращает заголовок столбца Qlik
+		 * @param {NxHyperCube} qlikHyperCube Данные гиперкуба
+		 * @param {number} columnIndex Индекс столбца
+		 * @param {boolean} isNumeric true, если необходимо взять числовое значение; иначе false
+		 * @param {withHeader} withHeader true, если необходимо добавить название заголовка; иначе false
+		 * @returns {C3Value[]} Значения столбца
+		 */
+		function getQlikColumnTitle(qlikHyperCube, columnIndex) {
+			var qlikColumn = columnIndex < qlikHyperCube.qDimensionInfo.length ?
+				qlikHyperCube.qDimensionInfo[columnIndex] :
+				qlikHyperCube.qMeasureInfo[columnIndex - qlikHyperCube.qDimensionInfo.length];
+			var columnTitle = qlikColumn.qFallbackTitle;
+			return columnTitle;
+		}
 	}
 );
 
