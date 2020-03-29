@@ -37,46 +37,60 @@
  */
 
 /**
- * Измерение гиперкуба
- * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxDimensionInfo.html
- * @typedef {Object} NxDimension
- * @property {String} qFallbackTitle - Заголовок измерения
+ * Столбец гиперкуба
+ * @typedef {Object} NxColumn
+ * @property {String} qFallbackTitle - Заголовок меры
  * @property {String} othersLabel - Текст специального значения Прочее
  * @property {ColumnCustomProperties} customProperties - Кастомные свойства столбца (определяются расширением)
  */
 
 /**
- * Мера гиперкуба
- * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxMeasureInfo.html
- * @typedef {Object} NxMeasure
- * @property {String} qFallbackTitle - Заголовок меры
- * @property {String} othersLabel - Текст специального значения Прочее
- * @property {ColumnCustomProperties} customProperties - Кастомные свойства столбца (определяются расширением)
+ * Измерение гиперкуба (добавочные поля к столбцу гиперкуба)
+ * @typedef {Object} _NxDimension
+ * @property {DimensionCustomProperties} customProperties - Кастомные свойства измерения (определяются расширением)
+ */
+
+/**
+ * Измерение гиперкуба
+ * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxDimensionInfo.html
+ * @typedef {NxColumn & _NxDimension} NxDimension
+ */
+
+/**
+ * Мера гиперкуба (добавочные поля к столбцу гиперкуба)
+ * @typedef {Object} _NxMeasure
+ * @property {MeasureCustomProperties} customProperties - Кастомные свойства меры (определяются расширением)
 */
 
- /**
-  * Страница данных гиперкуба 
-  * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxDataPage.html
-  * @typedef {Object} NxDataPage
-  * @property {NxRow[]} qMatrix - Массив строк данных гиперкуба
-  */
+/**
+ * Мера гиперкуба
+ * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxMeasureInfo.html
+ * @typedef {NxColumn & _NxMeasure} NxMeasure
+*/
 
-  /**
-  * Страница данных гиперкуба 
-  * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxCellRows.html
-  * @typedef {NxCell[]} NxRow
-  */
+/**
+ * Страница данных гиперкуба 
+ * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxDataPage.html
+ * @typedef {Object} NxDataPage
+ * @property {NxRow[]} qMatrix - Массив строк данных гиперкуба
+ */
 
- /**
-  * Ячейка данных гиперкуба
-  * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxCell.html
-  * @typedef {Object} NxCell
-  * @property {Boolean} qIsEmpty - Признак пустоты ячейки
-  * @property {Boolean} qIsNull - Признак null-значения в ячейке
-  * @property {String} qText - Текстовые данные ячейки
-  * @property {Number} qNum - Числовые данные ячейки; NaN, если нет числового значения
-  * @property {NxAttributes} qAttrExps - Значения атрибутов ячейки
-  */
+/**
+ * Страница данных гиперкуба 
+ * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxCellRows.html
+ * @typedef {NxCell[]} NxRow
+ */
+
+/**
+ * Ячейка данных гиперкуба
+ * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxCell.html
+ * @typedef {Object} NxCell
+ * @property {Boolean} qIsEmpty - Признак пустоты ячейки
+ * @property {Boolean} qIsNull - Признак null-значения в ячейке
+ * @property {String} qText - Текстовые данные ячейки
+ * @property {Number} qNum - Числовые данные ячейки; NaN, если нет числового значения
+ * @property {NxAttributes} qAttrExps - Значения атрибутов ячейки
+ */
 
 /**
  * Значения атрибутов ячейки
@@ -85,10 +99,10 @@
  * @property {NxValue} qValues Массив значений атрибутов
  */
 
- /**
-  * Значение
-  * @typedef {Object} NxValue
-  * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxSimpleValue.html
-  * @property {String} qText - Текстовые данные ячейки
-  * @property {Number} qNum - Числовые данные ячейки; NaN, если нет числового значения
-  */
+/**
+ * Значение
+ * @typedef {Object} NxValue
+ * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxSimpleValue.html
+ * @property {String} qText - Текстовые данные ячейки
+ * @property {Number} qNum - Числовые данные ячейки; NaN, если нет числового значения
+ */

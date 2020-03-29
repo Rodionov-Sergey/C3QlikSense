@@ -9,36 +9,43 @@
 >    * Для работы в Visual Studio Code можно использовать плагины, например Markdown Preview Mermaid Support (bierner.markdown-mermaid).
 >    * Можно также использовать онлайн-редактор.
 > 1. Разметка вставляется в [онлайн-редактор](https://mermaid-js.github.io/mermaid-live-editor/), который генерирует ссылку для вставки.
-> 1. Сгенерированная сылка вставляется в целевое место md-файла.
+> 1. Сгенерированная ссылка вставляется в целевое место md-файла.
 
 ## Диаграмма классов Qlik API
 ```mermaid
 classDiagram
-    class QlikLayout {
+    class NxExtension {
         string title
     }
-    QlikLayout *-- NxHyperCube: qHyperCube
-    QlikLayout *-- "0..1" ExtensionCustomProperties: customProperties
+    NxExtension *-- NxHyperCube: qHyperCube
+    NxExtension *-- "0..1" ExtensionCustomProperties: customProperties
 
     NxHyperCube *-- "*" NxDimension: qDimensionInfo
     NxHyperCube *-- "*" NxMeasure: qMeasureInfo
     NxHyperCube *-- "*" NxDataPage: qDataPages
 
+    class NxColumn {
+         string qFallbackTitle 
+         string othersLabel
+    }
+
     class NxDimension {
          string qFallbackTitle 
          string othersLabel
     }
-    NxDimension o-- "0..1" ColumnCustomProperties: customProperties
-    
+    NxDimension --|> NxColumn
+    NxDimension o-- "0..1" DimensionCustomProperties: customProperties
+
     class NxMeasure {
          string qFallbackTitle 
          string othersLabel
     }
-    NxMeasure o-- "0..1" ColumnCustomProperties: customProperties
+    NxMeasure --|> NxColumn
+    NxMeasure o-- "0..1" MeasureCustomProperties: customProperties
 
-    NxDataPage *-- "*" NxCellRows
+    NxDataPage *-- "*" NxRow
 
-    NxCellRows *-- "*" NxCell
+    NxRow *-- "*" NxCell
 
     class NxCell {
         boolean qIsEmpty
@@ -59,7 +66,18 @@ classDiagram
         <<abstract>>
     }
 
-    class ColumnCustomProperties{
+    class ColumnCustomProperties {
         <<abstract>>
     }
+
+    class DimensionCustomProperties {
+        <<abstract>>
+    }
+    DimensionCustomProperties --|> ColumnCustomProperties
+
+    class MeasureCustomProperties {
+        <<abstract>>
+    }
+    MeasureCustomProperties --|> ColumnCustomProperties
+
 ```

@@ -26,15 +26,16 @@ define(
 	 * @param {*} d3 D3.js - библиотека для манипулирования документами на основе данных
 	 * @param {*} c3 C3.js - библиотека для построения графиков
 	 * @param {*} c3Css Содержимое стилей C3.js
+	 * @param {*} Модуль
 	 */
 	function (qlik, $, properties, d3, c3, c3Css) {
-        'use strict';
+		'use strict';
 
 		// HACK: Так C3.js найдёт свою зависимость D3.js по имени d3
 		window.d3 = d3;
 
 		// DEBUG: Отладка настроек свойств расширения
-		console.log('Свойства расширения', properties);
+		// console.log('Свойства расширения', properties);
 		
 		// Добавление стилей расширения
 		$('<style>')
@@ -76,18 +77,19 @@ define(
 
 				try {
 					// Подготовка контенера для графика
-					var containerElement = prepareContainer($element);
+					var $containerElement = prepareContainer($element);
+					var containerNode = $containerElement.get(0);
 
 					// Получение данных из Qlik
 					var chartData = getQlikChartData(qlikExtension.qHyperCube);
 
 					// Отрисовка данных на диаграмме
-					drawChart(containerElement.get(0), chartData);
-                }
-                catch (error) {
-                    console.log(error);
+					drawChart(containerNode, chartData);
+				}
+				catch (error) {
+					console.log(error);
 					throw error;
-                }
+				}
 
 				return qlik.Promise.resolve();
 			}
@@ -97,12 +99,14 @@ define(
 		return extensionModule;
 
 		/**
-		 * Подготавливает контейнер
-		 * @param {*} $parentElement Родительский jQuery-элемент
+		 * Подготавливает контейнер для графика
+		 * @param {*} $parentElement Родительский jQuery-объект
+		 * @returns {*} jQuery-объект контейнера
 		 */
 		function prepareContainer($parentElement) {
 			var containerClass = 'chart-container';
 
+			// Поиск существующего контейнера
 			var $existingElement = $parentElement.find('div.' + containerClass);
 			if ($existingElement.length > 0) {
 				return $existingElement;
@@ -138,6 +142,7 @@ define(
 
 			/** @type {C3Settings} */
 			var c3Settings = {
+				// Родительский элемент для встраивания
 				bindto: parentElement,
 				data: {
 					// Название столбца, определяющего значения X
@@ -178,7 +183,7 @@ define(
 		function getQlikChartData(qlikHyperCube) {
 			
 			// DEBUG: Отладка настроек свойств расширения
-			console.log('Данные расширения', qlikHyperCube);
+			// console.log('Данные расширения', qlikHyperCube);
 			
 			/** @type {Chart} */
 			var chart = {
@@ -195,7 +200,7 @@ define(
 		/**
 		 * Возвращает серии диаграммы
 		 * @param {NxHyperCube} qlikHyperCube Данные гиперкуба
-		 * @returns {Chart} Данные диаграммы
+		 * @returns {Series} Серия для столбца аргументов данных
 		 */
 		function getQlikArgumentSeriesData(qlikHyperCube) {
 			return getQlikSeriesData(
@@ -209,7 +214,7 @@ define(
 		/**
 		 * Возвращает серии диаграммы
 		 * @param {NxHyperCube} qlikHyperCube Данные гиперкуба
-		 * @returns {Chart} Данные диаграммы
+		 * @returns {Series[]} Серии для столбцов значений данных
 		 */
 		function getQlikValuesSeriesData(qlikHyperCube) {
 			return qlikHyperCube.qMeasureInfo.map(
@@ -227,17 +232,17 @@ define(
 		 * Возвращает серию данных для столбца
 		 * @param {NxDimension|NxMeasure} qlikColumn Столбец данных
 		 * @param {NxCell[][]} qlikCells Ячейки данных
-		 * @param {number} columnIndex Индекс столбца
-		 * @param {boolean} isArgument Признак серии аргумента
-		 * @param {boolean} isNumeric Признак числовой серии
-		 * @returns {Series[]} Серии данных диаграммы
+		 * @param {Number} columnIndex Индекс столбца
+		 * @param {Boolean} isArgument Признак серии аргумента
+		 * @param {Boolean} isNumeric Признак числовой серии
+		 * @returns {Series} Серия данных диаграммы
 		 */
 		function getQlikSeriesData(qlikColumn, qlikCells, columnIndex, isArgument, isNumeric) {
 			/** @type {Series} */
 			var series = {
 				id: qlikColumn.qFallbackTitle,
 				title: qlikColumn.qFallbackTitle,
-				type: !isArgument ? getQlikColumnChartType(qlikColumn) : null,
+				type: !isArgument ? getQlikMeasureChartType(qlikColumn) : null,
 				values: getQlikColumnValuesData(qlikColumn, qlikCells, columnIndex, isNumeric)
 			};
 			return series;
@@ -245,21 +250,32 @@ define(
 
 		/**
 		 * Возвращает тип графика для столбца данных
-		 * @param {*} qlikColumn Столбец данных
+		 * @param {NxMeasure} qlikMeasure Столбец данных
 		 * @returns {C3ChartType} Тип графика
 		 */
-		function getQlikColumnChartType(qlikColumn) {
-			var customProperties = qlikColumn.customProperties || { };
-			var propertiesChartType = customProperties.chartType;
-			switch (propertiesChartType) {
-				case properties.chartTypes.LineChart: {
+		function getQlikMeasureChartType(qlikMeasure) {
+			/** @type {MeasureCustomProperties} */
+			var customProperties = qlikMeasure.customProperties || { };
+
+			/** @type {ChartType} */
+			var chartType = customProperties.chartType;
+
+			/** @type {ChartTypes} */
+			var ChartTypes = properties.chartTypes;
+
+			switch (chartType) {
+				case ChartTypes.LineChart: {
 					return 'line';
 				}
-				case properties.chartTypes.BarChart: {
+				case ChartTypes.BarChart: {
 					return 'bar';
 				}
+				case null:
+				case undefined: {
+					throw new Error('Не указан тип графика');
+				}
 				default: {
-					throw Error('Неизвестный тип графика: ' + propertiesChartType);
+					throw new Error('Неизвестный тип графика: ' + chartType);
 				}
 			}
 		}
@@ -268,8 +284,8 @@ define(
 		 * Возвращает значения для столбца данных
 		 * @param {NxDimension|NxMeasure} qlikColumn Столбец данных
 		 * @param {NxCell[][]} qlikCells Ячейки данных
-		 * @param {number} columnIndex Индекс столбца
-		 * @param {boolean} isNumeric Признак числовой серии
+		 * @param {Number} columnIndex Индекс столбца
+		 * @param {Boolean} isNumeric Признак числовой серии
 		 * @returns {Value[]} Значения столбца
 		 */
 		function getQlikColumnValuesData(qlikColumn, qlikCells, columnIndex, isNumeric) {
@@ -281,10 +297,9 @@ define(
 
 		/**
 		 * Возвращает значение для ячкейки данных
-		 * @param {NxDimension|NxMeasure} qlikCell Столбец данных
-		 * @param {NxCell} qlikCells Ячейка данных
-		 * @param {number} columnIndex Индекс столбца
-		 * @param {boolean} isNumeric Признак числовой серии
+		 * @param {NxDimension|NxMeasure} qlikColumn Столбец данных
+		 * @param {NxCell} qlikCell Ячейка данных
+		 * @param {Boolean} isNumeric Признак числовой серии
 		 * @returns {Value} Значение
 		 */
 		function getQlikCellValueData(qlikColumn, qlikCell, isNumeric) {
@@ -303,35 +318,21 @@ define(
  */
 
 /**
- * @typedef {object} Chart
+ * @typedef {Object} Chart
  * @property {Series} argumentSeries Последовательность аргументов
  * @property {Series[]} valueSeries Последовательность точек данных
  */
 
 /**
- * @typedef {object} Series
- * @property {string} id Идентификатор серии
- * @property {string} title Заголовок серии
+ * @typedef {Object} Series
+ * @property {String} id Идентификатор серии
+ * @property {String} title Заголовок серии
  * @property {C3ChartType} type Тип графика
  * @property {Value[]} values Последовательность значений серии
  */
 
 /**
- * @typedef {object} Value
- * @property {number|string} value Значение в точке
- * @property {string} title Отображаемое значение в точке
+ * @typedef {Object} Value
+ * @property {Number|String} value Значение в точке
+ * @property {String} title Отображаемое значение в точке
  */
-
-/**
- * JSDoc-определения для кастомных свойств расширения
- */
-
- /**
- * Данные расширения Qlik
- * @typedef {Object} ExtensionCustomProperties
- */
-
-/**
- * Мера гиперкуба
- * @typedef {Object} ColumnCustomProperties
-*/
