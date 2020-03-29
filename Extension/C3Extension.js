@@ -22,20 +22,20 @@ define(
 	 * Создаёт модуль расширения
 	 * @param {QlikApi} qlik API Qlik Sense
 	 * @param {*} $ jQuery - библиотека для работы с HTML
-	 * @param {*} properties - Настройки расширения
+	 * @param {*} definitions - Определения настроек расширения
 	 * @param {*} d3 D3.js - библиотека для манипулирования документами на основе данных
 	 * @param {*} c3 C3.js - библиотека для построения графиков
 	 * @param {*} c3Css Содержимое стилей C3.js
 	 * @returns {*} Модуль
 	 */
-	function (qlik, $, properties, d3, c3, c3Css) {
+	function (qlik, $, definitions, d3, c3, c3Css) {
 		'use strict';
 
 		// HACK: Так C3.js найдёт свою зависимость D3.js по имени d3
 		window.d3 = d3;
 
 		// DEBUG: Отладка настроек свойств расширения
-		// console.log('Свойства расширения', properties);
+		// console.log('Определения настроек расширения', definitions);
 		
 		// Добавление стилей расширения
 		$('<style>')
@@ -46,7 +46,7 @@ define(
 		var extensionModule = {
 
 			// Определения свойств
-			definition: properties.definitions,
+			definition: definitions.properties,
 
 			// Настройки первичной загрузки данных
 			initialProperties: {
@@ -261,7 +261,7 @@ define(
 			var chartType = properties.chartType;
 
 			/** @type {ChartTypes} */
-			var ChartTypes = properties.chartTypes;
+			var ChartTypes = definitions.chartTypes;
 
 			switch (chartType) {
 				case ChartTypes.LineChart: {

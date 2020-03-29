@@ -44,7 +44,7 @@ define(
 		};
 
 		// Определения свойств
-		var propertyDefinitions = {
+		var properties = {
 			type: 'items',
 			component: 'accordion',
 			items: {
@@ -75,7 +75,7 @@ define(
 
 		return {
 			// Определения свойств, настраиваемых пользователем в боковой панели
-			definitions: propertyDefinitions,
+			properties: properties,
 
 			// Типы графиков
 			chartTypes: chartTypes
