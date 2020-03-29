@@ -82,25 +82,25 @@ define(
 		};
 
 		/**
-		 * Формирует ключ свойства для столбца (свойство измерения или меры)
-		 * @param {String} columnName Название свойства
+		 * Формирует ключ свойства для расширения
+		 * @param {String} propertyName Название свойства
 		 * @returns {String} Ключ свойства
 		 */
-		function getTablePropertyKey(columnName) {
-			return 'customProperties.' + columnName;
+		function getExtensionPropertyKey(propertyName) {
+			return 'properties.' + propertyName;
 		}
 
 		/**
-		 * Формирует ключ свойства для столбца (свойство измерения или меры)
-		 * @param {String} columnName Название свойства
+		 * Формирует ключ свойства для столбца (измерения или меры)
+		 * @param {String} propertyName Название свойства
 		 * @returns {String} Ключ свойства
 		 */
-		function getColumnPropertyKey(columnName) {
-			return 'qDef.customProperties.' + columnName;
+		function getColumnPropertyKey(propertyName) {
+			return 'qDef.properties.' + propertyName;
 		}
 
 		/**
-		 * Формирует ключ свойства для ячейки (атрибут ячейки измерения или меры)
+		 * Формирует ключ свойства для ячейки (атрибут ячейки)
 		 * @param {Number} cellAttributeIndex Индекс атрибута ячейки
 		 * @returns {String} Ключ свойства
 		 */
@@ -116,33 +116,33 @@ define(
 
  /**
  * Данные расширения Qlik
- * @typedef {Object} ExtensionCustomProperties
+ * @typedef {Object} ExtensionProperties
  */
 
 /**
  * Столбец гиперкуба
- * @typedef {Object} ColumnCustomProperties
+ * @typedef {Object} ColumnProperties
  */
 
  /**
  * Измерение гиперкуба (добавочные поля к столбцу гиперкуба)
- * @typedef {Object} _DimensionCustomProperties
+ * @typedef {Object} _DimensionProperties
  */
 
 /**
  * Измерение гиперкуба
- * @typedef {ColumnCustomProperties & _DimensionCustomProperties} DimensionCustomProperties
+ * @typedef {ColumnProperties & _DimensionProperties} DimensionProperties
  */
 
 /**
  * Мера гиперкуба (добавочные поля к столбцу гиперкуба)
- * @typedef {Object} _MeasureCustomProperties
+ * @typedef {Object} _MeasureProperties
  * @property {ChartType} chartType Тип графика
  */
 
 /**
  * Мера гиперкуба
- * @typedef {ColumnCustomProperties & _MeasureCustomProperties} MeasureCustomProperties
+ * @typedef {ColumnProperties & _MeasureProperties} MeasureProperties
  */
 
 /* JSDoc-определения для словарей */

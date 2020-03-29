@@ -14,70 +14,71 @@
 ## Диаграмма классов Qlik API
 ```mermaid
 classDiagram
-    class NxExtension {
+    class QlikExtension {
         string title
     }
-    NxExtension *-- NxHyperCube: qHyperCube
-    NxExtension *-- "0..1" ExtensionCustomProperties: customProperties
+    QlikExtension *-- QlikHyperCube: qHyperCube
+    QlikExtension *-- "0..1" ExtensionProperties: properties
 
-    NxHyperCube *-- "*" NxDimension: qDimensionInfo
-    NxHyperCube *-- "*" NxMeasure: qMeasureInfo
-    NxHyperCube *-- "*" NxDataPage: qDataPages
+    QlikHyperCube *-- "*" QlikDimension: qDimensionInfo
+    QlikHyperCube *-- "*" QlikMeasure: qMeasureInfo
+    QlikHyperCube *-- "*" QlikDataPage: qDataPages
 
-    class NxColumn {
+    class QlikColumn {
          string qFallbackTitle 
          string othersLabel
     }
+    QlikColumn o-- "0..1" ColumnProperties: properties
 
-    class NxDimension {
+    class QlikDimension {
          string qFallbackTitle 
          string othersLabel
     }
-    NxDimension --|> NxColumn
-    NxDimension o-- "0..1" DimensionCustomProperties: customProperties
+    QlikDimension --|> QlikColumn
+    QlikDimension o-- "0..1" DimensionProperties: properties
 
-    class NxMeasure {
+    class QlikMeasure {
          string qFallbackTitle 
          string othersLabel
     }
-    NxMeasure --|> NxColumn
-    NxMeasure o-- "0..1" MeasureCustomProperties: customProperties
+    QlikMeasure --|> QlikColumn
+    QlikMeasure o-- "0..1" MeasureProperties: properties
 
-    NxDataPage *-- "*" NxRow
+    QlikDataPage *-- "*" QlikRow
 
-    NxRow *-- "*" NxCell
+    QlikRow *-- "*" QlikCell
 
-    class NxCell {
+    class QlikCell {
         boolean qIsEmpty
         boolean qIsNull
         string qText
         number qNum
     }
-    NxCell *-- NxAttributes: qAttrExps
+    QlikCell *-- QlikAttributes: qAttrExps
 
-    NxAttributes *-- "*" NxValue: qValues
+    QlikAttributes *-- "*" QlikValue: qValues
 
-    class NxValue {
+    class QlikValue {
         string qText
         number qNum 
     }
 
-    class ExtensionCustomProperties {
+    class ExtensionProperties {
         <<abstract>>
     }
 
-    class ColumnCustomProperties {
+    class ColumnProperties {
         <<abstract>>
     }
 
-    class DimensionCustomProperties {
+    class DimensionProperties {
         <<abstract>>
     }
-    DimensionCustomProperties --|> ColumnCustomProperties
+    DimensionProperties --|> ColumnProperties
 
-    class MeasureCustomProperties {
+    class MeasureProperties {
         <<abstract>>
     }
-    MeasureCustomProperties --|> ColumnCustomProperties
+    MeasureProperties --|> ColumnProperties
 
 ```

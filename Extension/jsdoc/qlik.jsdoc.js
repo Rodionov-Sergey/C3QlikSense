@@ -19,90 +19,90 @@
  // Qlik API свойств и данных
 
 /**
- * Данные расширения Qlik
+ * Расширение Qlik
  * @see https://help.qlik.com/en-US/sense-developer/February2020/Subsystems/APIs/Content/Sense_ClientAPIs/ExtensionAPI/paint-method.htm
- * @typedef {Object} NxExtension
+ * @typedef {Object} QlikExtension
  * @property {String} title - Заголовок расширения
- * @property {NxHyperCube} qHyperCube - Гиперкуб данных
- * @property {ExtensionCustomProperties} customProperties - Кастомные свойства расширения (определяются расширением)
+ * @property {QlikHyperCube} qHyperCube - Гиперкуб данных
+ * @property {ExtensionProperties} properties - Кастомные свойства расширения (определяются расширением)
  */
 
 /**
- * Гиперкуб
+ * Гиперкуб Qlik
  * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-HyperCube.html
- * @typedef {Object} NxHyperCube
- * @property {NxDimension[]} qDimensionInfo - Измерения гиперкуба
- * @property {NxMeasure[]} qMeasureInfo - Меры гиперкуба
- * @property {NxDataPage[]} qDataPages - Страницы данных гиперкуба
+ * @typedef {Object} QlikHyperCube
+ * @property {QlikDimension[]} qDimensionInfo - Измерения гиперкуба
+ * @property {QlikMeasure[]} qMeasureInfo - Меры гиперкуба
+ * @property {QlikDataPage[]} qDataPages - Страницы данных гиперкуба
  */
 
 /**
- * Столбец гиперкуба
- * @typedef {Object} NxColumn
+ * Столбец гиперкуба Qlik
+ * @typedef {Object} QlikColumn
  * @property {String} qFallbackTitle - Заголовок меры
  * @property {String} othersLabel - Текст специального значения Прочее
- * @property {ColumnCustomProperties} customProperties - Кастомные свойства столбца (определяются расширением)
+ * @property {ColumnProperties} properties - Кастомные свойства столбца (определяются расширением)
  */
 
 /**
- * Измерение гиперкуба (добавочные поля к столбцу гиперкуба)
- * @typedef {Object} _NxDimension
- * @property {DimensionCustomProperties} customProperties - Кастомные свойства измерения (определяются расширением)
+ * Измерение гиперкуба Qlik (добавочные поля к столбцу гиперкуба)
+ * @typedef {Object} _QlikDimension
+ * @property {DimensionProperties} properties - Кастомные свойства измерения (определяются расширением)
  */
 
 /**
- * Измерение гиперкуба
+ * Измерение гиперкуба Qlik
  * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxDimensionInfo.html
- * @typedef {NxColumn & _NxDimension} NxDimension
+ * @typedef {QlikColumn & _QlikDimension} QlikDimension
  */
 
 /**
- * Мера гиперкуба (добавочные поля к столбцу гиперкуба)
- * @typedef {Object} _NxMeasure
- * @property {MeasureCustomProperties} customProperties - Кастомные свойства меры (определяются расширением)
+ * Мера гиперкуба Qlik (добавочные поля к столбцу гиперкуба)
+ * @typedef {Object} _QlikMeasure
+ * @property {MeasureProperties} properties - Кастомные свойства меры (определяются расширением)
 */
 
 /**
- * Мера гиперкуба
+ * Мера гиперкуба Qlik
  * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxMeasureInfo.html
- * @typedef {NxColumn & _NxMeasure} NxMeasure
+ * @typedef {QlikColumn & _QlikMeasure} QlikMeasure
 */
 
 /**
- * Страница данных гиперкуба 
+ * Страница данных гиперкуба Qlik
  * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxDataPage.html
- * @typedef {Object} NxDataPage
- * @property {NxRow[]} qMatrix - Массив строк данных гиперкуба
+ * @typedef {Object} QlikDataPage
+ * @property {QlikRow[]} qMatrix - Массив строк данных гиперкуба
  */
 
 /**
- * Страница данных гиперкуба 
+ * Страница данных гиперкуба Qlik
  * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxCellRows.html
- * @typedef {NxCell[]} NxRow
+ * @typedef {QlikCell[]} QlikRow
  */
 
 /**
- * Ячейка данных гиперкуба
+ * Ячейка данных гиперкуба Qlik
  * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxCell.html
- * @typedef {Object} NxCell
+ * @typedef {Object} QlikCell
  * @property {Boolean} qIsEmpty - Признак пустоты ячейки
  * @property {Boolean} qIsNull - Признак null-значения в ячейке
  * @property {String} qText - Текстовые данные ячейки
  * @property {Number} qNum - Числовые данные ячейки; NaN, если нет числового значения
- * @property {NxAttributes} qAttrExps - Значения атрибутов ячейки
+ * @property {QlikAttributes} qAttrExps - Значения атрибутов ячейки
  */
 
 /**
- * Значения атрибутов ячейки
+ * Значения атрибутов ячейки Qlik
  * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxAttributeExpressionValues.html
- * @typedef {Object} NxAttributes
- * @property {NxValue} qValues Массив значений атрибутов
+ * @typedef {Object} QlikAttributes
+ * @property {QlikValue} qValues Массив значений атрибутов
  */
 
 /**
- * Значение
- * @typedef {Object} NxValue
+ * Значение Qlik
+ * @typedef {Object} QlikValue
  * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxSimpleValue.html
- * @property {String} qText - Текстовые данные ячейки
- * @property {Number} qNum - Числовые данные ячейки; NaN, если нет числового значения
+ * @property {String} qText - Текстовое значение ячейки
+ * @property {Number} qNum - Числовое значение ячейки; NaN, если нет числового значения
  */

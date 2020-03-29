@@ -26,7 +26,7 @@ define(
 	 * @param {*} d3 D3.js - библиотека для манипулирования документами на основе данных
 	 * @param {*} c3 C3.js - библиотека для построения графиков
 	 * @param {*} c3Css Содержимое стилей C3.js
-	 * @param {*} Модуль
+	 * @returns {*} Модуль
 	 */
 	function (qlik, $, properties, d3, c3, c3Css) {
 		'use strict';
@@ -70,7 +70,7 @@ define(
 			/**
 			 * Создаёт и обновляет интерфейс расширения
 			 * @param {*} $element Родительский jQuery-элемент
-			 * @param {NxExtension} qlikExtension Данные расширения
+			 * @param {QlikExtension} qlikExtension Данные расширения
 			 * @returns {Promise} Promise завершения отрисовки
 			 */
 			paint: function ($element, qlikExtension) {
@@ -177,7 +177,7 @@ define(
 
 		/**
 		 * Возвращает данные диаграммы
-		 * @param {NxHyperCube} qlikHyperCube Данные гиперкуба
+		 * @param {QlikHyperCube} qlikHyperCube Данные гиперкуба
 		 * @returns {Chart} Данные диаграммы
 		 */
 		function getQlikChartData(qlikHyperCube) {
@@ -199,7 +199,7 @@ define(
 
 		/**
 		 * Возвращает серии диаграммы
-		 * @param {NxHyperCube} qlikHyperCube Данные гиперкуба
+		 * @param {QlikHyperCube} qlikHyperCube Данные гиперкуба
 		 * @returns {Series} Серия для столбца аргументов данных
 		 */
 		function getQlikArgumentSeriesData(qlikHyperCube) {
@@ -213,7 +213,7 @@ define(
 
 		/**
 		 * Возвращает серии диаграммы
-		 * @param {NxHyperCube} qlikHyperCube Данные гиперкуба
+		 * @param {QlikHyperCube} qlikHyperCube Данные гиперкуба
 		 * @returns {Series[]} Серии для столбцов значений данных
 		 */
 		function getQlikValuesSeriesData(qlikHyperCube) {
@@ -230,8 +230,8 @@ define(
 
 		/**
 		 * Возвращает серию данных для столбца
-		 * @param {NxDimension|NxMeasure} qlikColumn Столбец данных
-		 * @param {NxCell[][]} qlikCells Ячейки данных
+		 * @param {QlikDimension|QlikMeasure} qlikColumn Столбец данных
+		 * @param {QlikCell[][]} qlikCells Ячейки данных
 		 * @param {Number} columnIndex Индекс столбца
 		 * @param {Boolean} isArgument Признак серии аргумента
 		 * @param {Boolean} isNumeric Признак числовой серии
@@ -250,15 +250,15 @@ define(
 
 		/**
 		 * Возвращает тип графика для столбца данных
-		 * @param {NxMeasure} qlikMeasure Столбец данных
+		 * @param {_QlikMeasure} qlikMeasure Столбец данных
 		 * @returns {C3ChartType} Тип графика
 		 */
 		function getQlikMeasureChartType(qlikMeasure) {
-			/** @type {MeasureCustomProperties} */
-			var customProperties = qlikMeasure.customProperties || { };
+			/** @type {MeasureProperties} */
+			var properties = qlikMeasure.properties || { };
 
 			/** @type {ChartType} */
-			var chartType = customProperties.chartType;
+			var chartType = properties.chartType;
 
 			/** @type {ChartTypes} */
 			var ChartTypes = properties.chartTypes;
@@ -282,8 +282,8 @@ define(
 
 		/**
 		 * Возвращает значения для столбца данных
-		 * @param {NxDimension|NxMeasure} qlikColumn Столбец данных
-		 * @param {NxCell[][]} qlikCells Ячейки данных
+		 * @param {QlikDimension|QlikMeasure} qlikColumn Столбец данных
+		 * @param {QlikCell[][]} qlikCells Ячейки данных
 		 * @param {Number} columnIndex Индекс столбца
 		 * @param {Boolean} isNumeric Признак числовой серии
 		 * @returns {Value[]} Значения столбца
@@ -297,8 +297,8 @@ define(
 
 		/**
 		 * Возвращает значение для ячкейки данных
-		 * @param {NxDimension|NxMeasure} qlikColumn Столбец данных
-		 * @param {NxCell} qlikCell Ячейка данных
+		 * @param {QlikDimension|QlikMeasure} qlikColumn Столбец данных
+		 * @param {QlikCell} qlikCell Ячейка данных
 		 * @param {Boolean} isNumeric Признак числовой серии
 		 * @returns {Value} Значение
 		 */
