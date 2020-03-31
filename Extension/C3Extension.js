@@ -147,6 +147,9 @@ define(
 				data: {
 					// Название столбца, определяющего значения X
 					x: chartData.argumentSeries.id,
+					xFormat: chartData.argumentSeries.type === 'timeseries' ?
+						'%d.%m.%Y':
+						null,
 					// Значения X и значения Y кривых
 					columns: columns,
 					// Типы графиков для линий
@@ -155,8 +158,12 @@ define(
 				axis: {
 					// Ось X
 					x: {
-						// Категориальная ось
-						type: 'category',
+						// Тип шкалы
+						// TODO: Хранение в промежуточном виде, здесь - преобразование
+						type: chartData.argumentSeries.type,
+						tick: chartData.argumentSeries.type === 'timeseries' ?
+							{ format: '%d.%m.%Y' }:
+							 null,
 						// Подпись оси
 						label: {
 							text: chartData.argumentSeries.title,
@@ -200,30 +207,69 @@ define(
 		/**
 		 * Возвращает серии диаграммы
 		 * @param {QlikHyperCube} qlikHyperCube Данные гиперкуба
-		 * @returns {Series} Серия для столбца аргументов данных
+		 * @returns {ArgumentSeries} Серия для столбца аргументов данных
 		 */
 		function getQlikArgumentSeriesData(qlikHyperCube) {
-			return getQlikSeriesData(
-				qlikHyperCube.qDimensionInfo[0],
-				qlikHyperCube.qDataPages[0].qMatrix,
-				0,
-				true,
-				false);
+			var columnIndex = 0;
+			/** @type {QlikDimension} */
+			var qlikColumn = qlikHyperCube.qDimensionInfo[columnIndex];
+			var qlikCells = qlikHyperCube.qDataPages[0].qMatrix;
+			/** @type {ArgumentSeries} */
+			var series = {
+				id: qlikColumn.qFallbackTitle,
+				title: qlikColumn.qFallbackTitle,
+				values: getQlikColumnValuesData(qlikColumn, qlikCells, columnIndex, false),
+				type: getQlikXAxisType(qlikColumn)
+			};
+			return series;
+		}
+
+		/**
+		 * Возвращает тип оси для измерения
+		 * @param {QlikDimension} qlikDimension Измерение гиперкуба
+		 */
+		function getQlikXAxisType(qlikDimension) {
+			/** @type {DimensionProperties} */
+			var properties = qlikDimension.properties || { };
+
+			/** @type {ScaleType} */
+			var scaleType = properties.scaleType;
+
+			/** @type {ScaleTypes} */
+			var ScaleTypesEnum = definitions.scaleTypes;
+
+			switch (scaleType) {
+				case ScaleTypesEnum.CategoricalScale: {
+					return 'category';
+				}
+				case ScaleTypesEnum.NumericScale: {
+					return 'linear';
+				}
+				case ScaleTypesEnum.TemporalScale: {
+					return 'timeseries';
+				}
+				case null:
+				case undefined: {
+					throw new Error('Не указан тип шкалы');
+				}
+				default: {
+					throw new Error('Неизвестный тип шкалы: ' + scaleType);
+				}
+			}
 		}
 
 		/**
 		 * Возвращает серии диаграммы
 		 * @param {QlikHyperCube} qlikHyperCube Данные гиперкуба
-		 * @returns {Series[]} Серии для столбцов значений данных
+		 * @returns {ValueSeries[]} Серии для столбцов значений данных
 		 */
 		function getQlikValuesSeriesData(qlikHyperCube) {
 			return qlikHyperCube.qMeasureInfo.map(
 				function (qlikMeasure, measureIndex) {
-					return getQlikSeriesData(
-						qlikHyperCube.qMeasureInfo[measureIndex],
+					return getQlikValueSeriesData(
+						qlikMeasure,
 						qlikHyperCube.qDataPages[0].qMatrix,
 						qlikHyperCube.qDimensionInfo.length + measureIndex,
-						false,
 						true);
 				});
 		}
@@ -233,24 +279,22 @@ define(
 		 * @param {QlikDimension|QlikMeasure} qlikColumn Столбец данных
 		 * @param {QlikCell[][]} qlikCells Ячейки данных
 		 * @param {Number} columnIndex Индекс столбца
-		 * @param {Boolean} isArgument Признак серии аргумента
-		 * @param {Boolean} isNumeric Признак числовой серии
-		 * @returns {Series} Серия данных диаграммы
+		 * @returns {ValueSeries} Серия данных диаграммы
 		 */
-		function getQlikSeriesData(qlikColumn, qlikCells, columnIndex, isArgument, isNumeric) {
-			/** @type {Series} */
+		function getQlikValueSeriesData(qlikColumn, qlikCells, columnIndex) {
+			/** @type {ValueSeries} */
 			var series = {
 				id: qlikColumn.qFallbackTitle,
 				title: qlikColumn.qFallbackTitle,
-				type: !isArgument ? getQlikMeasureChartType(qlikColumn) : null,
-				values: getQlikColumnValuesData(qlikColumn, qlikCells, columnIndex, isNumeric)
+				values: getQlikColumnValuesData(qlikColumn, qlikCells, columnIndex, true),
+				type: getQlikMeasureChartType(qlikColumn)
 			};
 			return series;
 		}
 
 		/**
 		 * Возвращает тип графика для столбца данных
-		 * @param {_QlikMeasure} qlikMeasure Столбец данных
+		 * @param {QlikMeasure} qlikMeasure Столбец данных
 		 * @returns {C3ChartType} Тип графика
 		 */
 		function getQlikMeasureChartType(qlikMeasure) {
@@ -261,13 +305,13 @@ define(
 			var chartType = properties.chartType;
 
 			/** @type {ChartTypes} */
-			var ChartTypes = definitions.chartTypes;
+			var ChartTypesEnum = definitions.chartTypes;
 
 			switch (chartType) {
-				case ChartTypes.LineChart: {
+				case ChartTypesEnum.LineChart: {
 					return 'line';
 				}
-				case ChartTypes.BarChart: {
+				case ChartTypesEnum.BarChart: {
 					return 'bar';
 				}
 				case null:
@@ -319,16 +363,24 @@ define(
 
 /**
  * @typedef {Object} Chart
- * @property {Series} argumentSeries Последовательность аргументов
- * @property {Series[]} valueSeries Последовательность точек данных
+ * @property {ArgumentSeries} argumentSeries Последовательность аргументов
+ * @property {ValueSeries[]} valueSeries Последовательность точек данных
  */
 
 /**
- * @typedef {Object} Series
+ * @typedef {Object} ValueSeries
  * @property {String} id Идентификатор серии
  * @property {String} title Заголовок серии
- * @property {C3ChartType} type Тип графика
  * @property {Value[]} values Последовательность значений серии
+ * @property {C3ChartType} type Тип графика
+ */
+
+/**
+ * @typedef {Object} ArgumentSeries
+ * @property {String} id Идентификатор серии
+ * @property {String} title Заголовок серии
+ * @property {Value[]} values Последовательность значений серии
+ * @property {C3XAxisType} type Тип шкалы аргумента
  */
 
 /**

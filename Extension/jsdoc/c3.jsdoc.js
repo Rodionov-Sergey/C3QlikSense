@@ -35,31 +35,34 @@
 /**
  * Настройки осей
  * @typedef {Object} C3Axes
- * @property {C3Axis} x Ось X
- * @property {C3Axis} y Ось Y
- * @property {C3Axis} y2 Ось Y2
+ * @property {C3XAxis} x Ось X
+ * @property {C3YAxis} y Ось Y
+ * @property {C3YAxis} y2 Ось Y2
  */
 
 /**
- * Настройки оси
- * @typedef {Object} C3Axis
+ * Настройки оси X
+ * @typedef {Object} C3XAxis
  * @property {boolean} show true для отображения оси, иначе false
- * @property {C3AxisType} type Тип оси
- * @property {String[]} categories Список заголовков категорий
- * @property {C3AxisLabel} label Настройки подписи оси
+ * @property {C3XAxisLabel} label Настройки подписи оси
+ * @property {C3XAxisType} type Тип оси X
+ * @property {String[]=} categories Список заголовков категорий
  */
 
 /**
- * Тип оси
- * @typedef {String} C3AxisType
+ * Тип оси X
+ * @typedef {String} C3XAxisType
  * - 'category' - Категориальная ось - фиксированный список значений, не сравнимых по значению
+ * - 'linear' - Линейная числовая ось
+ * - 'log' - Логарифмическая числовая ось
+ * - 'timeseries' - Временная ось
  */
 
 /**
- * Настройки подписи оси
- * @typedef {Object} C3AxisLabel
+ * Настройки подписи оси X
+ * @typedef {Object} C3XAxisLabel
  * @property {String} text Заголовок оси
- * @property {C3XAxisPosition|C3YAxisPosition} position Расположение оси
+ * @property {C3XAxisPosition} position Расположение оси
  */
 
 /**
@@ -72,6 +75,20 @@
  * - 'outer-center' - Снаружи по центру
  * - 'outer-left' - Снаружи слева
 */
+
+ /**
+ * Настройки оси Y
+ * @typedef {Object} C3YAxis
+ * @property {boolean} show true для отображения оси, иначе false
+ * @property {C3XAxisLabel} label Настройки подписи оси
+ */
+
+/**
+ * Настройки подписи оси Y
+ * @typedef {Object} C3YAxisLabel
+ * @property {String} text Заголовок оси
+ * @property {C3YAxisPosition} position Расположение оси
+ */
 
 /**
  * Тип расположения оси Y

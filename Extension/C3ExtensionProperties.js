@@ -12,6 +12,17 @@ define(
 	function () {
 		'use strict';
 
+		// Типы шкалы
+		/** @type {ScaleTypes} */
+		var scaleTypes = {
+			// Категориальная шкала
+			CategoricalScale: 'CategoricalScale',
+			// Числовая шкала
+			NumericScale: 'NumericScale',
+			// Временная шкала
+			TemporalScale: 'TemporalScale'
+		};
+
 		// Типы графиков
 		/** @type {ChartTypes} */
 		var chartTypes = {
@@ -19,6 +30,32 @@ define(
 			LineChart: 'LineChart',
 			// Столбчатая диаграмма
 			BarChart: 'BarChart'
+		};
+
+		// Определения свойств измерений
+		var dimensionProperties = {
+			// Тип шкалы
+			scaleTypes: {
+				ref: getColumnPropertyKey('scaleType'),
+				type: 'string',
+				component: 'dropdown',
+				label: 'Тип шкалы',
+				options: [
+					{
+						value: scaleTypes.CategoricalScale,
+						label: 'Категориальная шкала',
+					},
+					{
+						value: scaleTypes.NumericScale,
+						label: 'Числовая шкала',
+					},
+					{
+						value: scaleTypes.TemporalScale,
+						label: 'Временная шкала'
+					}
+				],
+				defaultValue: scaleTypes.CategoricalScale
+			}
 		};
 
 		// Определения свойств мер
@@ -52,7 +89,9 @@ define(
 				dimensions: {
 					uses: 'dimensions',
 					min: 1,
-					max: 1
+					max: 1,
+					// Кастомные свойства измерений
+					items: dimensionProperties
 				},
 				// Блок свойств Меры
 				measures: {
@@ -76,6 +115,9 @@ define(
 		return {
 			// Определения свойств, настраиваемых пользователем в боковой панели
 			properties: properties,
+
+			// Типы шкал
+			scaleTypes: scaleTypes,
 
 			// Типы графиков
 			chartTypes: chartTypes
@@ -127,6 +169,7 @@ define(
  /**
  * Измерение гиперкуба (добавочные поля к столбцу гиперкуба)
  * @typedef {Object} _DimensionProperties
+ * @typedef {ScaleType} scaleType Тип шкалы
  */
 
 /**
@@ -146,6 +189,22 @@ define(
  */
 
 /* JSDoc-определения для словарей */
+
+/**
+ * Типы шкал
+ * @typedef {Object} ScaleTypes
+ * @property {ScaleType} CategoricalScale Категориальная шкала
+ * @property {ScaleType} NumericScale Числовая шкала
+ * @property {ScaleType} TemporalScale Временная шкала
+ */
+
+/**
+ * Тип шкалы
+ * @typedef {String} ScaleType
+ * - 'CategoricalScale' - Категориальная шкала
+ * - 'NumericScale' - Числовая шкала
+ * - 'TemporalScale' - Временная шкала
+ */
 
 /**
  * Типы графиков
