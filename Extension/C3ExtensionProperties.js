@@ -198,13 +198,7 @@ define(
  * @property {ScaleType} TemporalScale Временная шкала
  */
 
-/**
- * Тип шкалы
- * @typedef {String} ScaleType
- * - 'CategoricalScale' - Категориальная шкала
- * - 'NumericScale' - Числовая шкала
- * - 'TemporalScale' - Временная шкала
- */
+
 
 /**
  * Типы графиков
@@ -213,9 +207,3 @@ define(
  * @property {ChartType} BarChart Столбчатая диаграмма
  */
 
-/**
- * Тип графика
- * @typedef {String} ChartType
- * - 'LineChart' - линейный график
- * - 'BarChart' - столбчатая диаграмма
- */

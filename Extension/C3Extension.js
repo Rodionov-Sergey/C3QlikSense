@@ -34,6 +34,11 @@ define(
 		// HACK: Так C3.js найдёт свою зависимость D3.js по имени d3
 		window.d3 = d3;
 
+		/** @type {ScaleTypes} */
+		var ScaleTypes = definitions.scaleTypes;
+		/** @type {ChartTypes} */
+		var ChartTypes = definitions.chartTypes;
+
 		// DEBUG: Отладка настроек свойств расширения
 		// console.log('Определения настроек расширения', definitions);
 		
@@ -130,12 +135,16 @@ define(
 			
 			// Подготовка данных для настроек
 
-			var series = [chartData.argumentSeries].concat(chartData.valueSeries);
+			var argumentSeries = chartData.argumentSeries;
+			var series = [argumentSeries].concat(chartData.valueSeries);
 			var getValue = function(value) { return value.value; };
 			var getColumn = function (series) { return [series.id].concat(series.values.map(getValue)); };
 			var columns = series.map(getColumn);
 			var columnTypes = chartData.valueSeries.reduce(
-				function (types, series) { types[series.id] = series.type; return types; },
+				function (types, series) { 
+					types[series.id] = toC3ChartType(series.type);
+					return types;
+				},
 				{});
 
 			// Формирование настроек графика C3
@@ -146,8 +155,8 @@ define(
 				bindto: parentElement,
 				data: {
 					// Название столбца, определяющего значения X
-					x: chartData.argumentSeries.id,
-					xFormat: chartData.argumentSeries.type === 'timeseries' ?
+					x: argumentSeries.id,
+					xFormat: argumentSeries.type === ScaleTypes.TemporalScale ?
 						'%d.%m.%Y':
 						null,
 					// Значения X и значения Y кривых
@@ -160,13 +169,13 @@ define(
 					x: {
 						// Тип шкалы
 						// TODO: Хранение в промежуточном виде, здесь - преобразование
-						type: chartData.argumentSeries.type,
-						tick: chartData.argumentSeries.type === 'timeseries' ?
+						type: toC3XAsisType(argumentSeries.type),
+						tick: argumentSeries.type === ScaleTypes.TemporalScale ?
 							{ format: '%d.%m.%Y' }:
 							 null,
 						// Подпись оси
 						label: {
-							text: chartData.argumentSeries.title,
+							text: argumentSeries.title,
 							position: 'outer-center'
 						}
 					}
@@ -178,6 +187,47 @@ define(
 
 			// Отрисовка графика
 			c3.generate(c3Settings);
+		}
+
+		/**
+		 * Преобразует тип шкалы в тип оси
+		 * @param {ScaleType} scaleType Тип шкалы
+		 * @returns {C3XAxisType} Тип оси X в C3
+		 */
+		function toC3XAsisType(scaleType) {
+			switch (scaleType) {
+				case ScaleTypes.CategoricalScale: {
+					return 'category';
+				}
+				case ScaleTypes.NumericScale: {
+					return 'linear';
+				}
+				case ScaleTypes.TemporalScale: {
+					return 'timeseries';
+				}
+				default: {
+					throw new Error('Тип оси X в С3 неизвестен для типа шкалы: ' + scaleType);
+				}
+			}
+		}
+
+		/**
+		 * Преобразует тип графика в тип графика C3
+		 * @param {ChartType} chartType Тип графика
+		 * @returns {C3ChartType} Тип графика C3
+		 */
+		function toC3ChartType(chartType) {
+			switch (chartType) {
+				case ChartTypes.LineChart: {
+					return 'line';
+				}
+				case ChartTypes.BarChart: {
+					return 'bar';
+				}
+				default: {
+					throw new Error('Тип графика C3 неизвестный для типа графика: ' + chartType);
+				}
+			}
 		}
 
 		/* Преобразование данных из Qlik в промежуточное представление */
@@ -212,52 +262,19 @@ define(
 		function getQlikArgumentSeriesData(qlikHyperCube) {
 			var columnIndex = 0;
 			/** @type {QlikDimension} */
-			var qlikColumn = qlikHyperCube.qDimensionInfo[columnIndex];
+			var qlikDimension = qlikHyperCube.qDimensionInfo[columnIndex];
 			var qlikCells = qlikHyperCube.qDataPages[0].qMatrix;
+
 			/** @type {ArgumentSeries} */
 			var series = {
-				id: qlikColumn.qFallbackTitle,
-				title: qlikColumn.qFallbackTitle,
-				values: getQlikColumnValuesData(qlikColumn, qlikCells, columnIndex, false),
-				type: getQlikXAxisType(qlikColumn)
+				id: qlikDimension.qFallbackTitle,
+				title: qlikDimension.qFallbackTitle,
+				values: getQlikColumnValuesData(qlikCells, columnIndex, qlikDimension.properties.scaleType),
+				type: qlikDimension.properties.scaleType
 			};
 			return series;
 		}
-
-		/**
-		 * Возвращает тип оси для измерения
-		 * @param {QlikDimension} qlikDimension Измерение гиперкуба
-		 */
-		function getQlikXAxisType(qlikDimension) {
-			/** @type {DimensionProperties} */
-			var properties = qlikDimension.properties || { };
-
-			/** @type {ScaleType} */
-			var scaleType = properties.scaleType;
-
-			/** @type {ScaleTypes} */
-			var ScaleTypesEnum = definitions.scaleTypes;
-
-			switch (scaleType) {
-				case ScaleTypesEnum.CategoricalScale: {
-					return 'category';
-				}
-				case ScaleTypesEnum.NumericScale: {
-					return 'linear';
-				}
-				case ScaleTypesEnum.TemporalScale: {
-					return 'timeseries';
-				}
-				case null:
-				case undefined: {
-					throw new Error('Не указан тип шкалы');
-				}
-				default: {
-					throw new Error('Неизвестный тип шкалы: ' + scaleType);
-				}
-			}
-		}
-
+		
 		/**
 		 * Возвращает серии диаграммы
 		 * @param {QlikHyperCube} qlikHyperCube Данные гиперкуба
@@ -276,77 +293,44 @@ define(
 
 		/**
 		 * Возвращает серию данных для столбца
-		 * @param {QlikDimension|QlikMeasure} qlikColumn Столбец данных
+		 * @param {QlikMeasure} qlikMeasure Мера гиперкуба
 		 * @param {QlikCell[][]} qlikCells Ячейки данных
 		 * @param {Number} columnIndex Индекс столбца
 		 * @returns {ValueSeries} Серия данных диаграммы
 		 */
-		function getQlikValueSeriesData(qlikColumn, qlikCells, columnIndex) {
+		function getQlikValueSeriesData(qlikMeasure, qlikCells, columnIndex) {
 			/** @type {ValueSeries} */
 			var series = {
-				id: qlikColumn.qFallbackTitle,
-				title: qlikColumn.qFallbackTitle,
-				values: getQlikColumnValuesData(qlikColumn, qlikCells, columnIndex, true),
-				type: getQlikMeasureChartType(qlikColumn)
+				id: qlikMeasure.qFallbackTitle,
+				title: qlikMeasure.qFallbackTitle,
+				values: getQlikColumnValuesData(qlikCells, columnIndex, ScaleTypes.NumericScale),
+				type: qlikMeasure.properties.chartType
 			};
 			return series;
 		}
 
 		/**
-		 * Возвращает тип графика для столбца данных
-		 * @param {QlikMeasure} qlikMeasure Столбец данных
-		 * @returns {C3ChartType} Тип графика
-		 */
-		function getQlikMeasureChartType(qlikMeasure) {
-			/** @type {MeasureProperties} */
-			var properties = qlikMeasure.properties || { };
-
-			/** @type {ChartType} */
-			var chartType = properties.chartType;
-
-			/** @type {ChartTypes} */
-			var ChartTypesEnum = definitions.chartTypes;
-
-			switch (chartType) {
-				case ChartTypesEnum.LineChart: {
-					return 'line';
-				}
-				case ChartTypesEnum.BarChart: {
-					return 'bar';
-				}
-				case null:
-				case undefined: {
-					throw new Error('Не указан тип графика');
-				}
-				default: {
-					throw new Error('Неизвестный тип графика: ' + chartType);
-				}
-			}
-		}
-
-		/**
 		 * Возвращает значения для столбца данных
-		 * @param {QlikDimension|QlikMeasure} qlikColumn Столбец данных
 		 * @param {QlikCell[][]} qlikCells Ячейки данных
 		 * @param {Number} columnIndex Индекс столбца
-		 * @param {Boolean} isNumeric Признак числовой серии
+		 * @param {ScaleType} scaleType Тип шкалы
 		 * @returns {Value[]} Значения столбца
 		 */
-		function getQlikColumnValuesData(qlikColumn, qlikCells, columnIndex, isNumeric) {
+		function getQlikColumnValuesData(qlikCells, columnIndex, scaleType) {
 			return qlikCells.map(
 				function (qlikRow) {
-					return getQlikCellValueData(qlikColumn, qlikRow[columnIndex], isNumeric);
+					return getQlikCellValueData(qlikRow[columnIndex], scaleType);
 				});
 		}
 
 		/**
 		 * Возвращает значение для ячкейки данных
-		 * @param {QlikDimension|QlikMeasure} qlikColumn Столбец данных
 		 * @param {QlikCell} qlikCell Ячейка данных
-		 * @param {Boolean} isNumeric Признак числовой серии
+		 * @param {ScaleType} scaleType Тип шкалы
 		 * @returns {Value} Значение
 		 */
-		function getQlikCellValueData(qlikColumn, qlikCell, isNumeric) {
+		function getQlikCellValueData(qlikCell, scaleType) {
+			var isNumeric = scaleType === ScaleTypes.NumericalScale;
 			/** @type {Value} */
 			var value = {
 				value: isNumeric ? qlikCell.qNum : qlikCell.qText,
@@ -367,6 +351,22 @@ define(
  * @property {ValueSeries[]} valueSeries Последовательность точек данных
  */
 
+ /**
+ * @typedef {Object} ArgumentSeries
+ * @property {String} id Идентификатор серии
+ * @property {String} title Заголовок серии
+ * @property {Value[]} values Последовательность значений серии
+ * @property {ScaleType} type Тип шкалы аргумента
+ */
+
+ /**
+ * Тип шкалы
+ * @typedef {String} ScaleType
+ * - 'CategoricalScale' - Категориальная шкала
+ * - 'NumericScale' - Числовая шкала
+ * - 'TemporalScale' - Временная шкала
+ */
+
 /**
  * @typedef {Object} ValueSeries
  * @property {String} id Идентификатор серии
@@ -376,15 +376,16 @@ define(
  */
 
 /**
- * @typedef {Object} ArgumentSeries
- * @property {String} id Идентификатор серии
- * @property {String} title Заголовок серии
- * @property {Value[]} values Последовательность значений серии
- * @property {C3XAxisType} type Тип шкалы аргумента
- */
-
-/**
  * @typedef {Object} Value
  * @property {Number|String} value Значение в точке
  * @property {String} title Отображаемое значение в точке
+ */
+
+
+
+ /**
+ * Тип графика
+ * @typedef {String} ChartType
+ * - 'LineChart' - линейный график
+ * - 'BarChart' - столбчатая диаграмма
  */
