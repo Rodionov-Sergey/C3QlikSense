@@ -44,6 +44,7 @@
  * Настройки оси X
  * @typedef {Object} C3XAxis
  * @property {boolean} show true для отображения оси, иначе false
+ * @property {C3Tick} tick Настройки засечек оси
  * @property {C3XAxisLabel} label Настройки подписи оси
  * @property {C3XAxisType} type Тип оси X
  * @property {String[]=} categories Список заголовков категорий
@@ -80,6 +81,7 @@
  * Настройки оси Y
  * @typedef {Object} C3YAxis
  * @property {boolean} show true для отображения оси, иначе false
+ * @property {C3Tick} tick Настройки засечек оси
  * @property {C3XAxisLabel} label Настройки подписи оси
  */
 
@@ -100,6 +102,12 @@
  * - 'outer-middle' - Снаружи по центру
  * - 'outer-bottom' - Снаружи снизу
 */
+
+/**
+ * Настройки засечек оси
+ * @typedef {Object} C3Tick
+ * @property {String|function(Number|Date):String} format Формат или функция форматирования
+ * /
 
 /**
  * Значение в C3

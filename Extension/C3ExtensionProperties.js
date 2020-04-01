@@ -198,8 +198,6 @@ define(
  * @property {ScaleType} TemporalScale Временная шкала
  */
 
-
-
 /**
  * Типы графиков
  * @typedef {Object} ChartTypes

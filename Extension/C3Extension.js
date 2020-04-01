@@ -166,19 +166,9 @@ define(
 				},
 				axis: {
 					// Ось X
-					x: {
-						// Тип шкалы
-						// TODO: Хранение в промежуточном виде, здесь - преобразование
-						type: toC3XAsisType(argumentSeries.type),
-						tick: argumentSeries.type === ScaleTypes.TemporalScale ?
-							{ format: '%d.%m.%Y' }:
-							 null,
-						// Подпись оси
-						label: {
-							text: argumentSeries.title,
-							position: 'outer-center'
-						}
-					}
+					x: createXAxis(argumentSeries),
+					// Ось Y
+					y: createYAxis()
 				}
 			};
 
@@ -187,6 +177,51 @@ define(
 
 			// Отрисовка графика
 			c3.generate(c3Settings);
+		}
+		
+		/* Преобразование промежуточного представления в представление C3 */
+
+		/**
+		 * Создаёт настройки оси X
+		 * @param {ArgumentSeries} argumentSeries Серия аргументов графика
+		 * @returns {C3XAxis} Настройки оси X
+		 */
+		function createXAxis(argumentSeries) {
+			/** @type {C3XAxis} */
+			var xAxis = {
+				// Тип шкалы
+				type: toC3XAsisType(argumentSeries.type),
+				// Настройки засечек
+				tick: createXAxisTick(argumentSeries),
+				// Подпись оси
+				label: {
+					text: argumentSeries.title,
+					position: 'outer-center'
+				}
+			};
+			return xAxis;
+		}
+
+		/**
+		 * Создаёт настройки засечки оси X
+		 * @param {ArgumentSeries} argumentSeries Серия аргументов графика
+		 * @returns {C3Tick} Настройки засечки оси
+		 */
+		function createXAxisTick(argumentSeries) {
+			switch (argumentSeries.type) {
+				case ScaleTypes.TemporalScale: {
+					return {
+						format: '%d.%m.%Y'
+					};
+				}
+				case ScaleTypes.NumericScale: {
+					return { 
+						format: d3.format('.2f')
+					};
+				}
+				default: 
+					return null;
+			}
 		}
 
 		/**
@@ -209,6 +244,20 @@ define(
 					throw new Error('Тип оси X в С3 неизвестен для типа шкалы: ' + scaleType);
 				}
 			}
+		}
+
+		/**
+		 * Создаёт настройки оси Y
+		 * @returns {C3YAxis} Настройки оси
+		 */
+		function createYAxis() {
+			/** @type {C3YAxis} */
+			var yAxis = {
+				tick: {
+					format: d3.format('.2f')
+				}
+			};
+			return yAxis;
 		}
 
 		/**
@@ -330,7 +379,7 @@ define(
 		 * @returns {Value} Значение
 		 */
 		function getQlikCellValueData(qlikCell, scaleType) {
-			var isNumeric = scaleType === ScaleTypes.NumericalScale;
+			var isNumeric = scaleType === ScaleTypes.NumericScale;
 			/** @type {Value} */
 			var value = {
 				value: isNumeric ? qlikCell.qNum : qlikCell.qText,
@@ -380,8 +429,6 @@ define(
  * @property {Number|String} value Значение в точке
  * @property {String} title Отображаемое значение в точке
  */
-
-
 
  /**
  * Тип графика
