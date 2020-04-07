@@ -55,6 +55,25 @@ define(
 					}
 				],
 				defaultValue: scaleTypes.CategoricalScale
+			},
+			// Угол наклона подписей - текстовое поле
+			tickLabelAngleText: {
+				type: 'number',
+				label: 'Угол наклона подписей',
+				ref: getColumnPropertyKey('tickLabelAngle'),
+				min: -90,
+				max: 90,
+				defaultValue: 0
+			},
+			// Угол наклона подписей - слайдер
+			tickLabelAngle: {
+				type: 'number',
+				component: 'slider',
+				ref: getColumnPropertyKey('tickLabelAngle'),
+				min: -90,
+				max: 90,
+				step: 10,
+				defaultValue: 0
 			}
 		};
 

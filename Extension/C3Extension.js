@@ -258,16 +258,25 @@ define(
 		 * @returns {C3Tick} Настройки засечки оси
 		 */
 		function getXAxisTick(argumentSeries) {
-			switch (argumentSeries.type) {
+			return {
+				format: getXTickFormat(argumentSeries.type),
+				rotate: argumentSeries.tickLabelAngle,
+				multiline: false
+			};
+		}
+
+		/**
+		 * Возвращает формат для типа шкалы аргументов 
+		 * @param {ScaleType} scaleType 
+		 * @return {String|function(*):String} Строка формата или функция форматирования
+		 */
+		function getXTickFormat(scaleType) {
+			switch (scaleType) {
 				case ScaleTypes.TemporalScale: {
-					return {
-						format: '%d.%m.%Y'
-					};
+					return '%d.%m.%Y';
 				}
 				case ScaleTypes.NumericScale: {
-					return { 
-						format: d3.format('.2f')
-					};
+					return d3.format('.2f');
 				}
 				default: 
 					return null;
@@ -364,14 +373,13 @@ define(
 			var qlikDimension = qlikHyperCube.qDimensionInfo[columnIndex];
 			var qlikCells = qlikHyperCube.qDataPages[0].qMatrix;
 
-			/** @type {ArgumentSeries} */
-			var series = {
+			return {
 				id: qlikDimension.qFallbackTitle,
 				title: qlikDimension.qFallbackTitle,
 				values: getQlikColumnValuesData(qlikCells, columnIndex, qlikDimension.properties.scaleType),
-				type: qlikDimension.properties.scaleType
+				type: qlikDimension.properties.scaleType,
+				tickLabelAngle: qlikDimension.properties.tickLabelAngle
 			};
-			return series;
 		}
 		
 		/**
@@ -456,6 +464,7 @@ define(
  * @property {String} title Заголовок серии
  * @property {Value[]} values Последовательность значений серии
  * @property {ScaleType} type Тип шкалы аргумента
+ * @property {Number} tickLabelAngle Угол поворота подписи засечки
  */
 
  /**
