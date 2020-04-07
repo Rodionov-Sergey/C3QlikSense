@@ -86,7 +86,7 @@ define(
 					var containerNode = $containerElement.get(0);
 
 					// Получение данных из Qlik
-					var chartData = getQlikChartData(qlikExtension.qHyperCube);
+					var chartData = getQlikChartData(qlikExtension);
 
 					// Отрисовка данных на диаграмме
 					drawChart(containerNode, chartData);
@@ -162,7 +162,7 @@ define(
 					// Ось X
 					x: getXAxis(chartData.argumentSeries),
 					// Ось Y
-					y: getYAxis()
+					y: getYAxis(chartData.yAxis)
 				}
 			};
 		}
@@ -307,16 +307,19 @@ define(
 
 		/**
 		 * Создаёт настройки оси Y
+		 * @param {YAxis} yAxis Ось Y
 		 * @returns {C3YAxis} Настройки оси
 		 */
-		function getYAxis() {
-			/** @type {C3YAxis} */
-			var yAxis = {
+		function getYAxis(yAxis) {
+			return {
+				label: {
+					text: yAxis.title,
+					position: 'outer-middle'
+				},
 				tick: {
 					format: d3.format('.2f')
 				}
 			};
-			return yAxis;
 		}
 
 		/**
@@ -342,18 +345,25 @@ define(
 
 		/**
 		 * Возвращает данные диаграммы
-		 * @param {QlikHyperCube} qlikHyperCube Данные гиперкуба
+		 * @param {QlikExtension} qlikExtension Расширение
 		 * @returns {Chart} Данные диаграммы
 		 */
-		function getQlikChartData(qlikHyperCube) {
+		function getQlikChartData(qlikExtension) {
 			
 			// DEBUG: Отладка настроек свойств расширения
 			// console.log('Данные расширения', qlikHyperCube);
 			
+			var qlikHypercube = qlikExtension.qHyperCube;
+
 			/** @type {Chart} */
 			var chart = {
-				argumentSeries: getQlikArgumentSeriesData(qlikHyperCube),
-				valueSeries: getQlikValuesSeriesData(qlikHyperCube)
+				argumentSeries: getQlikArgumentSeriesData(qlikHypercube),
+				valueSeries: getQlikValuesSeriesData(qlikHypercube),
+				yAxis: {
+					title: qlikExtension.properties != null ? 
+						qlikExtension.properties.yAxisTitle : 
+						null
+				}
 			};
 
 			// DEBUG: Отладка промежуточных данных графика
@@ -453,12 +463,21 @@ define(
  */
 
 /**
+ * График
  * @typedef {Object} Chart
  * @property {ArgumentSeries} argumentSeries Последовательность аргументов
  * @property {ValueSeries[]} valueSeries Последовательность точек данных
+ * @property {YAxis} yAxis Настройки оси Y
  */
 
- /**
+/**
+ * Ось Y
+ * @typedef {Object} YAxis
+ * @property {String} title Заголовок оси 
+ */
+
+/**
+ * Серия аргумента
  * @typedef {Object} ArgumentSeries
  * @property {String} id Идентификатор серии
  * @property {String} title Заголовок серии
@@ -467,7 +486,7 @@ define(
  * @property {Number} tickLabelAngle Угол поворота подписи засечки
  */
 
- /**
+/**
  * Тип шкалы
  * @typedef {String} ScaleType
  * - 'CategoricalScale' - Категориальная шкала
@@ -476,6 +495,7 @@ define(
  */
 
 /**
+ * Серия значений
  * @typedef {Object} ValueSeries
  * @property {String} id Идентификатор серии
  * @property {String} title Заголовок серии

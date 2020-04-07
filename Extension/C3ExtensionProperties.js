@@ -58,18 +58,18 @@ define(
 			},
 			// Угол наклона подписей - текстовое поле
 			tickLabelAngleText: {
+				ref: getColumnPropertyKey('tickLabelAngle'),
 				type: 'number',
 				label: 'Угол наклона подписей',
-				ref: getColumnPropertyKey('tickLabelAngle'),
 				min: -90,
 				max: 90,
 				defaultValue: 0
 			},
 			// Угол наклона подписей - слайдер
 			tickLabelAngle: {
+				ref: getColumnPropertyKey('tickLabelAngle'),
 				type: 'number',
 				component: 'slider',
-				ref: getColumnPropertyKey('tickLabelAngle'),
 				min: -90,
 				max: 90,
 				step: 10,
@@ -127,6 +127,18 @@ define(
 				// Блок свойств Вид
 				settings: {
 					uses: 'settings'
+				},
+				// Кастомные свойства расширения
+				chart: {
+					type: "items",
+					label: 'Настройки графика',
+					items: {
+						yAxisTitle: {
+							ref: getExtensionPropertyKey('yAxisTitle'),
+							type: 'string',
+							label: 'Заголовок оси Y'
+						}
+					}
 				}
 			}
 		};
@@ -178,33 +190,20 @@ define(
  /**
  * Данные расширения Qlik
  * @typedef {Object} ExtensionProperties
- */
-
-/**
- * Столбец гиперкуба
- * @typedef {Object} ColumnProperties
- */
-
- /**
- * Измерение гиперкуба (добавочные поля к столбцу гиперкуба)
- * @typedef {Object} _DimensionProperties
- * @typedef {ScaleType} scaleType Тип шкалы
+ * @property {String} yAxisTitle Заголовок оси Y
  */
 
 /**
  * Измерение гиперкуба
- * @typedef {ColumnProperties & _DimensionProperties} DimensionProperties
- */
-
-/**
- * Мера гиперкуба (добавочные поля к столбцу гиперкуба)
- * @typedef {Object} _MeasureProperties
- * @property {ChartType} chartType Тип графика
+ * @typedef {Object} DimensionProperties
+ * @property {ScaleType} scaleType Тип шкалы
+ * @property {Number} tickLabelAngle Угол поворота подписи засечки
  */
 
 /**
  * Мера гиперкуба
- * @typedef {ColumnProperties & _MeasureProperties} MeasureProperties
+ * @typedef {Object} MeasureProperties
+ * @property {ChartType} chartType Тип графика
  */
 
 /* JSDoc-определения для словарей */

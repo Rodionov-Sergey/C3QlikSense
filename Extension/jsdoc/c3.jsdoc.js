@@ -83,7 +83,7 @@
  * @typedef {Object} C3YAxis
  * @property {boolean} show true для отображения оси, иначе false
  * @property {C3Tick} tick Настройки засечек оси
- * @property {C3XAxisLabel} label Настройки подписи оси
+ * @property {C3YAxisLabel} label Настройки подписи оси
  */
 
 /**
