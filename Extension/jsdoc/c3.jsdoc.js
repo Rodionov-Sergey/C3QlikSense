@@ -5,7 +5,7 @@
 /**
  * Настройка графика C3
  * @typedef {Object} C3Settings
- * @property {String} bindto Селектор целевого элемента для вставки
+ * @property {*} bindto Селектор или DOM-узел целевого элемента для вставки
  * @property {C3Data} data Данные для построения
  * @property {C3Axes} axis Настройки осей
  */
@@ -14,6 +14,7 @@
  * Данные графика C3
  * @typedef {Object} C3Data
  * @property {String} x Идентификатор столбца данных для оси X
+ * @property {String} xFormat Форматная строка разбора значений
  * @property {C3Value[][]} columns Массив столбцов; Столбец - массив из идентификатора столбца и значений
  * @property {C3Value[][]} rows Массив строк; Строка - массив значений
  * @property {C3Types} types Настройки типов столбцов

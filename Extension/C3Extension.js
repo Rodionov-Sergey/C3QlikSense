@@ -133,44 +133,8 @@ define(
 		 */
 		function drawChart(parentElement, chartData) {
 			
-			// Подготовка данных для настроек
-
-			var argumentSeries = chartData.argumentSeries;
-			var series = [argumentSeries].concat(chartData.valueSeries);
-			var getValue = function(value) { return value.value; };
-			var getColumn = function (series) { return [series.id].concat(series.values.map(getValue)); };
-			var columns = series.map(getColumn);
-			var columnTypes = chartData.valueSeries.reduce(
-				function (types, series) { 
-					types[series.id] = toC3ChartType(series.type);
-					return types;
-				},
-				{});
-
 			// Формирование настроек графика C3
-
-			/** @type {C3Settings} */
-			var c3Settings = {
-				// Родительский элемент для встраивания
-				bindto: parentElement,
-				data: {
-					// Название столбца, определяющего значения X
-					x: argumentSeries.id,
-					xFormat: argumentSeries.type === ScaleTypes.TemporalScale ?
-						'%d.%m.%Y':
-						null,
-					// Значения X и значения Y кривых
-					columns: columns,
-					// Типы графиков для линий
-					types: columnTypes
-				},
-				axis: {
-					// Ось X
-					x: createXAxis(argumentSeries),
-					// Ось Y
-					y: createYAxis()
-				}
-			};
+			var c3Settings = getChartSettings(parentElement, chartData);
 
 			// DEBUG: Отладка данных графика
 			// console.log('Данные графика C3', c3Settings);
@@ -182,17 +146,103 @@ define(
 		/* Преобразование промежуточного представления в представление C3 */
 
 		/**
+		 * Создаёт настройки графика для C3
+		 * @param {*} parentElement Родительский DOM-элемент для встраивания графика
+		 * @param {Chart} chartData Данные графика
+		 * @returns {C3Settings} Настройки графика C3
+		 */
+		function getChartSettings(parentElement, chartData) {
+			return {
+				// Родительский элемент
+				bindto: parentElement,
+				// Данные
+				data: getC3Data(chartData),
+				// Оси
+				axis: {
+					// Ось X
+					x: getXAxis(chartData.argumentSeries),
+					// Ось Y
+					y: getYAxis()
+				}
+			};
+		}
+
+		/**
+		 * Создаёт данные графика C3
+		 * @param {Chart} chartData Данные графика
+		 * @returns {C3Data} Данные графика C3
+		 */
+		function getC3Data(chartData) {
+			return {
+				// Название столбца, определяющего значения X
+				x: chartData.argumentSeries.id,
+				// Формат аргументов
+				xFormat: getXFormat(chartData.argumentSeries),
+				// Значения X и значения Y кривых
+				columns: getColumns(chartData),
+				// Типы графиков для линий
+				types: getColumnTypes(chartData)
+			};
+		}
+		
+		/**
+		 * Создаёт данные столбцов графика C3
+		 * @param {Chart} chartData Данные графика
+		 * @returns {(String|Number[][]))} Данные столбцов C3
+		 */
+		function getColumns(chartData) {
+			var argumentSeries = chartData.argumentSeries;
+			var series = [argumentSeries].concat(chartData.valueSeries);
+			var getValue = function(value) { return value.value; };
+			var getColumn = function (series) { 
+				return [series.id].concat(series.values.map(getValue));
+			};
+			var columns = series.map(getColumn);
+			return columns;
+		}
+
+		/**
+		 * Возвращает типы серий значений графика
+		 * @param {Chart} chartData Данные графика
+		 * @returns {String[]} Типы серий
+		 */
+		function getColumnTypes(chartData) {
+			return chartData.valueSeries.reduce(
+				function (types, series) {
+					types[series.id] = getChartType(series.type);
+					return types;
+				},
+				{}
+			);
+		}
+
+		/**
+		 * Возвращает формат подписей аргумента
+		 * @param {ArgumentSeries} argumentSeries Серия аргумента
+		 * @returns {String} Форматная строка аргумента
+		 */
+		function getXFormat(argumentSeries) {
+			switch (argumentSeries.type) {
+				case ScaleTypes.TemporalScale: {
+					return '%d.%m.%Y';
+				}
+				default: 
+					return null;
+			}
+		}
+
+		/**
 		 * Создаёт настройки оси X
 		 * @param {ArgumentSeries} argumentSeries Серия аргументов графика
 		 * @returns {C3XAxis} Настройки оси X
 		 */
-		function createXAxis(argumentSeries) {
+		function getXAxis(argumentSeries) {
 			/** @type {C3XAxis} */
 			var xAxis = {
 				// Тип шкалы
-				type: toC3XAsisType(argumentSeries.type),
+				type: getXAsisType(argumentSeries.type),
 				// Настройки засечек
-				tick: createXAxisTick(argumentSeries),
+				tick: getXAxisTick(argumentSeries),
 				// Подпись оси
 				label: {
 					text: argumentSeries.title,
@@ -207,7 +257,7 @@ define(
 		 * @param {ArgumentSeries} argumentSeries Серия аргументов графика
 		 * @returns {C3Tick} Настройки засечки оси
 		 */
-		function createXAxisTick(argumentSeries) {
+		function getXAxisTick(argumentSeries) {
 			switch (argumentSeries.type) {
 				case ScaleTypes.TemporalScale: {
 					return {
@@ -229,7 +279,7 @@ define(
 		 * @param {ScaleType} scaleType Тип шкалы
 		 * @returns {C3XAxisType} Тип оси X в C3
 		 */
-		function toC3XAsisType(scaleType) {
+		function getXAsisType(scaleType) {
 			switch (scaleType) {
 				case ScaleTypes.CategoricalScale: {
 					return 'category';
@@ -250,7 +300,7 @@ define(
 		 * Создаёт настройки оси Y
 		 * @returns {C3YAxis} Настройки оси
 		 */
-		function createYAxis() {
+		function getYAxis() {
 			/** @type {C3YAxis} */
 			var yAxis = {
 				tick: {
@@ -265,7 +315,7 @@ define(
 		 * @param {ChartType} chartType Тип графика
 		 * @returns {C3ChartType} Тип графика C3
 		 */
-		function toC3ChartType(chartType) {
+		function getChartType(chartType) {
 			switch (chartType) {
 				case ChartTypes.LineChart: {
 					return 'line';
