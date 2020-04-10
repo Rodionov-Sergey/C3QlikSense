@@ -41,32 +41,25 @@
  * @typedef {Object} QlikColumn
  * @property {String} qFallbackTitle - Заголовок меры
  * @property {String} othersLabel - Текст специального значения Прочее
- * @property {ColumnProperties} properties - Кастомные свойства столбца (определяются расширением)
- */
-
-/**
- * Измерение гиперкуба Qlik (добавочные поля к столбцу гиперкуба)
- * @typedef {Object} _QlikDimension
- * @property {DimensionProperties} properties - Кастомные свойства измерения (определяются расширением)
  */
 
 /**
  * Измерение гиперкуба Qlik
  * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxDimensionInfo.html
- * @typedef {QlikColumn & _QlikDimension} QlikDimension
+ * @typedef {Object} QlikDimension
+ * @property {String} qFallbackTitle - Заголовок меры
+ * @property {String} othersLabel - Текст специального значения Прочее
+ * @property {DimensionProperties} properties - Кастомные свойства измерения (определяются расширением)
  */
 
-/**
- * Мера гиперкуба Qlik (добавочные поля к столбцу гиперкуба)
- * @typedef {Object} _QlikMeasure
- * @property {MeasureProperties} properties - Кастомные свойства меры (определяются расширением)
-*/
-
-/**
+ /**
  * Мера гиперкуба Qlik
  * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxMeasureInfo.html
- * @typedef {QlikColumn & _QlikMeasure} QlikMeasure
-*/
+ * @typedef {Object} QlikMeasure
+ * @property {String} qFallbackTitle - Заголовок меры
+ * @property {String} othersLabel - Текст специального значения Прочее
+ * @property {MeasureProperties} properties - Кастомные свойства меры (определяются расширением)
+ */
 
 /**
  * Страница данных гиперкуба Qlik
