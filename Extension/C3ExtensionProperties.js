@@ -12,6 +12,17 @@ define(
 	function () {
 		'use strict';
 
+		// Типы шкалы
+		/** @type {ScaleTypes} */
+		var scaleTypes = {
+			// Категориальная шкала
+			CategoricalScale: 'CategoricalScale',
+			// Числовая шкала
+			NumericScale: 'NumericScale',
+			// Временная шкала
+			TemporalScale: 'TemporalScale'
+		};
+
 		// Типы графиков
 		/** @type {ChartTypes} */
 		var chartTypes = {
@@ -19,6 +30,51 @@ define(
 			LineChart: 'LineChart',
 			// Столбчатая диаграмма
 			BarChart: 'BarChart'
+		};
+
+		// Определения свойств измерений
+		var dimensionProperties = {
+			// Тип шкалы
+			scaleTypes: {
+				ref: getColumnPropertyKey('scaleType'),
+				type: 'string',
+				component: 'dropdown',
+				label: 'Тип шкалы',
+				options: [
+					{
+						value: scaleTypes.CategoricalScale,
+						label: 'Категориальная шкала',
+					},
+					{
+						value: scaleTypes.NumericScale,
+						label: 'Числовая шкала',
+					},
+					{
+						value: scaleTypes.TemporalScale,
+						label: 'Временная шкала'
+					}
+				],
+				defaultValue: scaleTypes.CategoricalScale
+			},
+			// Угол наклона подписей - текстовое поле
+			tickLabelAngleText: {
+				ref: getColumnPropertyKey('tickLabelAngle'),
+				type: 'number',
+				label: 'Угол наклона подписей',
+				min: -90,
+				max: 90,
+				defaultValue: 0
+			},
+			// Угол наклона подписей - слайдер
+			tickLabelAngle: {
+				ref: getColumnPropertyKey('tickLabelAngle'),
+				type: 'number',
+				component: 'slider',
+				min: -90,
+				max: 90,
+				step: 10,
+				defaultValue: 0
+			}
 		};
 
 		// Определения свойств мер
@@ -52,7 +108,9 @@ define(
 				dimensions: {
 					uses: 'dimensions',
 					min: 1,
-					max: 1
+					max: 1,
+					// Кастомные свойства измерений
+					items: dimensionProperties
 				},
 				// Блок свойств Меры
 				measures: {
@@ -69,6 +127,18 @@ define(
 				// Блок свойств Вид
 				settings: {
 					uses: 'settings'
+				},
+				// Кастомные свойства расширения
+				chart: {
+					type: "items",
+					label: 'Настройки графика',
+					items: {
+						yAxisTitle: {
+							ref: getExtensionPropertyKey('yAxisTitle'),
+							type: 'string',
+							label: 'Заголовок оси Y'
+						}
+					}
 				}
 			}
 		};
@@ -76,6 +146,9 @@ define(
 		return {
 			// Определения свойств, настраиваемых пользователем в боковой панели
 			properties: properties,
+
+			// Типы шкал
+			scaleTypes: scaleTypes,
 
 			// Типы графиков
 			chartTypes: chartTypes
@@ -117,35 +190,31 @@ define(
  /**
  * Данные расширения Qlik
  * @typedef {Object} ExtensionProperties
- */
-
-/**
- * Столбец гиперкуба
- * @typedef {Object} ColumnProperties
- */
-
- /**
- * Измерение гиперкуба (добавочные поля к столбцу гиперкуба)
- * @typedef {Object} _DimensionProperties
+ * @property {String} yAxisTitle Заголовок оси Y
  */
 
 /**
  * Измерение гиперкуба
- * @typedef {ColumnProperties & _DimensionProperties} DimensionProperties
- */
-
-/**
- * Мера гиперкуба (добавочные поля к столбцу гиперкуба)
- * @typedef {Object} _MeasureProperties
- * @property {ChartType} chartType Тип графика
+ * @typedef {Object} DimensionProperties
+ * @property {ScaleType} scaleType Тип шкалы
+ * @property {Number} tickLabelAngle Угол поворота подписи засечки
  */
 
 /**
  * Мера гиперкуба
- * @typedef {ColumnProperties & _MeasureProperties} MeasureProperties
+ * @typedef {Object} MeasureProperties
+ * @property {ChartType} chartType Тип графика
  */
 
 /* JSDoc-определения для словарей */
+
+/**
+ * Типы шкал
+ * @typedef {Object} ScaleTypes
+ * @property {ScaleType} CategoricalScale Категориальная шкала
+ * @property {ScaleType} NumericScale Числовая шкала
+ * @property {ScaleType} TemporalScale Временная шкала
+ */
 
 /**
  * Типы графиков
@@ -154,9 +223,3 @@ define(
  * @property {ChartType} BarChart Столбчатая диаграмма
  */
 
-/**
- * Тип графика
- * @typedef {String} ChartType
- * - 'LineChart' - линейный график
- * - 'BarChart' - столбчатая диаграмма
- */

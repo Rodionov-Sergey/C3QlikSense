@@ -35,3 +35,90 @@
 Ячейка представляется классом `QlikCell`.
 
 Расширение ячеек выполняется при помощи атрибутов, при этом в поле `qAttrExps` в массиве `qValue` по определённому индексу лежит объект класса `QlikAttributes`, представляющий значение нового свойства.
+
+---
+
+# Исходные данные диаграммы
+
+> Ниже представлены исходные данные для диаграммы классов Qlik API.
+>
+> Диаграмма описана с использованием расширение разметки [Mermaid](https://mermaid-js.github.io/mermaid/#/).
+>
+> Поскольку GitHub не поддерживает рендеринг этого раширения разметки, вставка осуществляется так:
+> 1. Редактируется разметка в данном файле.
+>    * Для работы в Visual Studio Code можно использовать плагины, например Markdown Preview Mermaid Support (bierner.markdown-mermaid).
+>    * Можно также использовать онлайн-редактор.
+> 1. Разметка вставляется в [онлайн-редактор](https://mermaid-js.github.io/mermaid-live-editor/), который генерирует ссылку для вставки.
+> 1. Сгенерированная ссылка вставляется в раздел Диаграмма классов.
+
+## Mermaid-разметка
+```mermaid
+classDiagram
+    class QlikExtension {
+        string title
+    }
+    QlikExtension *-- QlikHyperCube: qHyperCube
+    QlikExtension *-- "0..1" ExtensionProperties: properties
+
+    QlikHyperCube *-- "*" QlikDimension: qDimensionInfo
+    QlikHyperCube *-- "*" QlikMeasure: qMeasureInfo
+    QlikHyperCube *-- "*" QlikDataPage: qDataPages
+
+    class QlikColumn {
+         string qFallbackTitle 
+         string othersLabel
+    }
+    QlikColumn o-- "0..1" ColumnProperties: properties
+
+    class QlikDimension {
+         string qFallbackTitle 
+         string othersLabel
+    }
+    QlikDimension --|> QlikColumn
+    QlikDimension o-- "0..1" DimensionProperties: properties
+
+    class QlikMeasure {
+         string qFallbackTitle 
+         string othersLabel
+    }
+    QlikMeasure --|> QlikColumn
+    QlikMeasure o-- "0..1" MeasureProperties: properties
+
+    QlikDataPage *-- "*" QlikRow
+
+    QlikRow *-- "*" QlikCell
+
+    class QlikCell {
+        boolean qIsEmpty
+        boolean qIsNull
+        string qText
+        number qNum
+    }
+    QlikCell *-- QlikAttributes: qAttrExps
+
+    QlikAttributes *-- "*" QlikValue: qValues
+
+    class QlikValue {
+        string qText
+        number qNum 
+    }
+
+    class ExtensionProperties {
+        <<abstract>>
+    }
+
+    class ColumnProperties {
+        <<abstract>>
+    }
+
+    class DimensionProperties {
+        <<abstract>>
+    }
+    DimensionProperties --|> ColumnProperties
+
+    class MeasureProperties {
+        <<abstract>>
+    }
+    MeasureProperties --|> ColumnProperties
+
+```
