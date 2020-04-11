@@ -163,6 +163,13 @@ define(
 					x: getXAxis(chartData.argumentSeries),
 					// Ось Y
 					y: getYAxis(chartData.yAxis)
+				},
+				// Легенда
+				legend: {
+					// Признак отображения
+					show: chartData.legend.shown,
+					// Положение
+					position: getLegendPosition(chartData.legend.position)
 				}
 			};
 		}
@@ -183,6 +190,24 @@ define(
 				// Типы графиков для линий
 				types: getColumnTypes(chartData)
 			};
+		}
+
+		/**
+		 * Преобразование положение легегды для C3
+		 * @param {String} position Положение
+		 * @returns {String} Положение в C3
+		 */
+		function getLegendPosition(position) {
+			switch (position) {
+				case 'Right': 
+					return 'right';
+				case 'Bottom': 
+					return 'bottom';
+				case 'Inside': 
+					return 'inset';
+				default: 
+					throw new Error('Неизвестное положение легенды: ' + position);
+			}
 		}
 		
 		/**
@@ -352,17 +377,21 @@ define(
 			
 			// DEBUG: Отладка настроек свойств расширения
 			// console.log('Данные расширения', qlikHyperCube);
-			
 			var qlikHypercube = qlikExtension.qHyperCube;
+			
+			/** @type {ExtensionProperties} */	
+			var properties = qlikExtension.properties || { };		 
 
 			/** @type {Chart} */
 			var chart = {
 				argumentSeries: getQlikArgumentSeriesData(qlikHypercube),
 				valueSeries: getQlikValuesSeriesData(qlikHypercube),
 				yAxis: {
-					title: qlikExtension.properties != null ? 
-						qlikExtension.properties.yAxisTitle : 
-						null
+					title: properties.yAxisTitle
+				},
+				legend: {
+					shown: properties.legendShown != undefined ? properties.legendShown : true,
+					position: properties.legendPosition
 				}
 			};
 
@@ -371,7 +400,6 @@ define(
 
 			return chart;
 		}
-
 		/**
 		 * Возвращает серии диаграммы
 		 * @param {QlikHyperCube} qlikHyperCube Данные гиперкуба
@@ -383,14 +411,16 @@ define(
 			var qlikDimension = qlikHyperCube.qDimensionInfo[columnIndex];
 			var qlikCells = qlikHyperCube.qDataPages[0].qMatrix;
 
+			var properties = qlikDimension.properties || { };
+			
 			return {
 				id: qlikDimension.qFallbackTitle,
 				title: qlikDimension.qFallbackTitle,
-				values: getQlikColumnValuesData(qlikCells, columnIndex, qlikDimension.properties.scaleType),
-				type: qlikDimension.properties.scaleType,
-				tickLabelAngle: qlikDimension.properties.tickLabelAngle
+				values: getQlikColumnValuesData(qlikCells, columnIndex, properties.scaleType),
+				type: properties.scaleType,
+				tickLabelAngle: properties.tickLabelAngle
 			};
-		}
+		}		
 		
 		/**
 		 * Возвращает серии диаграммы
@@ -468,6 +498,22 @@ define(
  * @property {ArgumentSeries} argumentSeries Последовательность аргументов
  * @property {ValueSeries[]} valueSeries Последовательность точек данных
  * @property {YAxis} yAxis Настройки оси Y
+ * @property {Legend} legend Легенда
+ */
+
+/**
+ * Легенда
+ * @typedef {Object} Legend
+ * @property {Boolean} shown Признак отображения
+ * @property {LegendPosition} position Положение легенды
+ */
+
+/**
+ * Позиция легенды
+ * @typedef {String} LegendPosition
+ * - 'Right' - Справа
+ * - 'Bottom' - Снизу
+ * - 'Inside' - Внутри
  */
 
 /**

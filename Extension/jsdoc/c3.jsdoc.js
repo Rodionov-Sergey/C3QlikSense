@@ -8,8 +8,24 @@
  * @property {*} bindto Селектор или DOM-узел целевого элемента для вставки
  * @property {C3Data} data Данные для построения
  * @property {C3Axes} axis Настройки осей
+ * @property {C3Legend} legend Настройки легенды
  */
 
+/**
+ * Настойка легенды
+ * @typedef {Object} C3Legend
+ * @property {Boolean} show Отображение легенды
+ * @property {C3LegendPosition} position Позиция легенды
+ */
+
+/**
+ * Позиция легенды
+ * @typedef {String} C3LegendPosition
+ * - 'right' - Справа
+ * - 'bottom' - Снизу
+ * - 'inset' - Внутри
+ */
+ 
 /**
  * Данные графика C3
  * @typedef {Object} C3Data
