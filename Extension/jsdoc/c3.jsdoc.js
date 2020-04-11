@@ -14,8 +14,16 @@
 /**
  * Настойка легенды
  * @typedef {Object} C3Legend
- * @property {String} position Позиция легенды
  * @property {Boolean} show Отображение легенды
+ * @property {C3LegendPosition} position Позиция легенды
+ */
+
+/**
+ * Позиция легенды
+ * @typedef {String} C3LegendPosition
+ * - 'right' - Справа
+ * - 'bottom' - Снизу
+ * - 'inset' - Внутри
  */
  
 /**

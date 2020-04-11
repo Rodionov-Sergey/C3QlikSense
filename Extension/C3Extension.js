@@ -168,6 +168,7 @@ define(
 				legend: {
 					// Признак отображения
 					show: chartData.legend.shown,
+					// Положение
 					position: getLegendPosition(chartData.legend.position)
 				}
 			};
@@ -500,12 +501,20 @@ define(
  * @property {Legend} legend Легенда
  */
 
- /**
-  * Легенда
-  * @typedef {Object} Legend
-  * @property {Boolean} shown Признак отображения
-  * @property {String} position Положение легенды
-  */
+/**
+ * Легенда
+ * @typedef {Object} Legend
+ * @property {Boolean} shown Признак отображения
+ * @property {LegendPosition} position Положение легенды
+ */
+
+/**
+ * Позиция легенды
+ * @typedef {String} LegendPosition
+ * - 'Right' - Справа
+ * - 'Bottom' - Снизу
+ * - 'Inside' - Внутри
+ */
 
 /**
  * Ось Y
