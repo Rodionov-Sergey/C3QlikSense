@@ -373,53 +373,53 @@ define(
 		 * @param {QlikExtension} qlikExtension Расширение
 		 * @returns {Chart} Данные диаграммы
 		 */
-        function getQlikChartData(qlikExtension) {
-            
-            // DEBUG: Отладка настроек свойств расширения
-            // console.log('Данные расширения', qlikHyperCube);
+		function getQlikChartData(qlikExtension) {
+			
+			// DEBUG: Отладка настроек свойств расширения
+			// console.log('Данные расширения', qlikHyperCube);
 			var qlikHypercube = qlikExtension.qHyperCube;
 			
 			/** @type {ExtensionProperties} */	
-			var properties = qlikExtension.properties || { };         
+			var properties = qlikExtension.properties || { };		 
 
-            /** @type {Chart} */
-            var chart = {
-                argumentSeries: getQlikArgumentSeriesData(qlikHypercube),
-                valueSeries: getQlikValuesSeriesData(qlikHypercube),
-                yAxis: {
-                    title: properties.yAxisTitle
-                },
-                legend: {
+			/** @type {Chart} */
+			var chart = {
+				argumentSeries: getQlikArgumentSeriesData(qlikHypercube),
+				valueSeries: getQlikValuesSeriesData(qlikHypercube),
+				yAxis: {
+					title: properties.yAxisTitle
+				},
+				legend: {
 					shown: properties.legendShown != undefined ? properties.legendShown : true,
 					position: properties.legendPosition
 				}
-            };
+			};
 
-            // DEBUG: Отладка промежуточных данных графика
-            // console.log('Данные графика', chart);
+			// DEBUG: Отладка промежуточных данных графика
+			// console.log('Данные графика', chart);
 
-            return chart;
-        }
+			return chart;
+		}
 		/**
 		 * Возвращает серии диаграммы
 		 * @param {QlikHyperCube} qlikHyperCube Данные гиперкуба
 		 * @returns {ArgumentSeries} Серия для столбца аргументов данных
 		 */
 		function getQlikArgumentSeriesData(qlikHyperCube) {
-            var columnIndex = 0;
-            /** @type {QlikDimension} */
-            var qlikDimension = qlikHyperCube.qDimensionInfo[columnIndex];
-            var qlikCells = qlikHyperCube.qDataPages[0].qMatrix;
+			var columnIndex = 0;
+			/** @type {QlikDimension} */
+			var qlikDimension = qlikHyperCube.qDimensionInfo[columnIndex];
+			var qlikCells = qlikHyperCube.qDataPages[0].qMatrix;
 
-            var properties = qlikDimension.properties || { };
-            
-            return {
-                id: qlikDimension.qFallbackTitle,
-                title: qlikDimension.qFallbackTitle,
-                values: getQlikColumnValuesData(qlikCells, columnIndex, properties.scaleType),
-                type: properties.scaleType,
-                tickLabelAngle: properties.tickLabelAngle
-            };
+			var properties = qlikDimension.properties || { };
+			
+			return {
+				id: qlikDimension.qFallbackTitle,
+				title: qlikDimension.qFallbackTitle,
+				values: getQlikColumnValuesData(qlikCells, columnIndex, properties.scaleType),
+				type: properties.scaleType,
+				tickLabelAngle: properties.tickLabelAngle
+			};
 		}		
 		
 		/**
