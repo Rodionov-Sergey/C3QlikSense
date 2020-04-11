@@ -167,7 +167,8 @@ define(
 				// Легенда
 				legend: {
 					// Признак отображения
-					show: chartData.legend.shown
+					show: chartData.legend.shown,
+					position: getLegendPosition(chartData.legend.position)
 				}
 			};
 		}
@@ -188,6 +189,24 @@ define(
 				// Типы графиков для линий
 				types: getColumnTypes(chartData)
 			};
+		}
+
+		/**
+		 * Преобразование положение легегды для C3
+		 * @param {String} position Положение
+		 * @returns {String} Положение в C3
+		 */
+		function getLegendPosition(position) {
+			switch (position) {
+				case 'Right': 
+					return 'right';
+				case 'Bottom': 
+					return 'bottom';
+				case 'Inside': 
+					return 'inset';
+				default: 
+					throw new Error('Неизвестное положение легенды: ' + position);
+			}
 		}
 		
 		/**
@@ -357,8 +376,9 @@ define(
             
             // DEBUG: Отладка настроек свойств расширения
             // console.log('Данные расширения', qlikHyperCube);
-            var qlikHypercube = qlikExtension.qHyperCube;
-
+			var qlikHypercube = qlikExtension.qHyperCube;
+			
+			/** @type {ExtensionProperties} */	
 			var properties = qlikExtension.properties || { };         
 
             /** @type {Chart} */
@@ -369,8 +389,9 @@ define(
                     title: properties.yAxisTitle
                 },
                 legend: {
-                    shown: properties.legendShown != undefined ? properties.legendShown : true
-                }
+					shown: properties.legendShown != undefined ? properties.legendShown : true,
+					position: properties.legendPosition
+				}
             };
 
             // DEBUG: Отладка промежуточных данных графика
@@ -483,6 +504,7 @@ define(
   * Легенда
   * @typedef {Object} Legend
   * @property {Boolean} shown Признак отображения
+  * @property {String} position Положение легенды
   */
 
 /**

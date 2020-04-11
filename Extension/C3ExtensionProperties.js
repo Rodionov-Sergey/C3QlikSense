@@ -153,6 +153,30 @@ define(
 								}
 							],
 							defaultValue: true
+						},
+						legendPosition: {
+							ref: getExtensionPropertyKey('legendPosition'),
+							type: 'string',
+							component: 'buttongroup',
+							label: 'Расположение легенды',
+							options: [
+								{
+									value: 'Right',
+									label: 'Справа'
+								},
+								{
+									value: 'Bottom',
+									label: 'Снизу'
+								},
+								{
+									value: 'Inside',
+									label: 'Внутри'
+								}
+							],
+							defaultValue: 'Right',
+							show: function (context){
+								return context.properties.legendShown;								
+							}
 						}
 					}
 				}
@@ -208,6 +232,7 @@ define(
  * @typedef {Object} ExtensionProperties
  * @property {String} yAxisTitle Заголовок оси Y
  * @property {Boolean} legendShown Признак отображения легенды
+ * @property {String} legendPosition Расположение легенды
  */
 
 /**
