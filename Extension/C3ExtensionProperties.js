@@ -130,13 +130,29 @@ define(
 				},
 				// Кастомные свойства расширения
 				chart: {
-					type: "items",
+					type: 'items',
 					label: 'Настройки графика',
 					items: {
 						yAxisTitle: {
 							ref: getExtensionPropertyKey('yAxisTitle'),
 							type: 'string',
 							label: 'Заголовок оси Y'
+						},	
+						legendShown: {
+							ref: getExtensionPropertyKey('legendShown'),
+							type: 'boolean',
+							component: 'switch',
+							label: 'Отображение легенды',
+							options: [
+								{
+									value: true,
+									label: 'Отобразить'
+								}, {
+									value: false,
+									label: 'Скрыть'
+								}
+							],
+							defaultValue: true
 						}
 					}
 				}
@@ -191,6 +207,7 @@ define(
  * Данные расширения Qlik
  * @typedef {Object} ExtensionProperties
  * @property {String} yAxisTitle Заголовок оси Y
+ * @property {Boolean} legendShown Признак отображения легенды
  */
 
 /**
@@ -222,4 +239,3 @@ define(
  * @property {ChartType} LineChart Линейный график
  * @property {ChartType} BarChart Столбчатая диаграмма
  */
-
