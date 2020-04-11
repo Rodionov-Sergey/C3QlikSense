@@ -5,7 +5,7 @@ define(
 	// Список зависимостей
 	[
 		// Qlik API - API Qlik Sense, приложения для визуализации, исследования и мониторинга данных
-		"qlik",
+		'qlik',
 		// jQuery - библиотека для работы с HTML
 		'jquery',
 		// Свойства расширения
@@ -22,26 +22,18 @@ define(
 	 * Создаёт модуль расширения
 	 * @param {QlikApi} qlik API Qlik Sense
 	 * @param {*} $ jQuery - библиотека для работы с HTML
-	 * @param {*} definitions - Определения настроек расширения
+	 * @param {*} properties - Определения настроек расширения
 	 * @param {*} d3 D3.js - библиотека для манипулирования документами на основе данных
 	 * @param {*} c3 C3.js - библиотека для построения графиков
 	 * @param {*} c3Css Содержимое стилей C3.js
 	 * @returns {*} Модуль
 	 */
-	function (qlik, $, definitions, d3, c3, c3Css) {
+	function(qlik, $, properties, d3, c3, c3Css) {
 		'use strict';
 
 		// HACK: Так C3.js найдёт свою зависимость D3.js по имени d3
 		window.d3 = d3;
 
-		/** @type {ScaleTypes} */
-		var ScaleTypes = definitions.scaleTypes;
-		/** @type {ChartTypes} */
-		var ChartTypes = definitions.chartTypes;
-
-		// DEBUG: Отладка настроек свойств расширения
-		// console.log('Определения настроек расширения', definitions);
-		
 		// Добавление стилей расширения
 		$('<style>')
 			.html(c3Css)
@@ -49,19 +41,20 @@ define(
 
 		// Модуль расширения Qlik Sense
 		var extensionModule = {
-
 			// Определения свойств
-			definition: definitions.properties,
+			definition: properties,
 
 			// Настройки первичной загрузки данных
 			initialProperties: {
 				qHyperCubeDef: {
 					qDimensions: [],
 					qMeasures: [],
-					qInitialDataFetch: [{
-						qWidth: 11,
-						qHeight: 900
-					}]
+					qInitialDataFetch: [
+						{
+							qWidth: 11,
+							qHeight: 900
+						}
+					]
 				}
 			},
 
@@ -69,7 +62,7 @@ define(
 			support: {
 				snapshot: true,
 				export: true,
-				exportData : false
+				exportData: false
 			},
 
 			/**
@@ -78,18 +71,27 @@ define(
 			 * @param {QlikExtension} qlikExtension Данные расширения
 			 * @returns {Promise} Promise завершения отрисовки
 			 */
-			paint: function ($element, qlikExtension) {
-
+			paint: function($element, qlikExtension) {
 				try {
+
+					// DEBUG: Отладка настроек расширения
+					//console.log('Определения настроек расширения', properties);
+
 					// Подготовка контенера для графика
 					var $containerElement = prepareContainer($element);
 					var containerNode = $containerElement.get(0);
+					
+					// DEBUG: Отладка данных расширения
+					//console.log('Данные расширения', qlikExtension);
 
-					// Получение данных из Qlik
-					var chartData = getQlikChartData(qlikExtension);
+					// Формирование настроек графика C3
+					var c3Settings = getChartSettings(containerNode, qlikExtension);
 
-					// Отрисовка данных на диаграмме
-					drawChart(containerNode, chartData);
+					// DEBUG: Отладка данных графика
+					//console.log('Данные графика C3', c3Settings);
+
+					// Отрисовка графика
+					c3.generate(c3Settings);
 				}
 				catch (error) {
 					console.log(error);
@@ -98,7 +100,6 @@ define(
 
 				return qlik.Promise.resolve();
 			}
-
 		};
 
 		return extensionModule;
@@ -123,222 +124,265 @@ define(
 				.appendTo($parentElement);
 			return $newElement;
 		}
-		
-		/* Отрисовка графика */
 
-		/**
-		 * Отрисовывает график
-		 * @param {*} parentElement Родительский DOM-элемент для встраивания графика
-		 * @param {Chart} chartData Данные графика
-		 */
-		function drawChart(parentElement, chartData) {
-			
-			// Формирование настроек графика C3
-			var c3Settings = getChartSettings(parentElement, chartData);
-
-			// DEBUG: Отладка данных графика
-			// console.log('Данные графика C3', c3Settings);
-
-			// Отрисовка графика
-			c3.generate(c3Settings);
-		}
-		
 		/* Преобразование промежуточного представления в представление C3 */
 
 		/**
 		 * Создаёт настройки графика для C3
 		 * @param {*} parentElement Родительский DOM-элемент для встраивания графика
-		 * @param {Chart} chartData Данные графика
+		 * @param {QlikExtension} qlikExtension Данные расширения
 		 * @returns {C3Settings} Настройки графика C3
 		 */
-		function getChartSettings(parentElement, chartData) {
+		function getChartSettings(parentElement, qlikExtension) {
 			return {
 				// Родительский элемент
 				bindto: parentElement,
 				// Данные
-				data: getC3Data(chartData),
+				data: getData(qlikExtension),
 				// Оси
 				axis: {
 					// Ось X
-					x: getXAxis(chartData.argumentSeries),
+					x: getXAxis(qlikExtension),
 					// Ось Y
-					y: getYAxis(chartData.yAxis)
+					y: getYAxis(qlikExtension)
 				},
 				// Легенда
-				legend: {
-					// Признак отображения
-					show: chartData.legend.shown,
-					// Положение
-					position: getLegendPosition(chartData.legend.position)
-				}
+				legend: getLegend(qlikExtension)
 			};
 		}
 
 		/**
-		 * Создаёт данные графика C3
-		 * @param {Chart} chartData Данные графика
+		 * Возвращает данные графика
+		 * @param {QlikExtension} qlikExtension Данные расширения
 		 * @returns {C3Data} Данные графика C3
 		 */
-		function getC3Data(chartData) {
+		function getData(qlikExtension) {
+
+			var qlikHyperCube = qlikExtension.qHyperCube;
+
+			if (qlikHyperCube.qDimensionInfo.length !== 1) {
+				throw new Error('Сконфигурировано некорректное число измерений.');
+			}
+
+			var argumentColumnIndex = 0;
+			var argumentDimension = qlikHyperCube.qDimensionInfo[argumentColumnIndex];
+
+			var dimensionValues = getDimensionIdAndValues(qlikHyperCube, argumentDimension, argumentColumnIndex);
+			var valueMeasures = qlikHyperCube.qMeasureInfo;
+			var measureValues = valueMeasures.map(
+				function (qlikMeasure, index) {
+					return getMeasureIdAndValues(qlikHyperCube, qlikMeasure, index + 1);
+				}
+			);
+			var allValues = [dimensionValues].concat(measureValues);
+
 			return {
 				// Название столбца, определяющего значения X
-				x: chartData.argumentSeries.id,
+				x: getColumnId(argumentDimension),
 				// Формат аргументов
-				xFormat: getXFormat(chartData.argumentSeries),
+				xFormat: getXFormat(argumentDimension),
 				// Значения X и значения Y кривых
-				columns: getColumns(chartData),
+				columns: allValues,
 				// Типы графиков для линий
-				types: getColumnTypes(chartData)
+				types: getColumnTypes(valueMeasures)
 			};
 		}
 
 		/**
-		 * Преобразование положение легегды для C3
-		 * @param {String} position Положение
-		 * @returns {String} Положение в C3
+		 * Возвращает идентификатор столбца
+		 * @param {QlikDimension|QlikMEasure} qlikColumn Столбец данных
+		 * @returns {String} Идентификатор столбца
 		 */
-		function getLegendPosition(position) {
-			switch (position) {
-				case 'Right': 
-					return 'right';
-				case 'Bottom': 
-					return 'bottom';
-				case 'Inside': 
-					return 'inset';
-				default: 
-					throw new Error('Неизвестное положение легенды: ' + position);
-			}
+		function getColumnId(qlikColumn) {
+			return qlikColumn.qFallbackTitle;
+		}
+
+		/**
+		 * Возвращает значения данных измерения
+		 * @param {QlikHyperCube} qlikHyperCube Данные гиперкуба
+		 * @param {QlikDimension} qlikDimension Измерение
+		 * @param {Number} index Индекс столбца
+		 * @returns {(Number|String)[]} Идентификатор и значения ячеек
+		 */
+		function getDimensionIdAndValues(qlikHyperCube, qlikDimension, index) {
+			var scaleType = qlikDimension.properties.scaleType;
+			return getColumnIdAndValues(qlikHyperCube, qlikDimension, index, scaleType);
+		}
+
+		/**
+		 * Возвращает значения данных меры
+		 * @param {QlikHyperCube} qlikHyperCube Данные гиперкуба
+		 * @param {QlikDimension} qlikMeasure Мера
+		 * @param {Number} index Индекс столбца
+		 * @returns {(Number|String)[]} Идентификатор и значения ячеек
+		 */
+		function getMeasureIdAndValues(qlikHyperCube, qlikMeasure, index) {
+			return getColumnIdAndValues(qlikHyperCube, qlikMeasure, index, 'NumericScale');
+		}
+
+		/**
+		 * Возвращает значения данных столбца
+		 * @param {QlikHyperCube} qlikHyperCube Данные гиперкуба
+		 * @param {QlikDimension|QlikMeasure} qlikColumn Столбец данных
+		 * @param {Number} index Индекс столбца
+		 * @param {ScaleType} scaleType Тип шкалы
+		 * @returns {(Number|String)[]} Идентификатор и значения ячеек
+		 */
+		function getColumnIdAndValues(qlikHyperCube, qlikColumn, index, scaleType) {
+			var columnId = getColumnId(qlikColumn);
+			var values = getColumnValues(qlikHyperCube, index, scaleType);
+			return [columnId].concat(values);
+		}
+
+		/**
+		 * Возвращает значения для столбца данных
+		 * @param {QlikHyperCube} qlikHyperCube Данные гиперкуба
+		 * @param {Number} columnIndex Индекс столбца
+		 * @param {ScaleType} scaleType Тип шкалы
+		 * @returns {(Number|String)[]} Значения столбца
+		 */
+		function getColumnValues(qlikHyperCube, columnIndex, scaleType) {
+			return qlikHyperCube.qDataPages[0].qMatrix.map(
+				function(qlikRow) {
+					return getCellValue(qlikRow[columnIndex], scaleType);
+				}
+			);
 		}
 		
 		/**
-		 * Создаёт данные столбцов графика C3
-		 * @param {Chart} chartData Данные графика
-		 * @returns {(String|Number[][]))} Данные столбцов C3
+		 * Возвращает числовое значение ячейки
+		 * @param {QlikCell} qlikCell Ячека данных
+		 * @param {ScaleType} scaleType Тип шкалы
+		 * @returns {Number|String} Значение ячейки
 		 */
-		function getColumns(chartData) {
-			var argumentSeries = chartData.argumentSeries;
-			var series = [argumentSeries].concat(chartData.valueSeries);
-			var getValue = function(value) { return value.value; };
-			var getColumn = function (series) { 
-				return [series.id].concat(series.values.map(getValue));
-			};
-			var columns = series.map(getColumn);
-			return columns;
+		function getCellValue(qlikCell, scaleType) {
+			return scaleType === 'NumericScale' ? qlikCell.qNum : qlikCell.qText;
 		}
 
 		/**
-		 * Возвращает типы серий значений графика
-		 * @param {Chart} chartData Данные графика
-		 * @returns {String[]} Типы серий
+		 * Возвращает формат подписей измерения
+		 * @param {QlikDimension} qlikDimension Измерение аргумента
+		 * @returns {String=} Форматная строка аргумента
 		 */
-		function getColumnTypes(chartData) {
-			return chartData.valueSeries.reduce(
-				function (types, series) {
-					types[series.id] = getChartType(series.type);
+		function getXFormat(qlikDimension) {
+			switch (qlikDimension.properties.scaleType) {
+				case 'TemporalScale':
+					return '%d.%m.%Y';
+				default:
+					return null;
+			}
+		}
+
+		/**
+		 * Возвращает типы графиков для мер
+		 * @param {QlikMeasure[]} qlikMeasures Меры
+		 * @returns {*} Типы столбцов
+		 */
+		function getColumnTypes(qlikMeasures) {
+			return qlikMeasures.reduce(
+				function(types, qlikMeasure) {
+					types[getColumnId(qlikMeasure)] = getColumnType(qlikMeasure.properties.chartType);
 					return types;
-				},
+				}, 
 				{}
 			);
 		}
 
 		/**
-		 * Возвращает формат подписей аргумента
-		 * @param {ArgumentSeries} argumentSeries Серия аргумента
-		 * @returns {String} Форматная строка аргумента
+		 * Возращает тип графика для меры
+		 * @param {ChartType} chartType Мера
+		 * @returns {C3ChartType} Тип графика C3
 		 */
-		function getXFormat(argumentSeries) {
-			switch (argumentSeries.type) {
-				case ScaleTypes.TemporalScale: {
-					return '%d.%m.%Y';
+		function getColumnType(chartType) {
+			switch (chartType) {
+				case 'LineChart': {
+					return 'line';
 				}
-				default: 
-					return null;
+				case 'BarChart': {
+					return 'bar';
+				}
+				default: {
+					throw new Error('Неизвестный тип графика: ' + chartType);
+				}
 			}
 		}
 
 		/**
-		 * Создаёт настройки оси X
-		 * @param {ArgumentSeries} argumentSeries Серия аргументов графика
+		 * Возвращает настройки оси X
+		 * @param {QlikExtension} qlikExtension Данные расширения
 		 * @returns {C3XAxis} Настройки оси X
 		 */
-		function getXAxis(argumentSeries) {
-			/** @type {C3XAxis} */
-			var xAxis = {
+		function getXAxis(qlikExtension) {
+			var qlikDimension = qlikExtension.qHyperCube.qDimensionInfo[0];
+			return {
 				// Тип шкалы
-				type: getXAsisType(argumentSeries.type),
+				type: getXAsisType(qlikDimension.properties.scaleType),
 				// Настройки засечек
-				tick: getXAxisTick(argumentSeries),
+				tick: getXAxisTick(qlikDimension),
 				// Подпись оси
 				label: {
-					text: argumentSeries.title,
+					text: qlikDimension.qFallbackTitle,
 					position: 'outer-center'
 				}
 			};
-			return xAxis;
 		}
 
 		/**
-		 * Создаёт настройки засечки оси X
-		 * @param {ArgumentSeries} argumentSeries Серия аргументов графика
+		 * Возвращает настройки засечки оси X
+		 * @param {QlikDimension} qlikDimension Измерение
 		 * @returns {C3Tick} Настройки засечки оси
 		 */
-		function getXAxisTick(argumentSeries) {
+		function getXAxisTick(qlikDimension) {
 			return {
-				format: getXTickFormat(argumentSeries.type),
-				rotate: argumentSeries.tickLabelAngle,
+				format: getXTickFormat(qlikDimension.properties.scaleType),
+				rotate: qlikDimension.properties.tickLabelAngle,
 				multiline: false
 			};
 		}
 
 		/**
-		 * Возвращает формат для типа шкалы аргументов 
-		 * @param {ScaleType} scaleType 
+		 * Возвращает формат для типа шкалы аргументов
+		 * @param {ScaleType} scaleType Тип шкалы
 		 * @return {String|function(*):String} Строка формата или функция форматирования
 		 */
 		function getXTickFormat(scaleType) {
 			switch (scaleType) {
-				case ScaleTypes.TemporalScale: {
+				case 'TemporalScale':
 					return '%d.%m.%Y';
-				}
-				case ScaleTypes.NumericScale: {
+				case 'NumericScale':
 					return d3.format('.2f');
-				}
-				default: 
+				default:
 					return null;
 			}
 		}
 
 		/**
-		 * Преобразует тип шкалы в тип оси
-		 * @param {ScaleType} scaleType Тип шкалы
-		 * @returns {C3XAxisType} Тип оси X в C3
+		 * Возвращает тип шкалы для оси X
+		 * @param {ScaleType} scaleType Измерение
+		 * @returns {C3XAxisType} Тип оси X
 		 */
 		function getXAsisType(scaleType) {
 			switch (scaleType) {
-				case ScaleTypes.CategoricalScale: {
+				case 'CategoricalScale':
 					return 'category';
-				}
-				case ScaleTypes.NumericScale: {
+				case 'NumericScale':
 					return 'linear';
-				}
-				case ScaleTypes.TemporalScale: {
+				case 'TemporalScale':
 					return 'timeseries';
-				}
-				default: {
-					throw new Error('Тип оси X в С3 неизвестен для типа шкалы: ' + scaleType);
-				}
+				default:
+					throw new Error('Неизвестный тип оси X: ' + scaleType);
 			}
 		}
-
+		
 		/**
-		 * Создаёт настройки оси Y
-		 * @param {YAxis} yAxis Ось Y
+		 * Возвращает настройки оси Y
+		 * @param {QlikExtension} qlikExtension Данные расширения
 		 * @returns {C3YAxis} Настройки оси
 		 */
-		function getYAxis(yAxis) {
+		function getYAxis(qlikExtension) {
 			return {
 				label: {
-					text: yAxis.title,
+					text: qlikExtension.properties.axisY.title,
 					position: 'outer-middle'
 				},
 				tick: {
@@ -348,216 +392,36 @@ define(
 		}
 
 		/**
-		 * Преобразует тип графика в тип графика C3
-		 * @param {ChartType} chartType Тип графика
-		 * @returns {C3ChartType} Тип графика C3
+		 * Возвращает настройки легенды
+		 * @param {QlikExtension} qlikExtension Данные расширения
+		 * @returns {C3Legend} Настройки егенды
 		 */
-		function getChartType(chartType) {
-			switch (chartType) {
-				case ChartTypes.LineChart: {
-					return 'line';
-				}
-				case ChartTypes.BarChart: {
-					return 'bar';
-				}
-				default: {
-					throw new Error('Тип графика C3 неизвестный для типа графика: ' + chartType);
-				}
-			}
-		}
-
-		/* Преобразование данных из Qlik в промежуточное представление */
-
-		/**
-		 * Возвращает данные диаграммы
-		 * @param {QlikExtension} qlikExtension Расширение
-		 * @returns {Chart} Данные диаграммы
-		 */
-		function getQlikChartData(qlikExtension) {
-			
-			// DEBUG: Отладка настроек свойств расширения
-			// console.log('Данные расширения', qlikHyperCube);
-			var qlikHypercube = qlikExtension.qHyperCube;
-			
-			/** @type {ExtensionProperties} */	
-			var properties = qlikExtension.properties || { };		 
-
-			/** @type {Chart} */
-			var chart = {
-				argumentSeries: getQlikArgumentSeriesData(qlikHypercube),
-				valueSeries: getQlikValuesSeriesData(qlikHypercube),
-				yAxis: {
-					title: properties.yAxisTitle
-				},
-				legend: {
-					shown: properties.legendShown != undefined ? properties.legendShown : true,
-					position: properties.legendPosition
-				}
-			};
-
-			// DEBUG: Отладка промежуточных данных графика
-			// console.log('Данные графика', chart);
-
-			return chart;
-		}
-		/**
-		 * Возвращает серии диаграммы
-		 * @param {QlikHyperCube} qlikHyperCube Данные гиперкуба
-		 * @returns {ArgumentSeries} Серия для столбца аргументов данных
-		 */
-		function getQlikArgumentSeriesData(qlikHyperCube) {
-			var columnIndex = 0;
-			/** @type {QlikDimension} */
-			var qlikDimension = qlikHyperCube.qDimensionInfo[columnIndex];
-			var qlikCells = qlikHyperCube.qDataPages[0].qMatrix;
-
-			var properties = qlikDimension.properties || { };
-			
+		function getLegend(qlikExtension) {
+			var legendProperties = qlikExtension.properties.legend;
 			return {
-				id: qlikDimension.qFallbackTitle,
-				title: qlikDimension.qFallbackTitle,
-				values: getQlikColumnValuesData(qlikCells, columnIndex, properties.scaleType),
-				type: properties.scaleType,
-				tickLabelAngle: properties.tickLabelAngle
+				// Признак отображения
+				show: legendProperties.shown,
+				// Положение
+				position: getLegendPosition(legendProperties.position)
 			};
-		}		
+		}
 		
 		/**
-		 * Возвращает серии диаграммы
-		 * @param {QlikHyperCube} qlikHyperCube Данные гиперкуба
-		 * @returns {ValueSeries[]} Серии для столбцов значений данных
+		 * Возвращает положение легегды для C3
+		 * @param {LegendPosition} position Положение легенды
+		 * @returns {C3LegendPosition} Положение легенды для C3
 		 */
-		function getQlikValuesSeriesData(qlikHyperCube) {
-			return qlikHyperCube.qMeasureInfo.map(
-				function (qlikMeasure, measureIndex) {
-					return getQlikValueSeriesData(
-						qlikMeasure,
-						qlikHyperCube.qDataPages[0].qMatrix,
-						qlikHyperCube.qDimensionInfo.length + measureIndex,
-						true);
-				});
-		}
-
-		/**
-		 * Возвращает серию данных для столбца
-		 * @param {QlikMeasure} qlikMeasure Мера гиперкуба
-		 * @param {QlikCell[][]} qlikCells Ячейки данных
-		 * @param {Number} columnIndex Индекс столбца
-		 * @returns {ValueSeries} Серия данных диаграммы
-		 */
-		function getQlikValueSeriesData(qlikMeasure, qlikCells, columnIndex) {
-			/** @type {ValueSeries} */
-			var series = {
-				id: qlikMeasure.qFallbackTitle,
-				title: qlikMeasure.qFallbackTitle,
-				values: getQlikColumnValuesData(qlikCells, columnIndex, ScaleTypes.NumericScale),
-				type: qlikMeasure.properties.chartType
-			};
-			return series;
-		}
-
-		/**
-		 * Возвращает значения для столбца данных
-		 * @param {QlikCell[][]} qlikCells Ячейки данных
-		 * @param {Number} columnIndex Индекс столбца
-		 * @param {ScaleType} scaleType Тип шкалы
-		 * @returns {Value[]} Значения столбца
-		 */
-		function getQlikColumnValuesData(qlikCells, columnIndex, scaleType) {
-			return qlikCells.map(
-				function (qlikRow) {
-					return getQlikCellValueData(qlikRow[columnIndex], scaleType);
-				});
-		}
-
-		/**
-		 * Возвращает значение для ячкейки данных
-		 * @param {QlikCell} qlikCell Ячейка данных
-		 * @param {ScaleType} scaleType Тип шкалы
-		 * @returns {Value} Значение
-		 */
-		function getQlikCellValueData(qlikCell, scaleType) {
-			var isNumeric = scaleType === ScaleTypes.NumericScale;
-			/** @type {Value} */
-			var value = {
-				value: isNumeric ? qlikCell.qNum : qlikCell.qText,
-				title: qlikCell.qText
-			};
-			return value;
+		function getLegendPosition(position) {
+			switch (position) {
+				case 'Right':
+					return 'right';
+				case 'Bottom':
+					return 'bottom';
+				case 'Inside':
+					return 'inset';
+				default:
+					throw new Error('Неизвестное положение легенды: ' + position);
+			}
 		}
 	}
 );
-
-/**
- * JSDoc-определения для промежуточной модели данных
- */
-
-/**
- * График
- * @typedef {Object} Chart
- * @property {ArgumentSeries} argumentSeries Последовательность аргументов
- * @property {ValueSeries[]} valueSeries Последовательность точек данных
- * @property {YAxis} yAxis Настройки оси Y
- * @property {Legend} legend Легенда
- */
-
-/**
- * Легенда
- * @typedef {Object} Legend
- * @property {Boolean} shown Признак отображения
- * @property {LegendPosition} position Положение легенды
- */
-
-/**
- * Позиция легенды
- * @typedef {String} LegendPosition
- * - 'Right' - Справа
- * - 'Bottom' - Снизу
- * - 'Inside' - Внутри
- */
-
-/**
- * Ось Y
- * @typedef {Object} YAxis
- * @property {String} title Заголовок оси 
- */
-
-/**
- * Серия аргумента
- * @typedef {Object} ArgumentSeries
- * @property {String} id Идентификатор серии
- * @property {String} title Заголовок серии
- * @property {Value[]} values Последовательность значений серии
- * @property {ScaleType} type Тип шкалы аргумента
- * @property {Number} tickLabelAngle Угол поворота подписи засечки
- */
-
-/**
- * Тип шкалы
- * @typedef {String} ScaleType
- * - 'CategoricalScale' - Категориальная шкала
- * - 'NumericScale' - Числовая шкала
- * - 'TemporalScale' - Временная шкала
- */
-
-/**
- * Серия значений
- * @typedef {Object} ValueSeries
- * @property {String} id Идентификатор серии
- * @property {String} title Заголовок серии
- * @property {Value[]} values Последовательность значений серии
- * @property {C3ChartType} type Тип графика
- */
-
-/**
- * @typedef {Object} Value
- * @property {Number|String} value Значение в точке
- * @property {String} title Отображаемое значение в точке
- */
-
- /**
- * Тип графика
- * @typedef {String} ChartType
- * - 'LineChart' - линейный график
- * - 'BarChart' - столбчатая диаграмма
- */
