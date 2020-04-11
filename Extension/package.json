@@ -1,0 +1,19 @@
+{
+  "name": "c3extension",
+  "version": "1.0.0",
+  "description": "",
+  "main": "C3Extension.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rodionov-Sergey/C3QlikSense.git"
+  },
+  "author": "Rodionov-Sergey",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Rodionov-Sergey/C3QlikSense/issues"
+  },
+  "homepage": "https://github.com/Rodionov-Sergey/C3QlikSense#readme"
+}
