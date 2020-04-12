@@ -14,12 +14,12 @@
 /**
  * Настойка легенды
  * @typedef {Object} C3Legend
- * @property {Boolean} show Отображение легенды
- * @property {C3LegendPosition} position Позиция легенды
+ * @property {Boolean} show Признак отображения
+ * @property {C3LegendPosition} position Положение
  */
 
 /**
- * Позиция легенды
+ * Положение легенды
  * @typedef {String} C3LegendPosition
  * - 'right' - Справа
  * - 'bottom' - Снизу

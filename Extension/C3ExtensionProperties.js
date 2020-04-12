@@ -3,8 +3,7 @@
  */
 define(
 	// Зависимости
-	[],
-
+  	[],
 	/**
 	 * Создаёт модуль
 	 * @returns Модуль
@@ -12,49 +11,29 @@ define(
 	function () {
 		'use strict';
 
-		// Типы шкалы
-		/** @type {ScaleTypes} */
-		var scaleTypes = {
-			// Категориальная шкала
-			CategoricalScale: 'CategoricalScale',
-			// Числовая шкала
-			NumericScale: 'NumericScale',
-			// Временная шкала
-			TemporalScale: 'TemporalScale'
-		};
-
-		// Типы графиков
-		/** @type {ChartTypes} */
-		var chartTypes = {
-			// Линейный график
-			LineChart: 'LineChart',
-			// Столбчатая диаграмма
-			BarChart: 'BarChart'
-		};
-
 		// Определения свойств измерений
 		var dimensionProperties = {
 			// Тип шкалы
-			scaleTypes: {
+			scaleType: {
 				ref: getColumnPropertyKey('scaleType'),
 				type: 'string',
 				component: 'dropdown',
 				label: 'Тип шкалы',
 				options: [
 					{
-						value: scaleTypes.CategoricalScale,
-						label: 'Категориальная шкала',
+						value: 'CategoricalScale',
+						label: 'Категориальная шкала'
 					},
 					{
-						value: scaleTypes.NumericScale,
-						label: 'Числовая шкала',
+						value: 'NumericScale',
+						label: 'Числовая шкала'
 					},
 					{
-						value: scaleTypes.TemporalScale,
+						value: 'TemporalScale',
 						label: 'Временная шкала'
 					}
 				],
-				defaultValue: scaleTypes.CategoricalScale
+				defaultValue: 'CategoricalScale'
 			},
 			// Угол наклона подписей - текстовое поле
 			tickLabelAngleText: {
@@ -87,16 +66,84 @@ define(
 				label: 'Тип графика',
 				options: [
 					{
-						value: chartTypes.LineChart,
-						label: 'Линейный график',
+						value: 'LineChart',
+						label: 'Линейный график'
 					},
 					{
-						value: chartTypes.BarChart,
-						label: 'Столбчатая диаграмма',
+						value: 'BarChart',
+						label: 'Столбчатая диаграмма'
 					}
 				],
-				defaultValue: chartTypes.LineChart
+				defaultValue: 'LineChart'
 			}
+		};
+
+		// Настройки легенды
+		var legendProperties = {
+			type: 'items',
+			label: 'Легенда',
+			items: {
+				shown: {
+					ref: getExtensionPropertyKey('legend.shown'),
+					type: 'boolean',
+					component: 'switch',
+					label: 'Отображение легенды',
+					options: [
+						{
+							value: true,
+							label: 'Отобразить'
+						},
+						{
+							value: false,
+							label: 'Скрыть'
+						}
+					],
+					defaultValue: true
+				},
+				position: {
+					ref: getExtensionPropertyKey('legend.position'),
+					type: 'string',
+					component: 'dropdown',
+					label: 'Расположение легенды',
+					options: [
+						{
+							value: 'Bottom',
+							label: 'Снизу'
+						},
+						{
+							value: 'Right',
+							label: 'Справа'
+						},
+						{
+							value: 'Inside',
+							label: 'Внутри'
+						}
+					],
+					defaultValue: 'Bottom',
+					show: function(context) {
+						return context.properties.legend.shown;
+					}
+				}
+			}
+		};
+
+		// Свойства графика
+		var chartProperties = {
+			// Свойства оси Y
+			axisY: {
+				type: 'items',
+				label: 'Ось Y',
+				items: {
+					// Подпись оси
+					title: {
+						ref: getExtensionPropertyKey('axisY.title'),
+						type: 'string',
+						label: 'Заголовок оси Y'
+					}
+				}
+			},
+			// Свойства легенды
+			legend: legendProperties
 		};
 
 		// Определения свойств
@@ -109,7 +156,7 @@ define(
 					uses: 'dimensions',
 					min: 1,
 					max: 1,
-					// Кастомные свойства измерений
+					// Cвойства измерений графика
 					items: dimensionProperties
 				},
 				// Блок свойств Меры
@@ -117,7 +164,7 @@ define(
 					uses: 'measures',
 					min: 1,
 					max: 10,
-					// Кастомные свойства мер
+					// Свойства мер графика
 					items: measureProperties
 				},
 				// Блок свойств Сортировка
@@ -128,111 +175,55 @@ define(
 				settings: {
 					uses: 'settings'
 				},
-				// Кастомные свойства расширения
+				// Свойства графика
 				chart: {
 					type: 'items',
+					component: 'expandable-items',
 					label: 'Настройки графика',
-					items: {
-						yAxisTitle: {
-							ref: getExtensionPropertyKey('yAxisTitle'),
-							type: 'string',
-							label: 'Заголовок оси Y'
-						},	
-						legendShown: {
-							ref: getExtensionPropertyKey('legendShown'),
-							type: 'boolean',
-							component: 'switch',
-							label: 'Отображение легенды',
-							options: [
-								{
-									value: true,
-									label: 'Отобразить'
-								}, {
-									value: false,
-									label: 'Скрыть'
-								}
-							],
-							defaultValue: true
-						},
-						legendPosition: {
-							ref: getExtensionPropertyKey('legendPosition'),
-							type: 'string',
-							component: 'buttongroup',
-							label: 'Расположение легенды',
-							options: [
-								{
-									value: 'Right',
-									label: 'Справа'
-								},
-								{
-									value: 'Bottom',
-									label: 'Снизу'
-								},
-								{
-									value: 'Inside',
-									label: 'Внутри'
-								}
-							],
-							defaultValue: 'Right',
-							show: function (context){
-								return context.properties.legendShown;								
-							}
-						}
-					}
+					items: chartProperties
 				}
 			}
 		};
 
-		return {
-			// Определения свойств, настраиваемых пользователем в боковой панели
-			properties: properties,
+		return properties;
 
-			// Типы шкал
-			scaleTypes: scaleTypes,
-
-			// Типы графиков
-			chartTypes: chartTypes
-		};
-
-		/**
-		 * Формирует ключ свойства для расширения
-		 * @param {String} propertyName Название свойства
-		 * @returns {String} Ключ свойства
-		 */
-		function getExtensionPropertyKey(propertyName) {
-			return 'properties.' + propertyName;
-		}
-
-		/**
-		 * Формирует ключ свойства для столбца (измерения или меры)
-		 * @param {String} propertyName Название свойства
-		 * @returns {String} Ключ свойства
-		 */
-		function getColumnPropertyKey(propertyName) {
-			return 'qDef.properties.' + propertyName;
-		}
-
-		/**
-		 * Формирует ключ свойства для ячейки (атрибут ячейки)
-		 * @param {Number} cellAttributeIndex Индекс атрибута ячейки
-		 * @returns {String} Ключ свойства
-		 */
-		function getCellPropertyKey(cellAttributeIndex) {
-			return 'qAttributeExpressions.' + cellAttributeIndex + '.qExpression';
-		}
+	/**
+	 * Формирует ключ свойства для расширения
+	 * @param {String} propertyName Название свойства
+	 * @returns {String} Ключ свойства
+	 */
+	function getExtensionPropertyKey(propertyName) {
+		return 'properties.' + propertyName;
 	}
-);
+
+	/**
+	 * Формирует ключ свойства для столбца (измерения или меры)
+	 * @param {String} propertyName Название свойства
+	 * @returns {String} Ключ свойства
+	 */
+	function getColumnPropertyKey(propertyName) {
+		return 'qDef.properties.' + propertyName;
+	}
+
+	/**
+	 * Формирует ключ свойства для ячейки (атрибут ячейки)
+	 * @param {Number} cellAttributeIndex Индекс атрибута ячейки
+	 * @returns {String} Ключ свойства
+	 */
+	function getCellPropertyKey(cellAttributeIndex) {
+		return 'qAttributeExpressions.' + cellAttributeIndex + '.qExpression';
+	}
+});
 
 /**
  * JSDoc-определения для кастомных свойств расширения
  */
 
- /**
+/**
  * Данные расширения Qlik
  * @typedef {Object} ExtensionProperties
- * @property {String} yAxisTitle Заголовок оси Y
- * @property {Boolean} legendShown Признак отображения легенды
- * @property {String} legendPosition Расположение легенды
+ * @property {AxisYProperties} axisY Настройки оси Y
+ * @property {LegendProperties} Настройки легенды
  */
 
 /**
@@ -248,19 +239,38 @@ define(
  * @property {ChartType} chartType Тип графика
  */
 
-/* JSDoc-определения для словарей */
-
 /**
- * Типы шкал
- * @typedef {Object} ScaleTypes
- * @property {ScaleType} CategoricalScale Категориальная шкала
- * @property {ScaleType} NumericScale Числовая шкала
- * @property {ScaleType} TemporalScale Временная шкала
+ * Свойства оси Y
+ * @typedef {Object} AxisYProperties
+ * @property {String} title Подпись оси
  */
 
 /**
- * Типы графиков
- * @typedef {Object} ChartTypes
- * @property {ChartType} LineChart Линейный график
- * @property {ChartType} BarChart Столбчатая диаграмма
+ * Настройки легенды
+ * @typedef {Object} LegendProperties
+ * @property {Boolean} shown Признак отображения легенды
+ * @property {LegendPosition} position Расположение легенды
+ */
+ 
+/**
+ * Позиция легенды
+ * @typedef {String} LegendPosition
+ * - 'Bottom' - Снизу
+ * - 'Right' - Справа
+ * - 'Inside' - Внутри
+ */
+
+/**
+ * Тип шкалы
+ * @typedef {String} ScaleType
+ * - 'CategoricalScale' - Категориальная шкала
+ * - 'NumericScale' - Числовая шкала
+ * - 'TemporalScale' - Временная шкала
+ */
+
+/**
+ * Тип графика
+ * @typedef {String} ChartType
+ * - 'LineChart' - линейный график
+ * - 'BarChart' - столбчатая диаграмма
  */
