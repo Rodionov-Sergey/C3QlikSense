@@ -71,34 +71,40 @@ define(
 			 * @param {QlikExtension} qlikExtension Данные расширения
 			 * @returns {Promise} Promise завершения отрисовки
 			 */
-			paint: function($element, qlikExtension) {
-				try {
-
-					// DEBUG: Отладка настроек расширения
-					//console.log('Определения настроек расширения', properties);
-
-					// Подготовка контенера для графика
-					var $containerElement = prepareContainer($element);
-					var containerNode = $containerElement.get(0);
+			paint: function($element, qlikExtension) {				
+				var qlikApplication = qlik.currApp();
+				var themePromise = qlikApplication.theme.getApplied();
 					
-					// DEBUG: Отладка данных расширения
-					//console.log('Данные расширения', qlikExtension);
+				return themePromise.then(
+					function (qlikTheme) {
+						try {
 
-					// Формирование настроек графика C3
-					var c3Settings = getChartSettings(containerNode, qlikExtension);
+							// DEBUG: Отладка настроек расширения
+							//console.log('Определения настроек расширения', properties);
 
-					// DEBUG: Отладка данных графика
-					//console.log('Данные графика C3', c3Settings);
+							// Подготовка контенера для графика
+							var $containerElement = prepareContainer($element);
+							var containerNode = $containerElement.get(0);
+							
+							// DEBUG: Отладка данных расширения
+							//console.log('Данные расширения', qlikExtension);
 
-					// Отрисовка графика
-					c3.generate(c3Settings);
-				}
-				catch (error) {
-					console.log(error);
-					throw error;
-				}
+							// Формирование настроек графика C3
+							var c3Settings = getChartSettings(containerNode, qlikExtension, qlikTheme);
 
-				return qlik.Promise.resolve();
+							// DEBUG: Отладка данных графика
+							//console.log('Данные графика C3', c3Settings);
+
+							// Отрисовка графика
+							c3.generate(c3Settings);	
+						}
+						catch (error) {
+							console.log(error);
+							throw error;
+						}
+					}
+				);
+
 			}
 		};
 
@@ -131,9 +137,10 @@ define(
 		 * Создаёт настройки графика для C3
 		 * @param {*} parentElement Родительский DOM-элемент для встраивания графика
 		 * @param {QlikExtension} qlikExtension Данные расширения
+		 * @param {*} qlikTheme Тема
 		 * @returns {C3Settings} Настройки графика C3
 		 */
-		function getChartSettings(parentElement, qlikExtension) {
+		function getChartSettings(parentElement, qlikExtension, qlikTheme) {
 			return {
 				// Родительский элемент
 				bindto: parentElement,
@@ -147,8 +154,21 @@ define(
 					y: getYAxis(qlikExtension)
 				},
 				// Легенда
-				legend: getLegend(qlikExtension)
+				legend: getLegend(qlikExtension),
+				// Палитра
+				color: {
+					pattern: getPalette(qlikTheme)
+				}
 			};
+		}
+		/**
+		 * Возвращает палитру из темы
+		 * @param {*} qlikTheme Палитра темы из Qlik
+		 * @returns {String[]} Массив цветов палитры
+		 */
+		function getPalette(qlikTheme) {
+			var paletteData = qlikTheme.properties.palettes.data;
+			return paletteData != null && paletteData.length > 0 ? paletteData[0].scale : null;
 		}
 
 		/**
