@@ -67,48 +67,73 @@ define(
 
 			/**
 			 * Создаёт и обновляет интерфейс расширения
-			 * @param {*} $element Родительский jQuery-элемент
+			 * @param {*} $parentElement Родительский jQuery-элемент
 			 * @param {QlikExtension} qlikExtension Данные расширения
 			 * @returns {Promise} Promise завершения отрисовки
 			 */
-			paint: function($element, qlikExtension) {				
-				var qlikApplication = qlik.currApp();
-				var themePromise = qlikApplication.theme.getApplied();
-					
-				return themePromise.then(
-					function (qlikTheme) {
-						try {
-
-							// DEBUG: Отладка настроек расширения
-							//console.log('Определения настроек расширения', properties);
-
-							// Подготовка контенера для графика
-							var $containerElement = prepareContainer($element);
-							var containerNode = $containerElement.get(0);
-							
-							// DEBUG: Отладка данных расширения
-							//console.log('Данные расширения', qlikExtension);
-
-							// Формирование настроек графика C3
-							var c3Settings = getChartSettings(containerNode, qlikExtension, qlikTheme);
-
-							// DEBUG: Отладка данных графика
-							//console.log('Данные графика C3', c3Settings);
-
+			paint: function($parentElement, qlikExtension) {	
+				return getThemePromise(qlik)
+					.then(
+						function (qlikTheme) {
 							// Отрисовка графика
-							c3.generate(c3Settings);	
+							paintChart($parentElement, qlikExtension, qlikTheme);
 						}
-						catch (error) {
+					)
+					.catch(
+						function (error) {
 							console.log(error);
 							throw error;
 						}
-					}
-				);
-
+					);
 			}
 		};
 
 		return extensionModule;
+
+		/**
+		 * Возвращает Promise текущей темы
+		 * @param {QlikApi} qlik Qlik API
+		 * @returns {Promise<QlikTheme>}
+		 */
+		function getThemePromise(qlik) {
+			var qlikApplication = qlik.currApp();
+			return qlikApplication.theme.getApplied();
+		}
+
+		/**
+		 * Рисует график
+		 * @param {*} $parentElement Родительский jQuery-элемент
+		 * @param {QlikExtension} qlikExtension Данные расширения
+		 * @param {QlikTheme} qlikTheme Тема
+		 */
+		function paintChart($parentElement, qlikExtension, qlikTheme) {
+			try {
+				// Контейнер для графика
+				var $containerElement = prepareContainer($parentElement);
+
+				// DEBUG: Отладка настроек расширения
+				//console.log('Определения настроек расширения', properties);
+
+				// Подготовка контейнера для графика
+				var containerNode = $containerElement.get(0);
+				
+				// DEBUG: Отладка данных расширения
+				//console.log('Данные расширения', qlikExtension);
+
+				// Формирование настроек графика C3
+				var c3Settings = getChartSettings(containerNode, qlikExtension, qlikTheme);
+
+				// DEBUG: Отладка данных графика
+				//console.log('Данные графика C3', c3Settings);
+
+				// Отрисовка графика
+				c3.generate(c3Settings);
+			}
+			catch (error) {
+				console.log(error);
+				throw error;
+			}
+		}
 
 		/**
 		 * Подготавливает контейнер для графика
@@ -128,6 +153,7 @@ define(
 			var $newElement = $('<div>')
 				.addClass(containerClass)
 				.appendTo($parentElement);
+			
 			return $newElement;
 		}
 
@@ -137,7 +163,7 @@ define(
 		 * Создаёт настройки графика для C3
 		 * @param {*} parentElement Родительский DOM-элемент для встраивания графика
 		 * @param {QlikExtension} qlikExtension Данные расширения
-		 * @param {*} qlikTheme Тема
+		 * @param {QlikTheme} qlikTheme Тема
 		 * @returns {C3Settings} Настройки графика C3
 		 */
 		function getChartSettings(parentElement, qlikExtension, qlikTheme) {
@@ -145,7 +171,7 @@ define(
 				// Родительский элемент
 				bindto: parentElement,
 				// Данные
-				data: getData(qlikExtension),
+				data: getChartData(qlikExtension),
 				// Оси
 				axis: {
 					// Ось X
@@ -163,12 +189,18 @@ define(
 		}
 		/**
 		 * Возвращает палитру из темы
-		 * @param {*} qlikTheme Палитра темы из Qlik
+		 * @param {QlikTheme} qlikTheme Палитра темы из Qlik
 		 * @returns {String[]} Массив цветов палитры
 		 */
 		function getPalette(qlikTheme) {
+			if (qlikTheme.properties == null || 
+				qlikTheme.properties.palettes == null ||
+				qlikTheme.properties.palettes.data == null) {
+				return null;
+			}
+
 			var paletteData = qlikTheme.properties.palettes.data;
-			return paletteData != null && paletteData.length > 0 ? paletteData[0].scale : null;
+			return paletteData.length > 0 ? paletteData[0].scale : null;
 		}
 
 		/**
@@ -176,7 +208,7 @@ define(
 		 * @param {QlikExtension} qlikExtension Данные расширения
 		 * @returns {C3Data} Данные графика C3
 		 */
-		function getData(qlikExtension) {
+		function getChartData(qlikExtension) {
 
 			var qlikHyperCube = qlikExtension.qHyperCube;
 
