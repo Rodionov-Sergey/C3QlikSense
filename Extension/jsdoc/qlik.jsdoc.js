@@ -6,17 +6,50 @@
 
 /**
  * Qlik API
+ * @see https://help.qlik.com/en-US/sense-developer/February2020/Subsystems/APIs/Content/Sense_ClientAPIs/CapabilityAPIs/qlik-interface-interface.htm
  * @typedef {Object} QlikApi
- * @property {PromiseApi} Promise - Точка доступа к Promise API
+ * @property {function(Object=):QlikApplication} currApp Возвращает текущее приложение
+ * @property {function():Promise<QlikThemeInfo[]>} getThemeList Возвращает Promise краткой информации о темах
+ * @property {*} Promise Точка доступа к Promise API
  */
 
- /**
- * Promise API
- * @typedef {Object} PromiseApi
- * @property {function():Promise} resolve - Возвращает завершенный Promise
+/**
+ * Приложение Qlik
+ * @see https://help.qlik.com/en-US/sense-developer/February2020/Subsystems/APIs/Content/Sense_ClientAPIs/CapabilityAPIs/qlik-app-interface.htm
+ * @typedef {Object} QlikApplication
+ * @property {String} id Идентификатор приложения
+ * @property {QlikThemeApi} theme API тем Qlik
  */
 
- // Qlik API свойств и данных
+/**
+ * API тем Qlik
+ * @see https://help.qlik.com/en-US/sense-developer/February2020/Subsystems/APIs/Content/Sense_ClientAPIs/CapabilityAPIs/ThemeAPI/ThemeAPI.htm
+ * @typedef {Object} QlikThemeApi
+ * @property {function():Promise<QlikTheme>} getApplied Возвращающает Promise текущей темы
+ */
+
+/**
+ * Тема Qlik
+ * @see https://help.qlik.com/en-US/sense-developer/February2020/Subsystems/APIs/Content/Sense_ClientAPIs/CapabilityAPIs/ThemeAPI/QTheme.htm
+ * @typedef {Object} QlikTheme
+ * @property {String} id Идентификатор темы
+ * @property {QlikThemeProperties} properties Настройки темы
+ */
+
+/**
+ * Свойства темы Qlik
+ * @see https://help.qlik.com/en-US/sense-developer/February2020/Subsystems/Extensions/Content/Sense_Extensions/CustomThemes/custom-themes-properties.htm
+ * @typedef {Object} QlikThemeProperties
+ */
+
+/**
+ * Информация о теме
+ * @typedef {Object} QlikThemeInfo
+ * @property {String} id Идентификатор темы
+ * @property {String} name Отображаемое название темы
+ */
+
+ // Qlik API данных
 
 /**
  * Расширение Qlik
