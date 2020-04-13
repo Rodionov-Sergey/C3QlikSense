@@ -183,24 +183,71 @@ define(
 				legend: getLegend(qlikExtension),
 				// Палитра
 				color: {
-					pattern: getPalette(qlikTheme)
+					pattern: getPalette(qlikExtension, qlikTheme)
 				}
 			};
 		}
+
 		/**
 		 * Возвращает палитру из темы
+		 * @param {QlikExtension} qlikExtension Данные расширения
 		 * @param {QlikTheme} qlikTheme Палитра темы из Qlik
 		 * @returns {String[]} Массив цветов палитры
 		 */
-		function getPalette(qlikTheme) {
+		function getPalette(qlikExtension, qlikTheme) {
+			
 			if (qlikTheme.properties == null || 
-				qlikTheme.properties.palettes == null ||
-				qlikTheme.properties.palettes.data == null) {
+				qlikTheme.properties.palettes == null) {
 				return null;
 			}
 
-			var paletteData = qlikTheme.properties.palettes.data;
-			return paletteData.length > 0 ? paletteData[0].scale : null;
+			var qlikPalettes = qlikTheme.properties.palettes.data;
+			if (qlikPalettes == null || qlikPalettes.length === 0) {
+				return null;
+			}
+
+			var qlikPalette = qlikPalettes[0];
+
+			if (qlikPalette.type === 'pyramid') {
+				var measureCount = qlikExtension.qHyperCube.qMeasureInfo.length;
+				return getPyramidPaletteScale(qlikPalette, measureCount);
+			}
+			else if (qlikPalette.type === 'row') {
+				return getRowPaletteScale(qlikPalette);
+			}
+
+			return null;
+		}
+
+		/**
+		 * Возвращает цветовую шкалу палитры типа Пирамида
+		 * @param {*} qlikPyramidPalette Палитра
+		 * @param {number} scaleSize Размер шкалы
+		 * @returns {String[]} Массив цветов палитры
+		 */
+		function getPyramidPaletteScale(qlikPyramidPalette, scaleSize) {
+			var qlikPaletteScales = qlikPyramidPalette.scale
+				.filter(
+					function (scale) {
+						return scale != null && scale.length === scaleSize;
+					}
+				);
+
+			if (qlikPaletteScales.length > 0) {
+				console.log(qlikPaletteScales[0]);
+				return qlikPaletteScales[0];
+			}
+				
+			return qlikPyramidPalette.scale[qlikPyramidPalette.scale.length-1];
+		}
+
+		/**
+		 * Возвращает цветовую шкалу палитры типа Ряд
+		 * @param {*} qlikRowPalette Палитра
+		 * @returns {String[]} Массив цветов палитры
+		 */
+		function getRowPaletteScale(qlikRowPalette) {
+			return qlikRowPalette.scale;
 		}
 
 		/**
