@@ -234,7 +234,6 @@ define(
 				);
 
 			if (qlikPaletteScales.length > 0) {
-				console.log(qlikPaletteScales[0]);
 				return qlikPaletteScales[0];
 			}
 				
