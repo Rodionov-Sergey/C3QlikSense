@@ -22,13 +22,13 @@ define(
 	 * Создаёт модуль расширения
 	 * @param {QlikApi} qlik API Qlik Sense
 	 * @param {*} $ jQuery - библиотека для работы с HTML
-	 * @param {*} properties - Определения настроек расширения
+	 * @param {*} propertiesFactory - Определения настроек расширения
 	 * @param {*} d3 D3.js - библиотека для манипулирования документами на основе данных
 	 * @param {*} c3 C3.js - библиотека для построения графиков
 	 * @param {*} c3Css Содержимое стилей C3.js
 	 * @returns {*} Модуль
 	 */
-	function(qlik, $, properties, d3, c3, c3Css) {
+	function(qlik, $, propertiesFactory, d3, c3, c3Css) {
 		'use strict';
 
 		// HACK: Так C3.js найдёт свою зависимость D3.js по имени d3
@@ -40,60 +40,47 @@ define(
 			.appendTo($('head'));
 
 		// Модуль расширения Qlik Sense
-		return properties.then(
-			function (props) {
-				console.log('properties in C3Extension', props);
-				return {
-					// Определения свойств
-					definition: props,
+		return getThemePromise(qlik)
+			.then(
+				function (qlikTheme) {
 
-					// Настройки первичной загрузки данных
-					initialProperties: {
-						qHyperCubeDef: {
-							qDimensions: [],
-							qMeasures: [],
-							qInitialDataFetch: [
-								{
-									qWidth: 11,
-									qHeight: 900
-								}
-							]
+					var properties = propertiesFactory.getProperties(qlikTheme);					
+
+					// DEBUG: Отладка настроек расширения
+					//console.log('Определения настроек расширения', properties);
+
+					return {
+						// Определения свойств
+						definition: properties,
+						// Настройки первичной загрузки данных
+						initialProperties: propertiesFactory.getInitialProperties(),
+						// Настройки выгрузки
+						support: propertiesFactory.getSupportProperties(),
+
+						/**
+						 * Создаёт и обновляет интерфейс расширения
+						 * @param {*} $parentElement Родительский jQuery-элемент
+						 * @param {QlikExtension} qlikExtension Данные расширения
+						 * @returns {Promise} Promise завершения отрисовки
+						 */
+						paint: function($parentElement, qlikExtension) {
+							return getThemePromise(qlik)
+								.then(
+									function (qlikTheme) {
+										// Отрисовка графика
+										paintChart($parentElement, qlikExtension, qlikTheme);
+									}
+								)
+								.catch(
+									function (error) {
+										console.log(error);
+										throw error;
+									}
+								);
 						}
-					},
-
-					// Настройки выгрузки
-					support: {
-						snapshot: true,
-						export: true,
-						exportData: false
-					},
-
-					/**
-					 * Создаёт и обновляет интерфейс расширения
-					 * @param {*} $parentElement Родительский jQuery-элемент
-					 * @param {QlikExtension} qlikExtension Данные расширения
-					 * @returns {Promise} Promise завершения отрисовки
-					 */
-					paint: function($parentElement, qlikExtension) {	
-						console.log('paint');
-
-						return getThemePromise(qlik)
-							.then(
-								function (qlikTheme) {
-									// Отрисовка графика
-									paintChart($parentElement, qlikExtension, qlikTheme);
-								}
-							)
-							.catch(
-								function (error) {
-									console.log(error);
-									throw error;
-								}
-							);
-					}
-				};
-			}
-		);
+					};
+				}
+			);
 		
 		/**
 		 * Возвращает Promise текущей темы
@@ -101,8 +88,7 @@ define(
 		 * @returns {Promise<QlikTheme>}
 		 */
 		function getThemePromise(qlik) {
-			var qlikApplication = qlik.currApp();
-			return qlikApplication.theme.getApplied();
+			return qlik.currApp().theme.getApplied();
 		}
 
 		/**
@@ -112,32 +98,23 @@ define(
 		 * @param {QlikTheme} qlikTheme Тема
 		 */
 		function paintChart($parentElement, qlikExtension, qlikTheme) {
-			try {
-				// Контейнер для графика
-				var $containerElement = prepareContainer($parentElement);
+			// Контейнер для графика
+			var $containerElement = prepareContainer($parentElement);
 
-				// DEBUG: Отладка настроек расширения
-				//console.log('Определения настроек расширения', properties);
+			// Подготовка контейнера для графика
+			var containerNode = $containerElement.get(0);
+			
+			// DEBUG: Отладка данных расширения
+			//console.log('Данные расширения', qlikExtension);
 
-				// Подготовка контейнера для графика
-				var containerNode = $containerElement.get(0);
-				
-				// DEBUG: Отладка данных расширения
-				//console.log('Данные расширения', qlikExtension);
+			// Формирование настроек графика C3
+			var c3Settings = getChartSettings(containerNode, qlikExtension, qlikTheme);
 
-				// Формирование настроек графика C3
-				var c3Settings = getChartSettings(containerNode, qlikExtension, qlikTheme);
+			// DEBUG: Отладка данных графика
+			//console.log('Данные графика C3', c3Settings);
 
-				// DEBUG: Отладка данных графика
-				//console.log('Данные графика C3', c3Settings);
-
-				// Отрисовка графика
-				c3.generate(c3Settings);
-			}
-			catch (error) {
-				console.log(error);
-				throw error;
-			}
+			// Отрисовка графика
+			c3.generate(c3Settings);
 		}
 
 		/**
@@ -210,10 +187,26 @@ define(
 			if (qlikPalettes == null || qlikPalettes.length === 0) {
 				return null;
 			}
-			
-			var qlikPalette = qlikPalettes[0];
+
+			var qlikPalette = null;
+
+			// Поиск по идентификатору выбранной темы
+			for (var i = 0; i < qlikPalettes.length; i++) {
+				if (qlikPalettes[i].propertyValue === qlikExtension.properties.paletteId) {
+					qlikPalette = qlikPalettes[i];
+					break;
+				}
+			}
+
+			// Если не найдено
+			if (qlikPalette == null) {
+				// Взять первую из темы
+				qlikPalette = qlikPalettes[0];
+			}
+
 			var colorCount = qlikExtension.qHyperCube.qMeasureInfo.length;
-			return getPaletteScale(qlikPalette, colorCount);
+
+			return getPaletteScale(qlikPalette, colorCount); 
 		}
 
 		/**

@@ -3,324 +3,309 @@
  */
 define(
 	// Зависимости
-  	[
-		  // Qlik API
-		  'qlik'
-	],
+  	[],
+
 	/**
 	 * Создаёт модуль
 	 * @param {QlikApi} qlik Qlik API
 	 * @returns Модуль
 	 */
-	function (qlik) {
+	function () {
 		'use strict';
 
-		// Определения свойств измерений
-		var dimensionProperties = {
-			// Тип шкалы
-			scaleType: {
-				ref: getColumnPropertyKey('scaleType'),
-				type: 'string',
-				component: 'dropdown',
-				label: 'Тип шкалы',
-				options: [
-					{
-						value: 'CategoricalScale',
-						label: 'Категориальная шкала'
-					},
-					{
-						value: 'NumericScale',
-						label: 'Числовая шкала'
-					},
-					{
-						value: 'TemporalScale',
-						label: 'Временная шкала'
-					}
-				],
-				defaultValue: 'CategoricalScale'
-			},
-			// Угол наклона подписей - текстовое поле
-			tickLabelAngleText: {
-				ref: getColumnPropertyKey('tickLabelAngle'),
-				type: 'number',
-				label: 'Угол наклона подписей',
-				min: -90,
-				max: 90,
-				defaultValue: 0
-			},
-			// Угол наклона подписей - слайдер
-			tickLabelAngle: {
-				ref: getColumnPropertyKey('tickLabelAngle'),
-				type: 'number',
-				component: 'slider',
-				min: -90,
-				max: 90,
-				step: 10,
-				defaultValue: 0
-			}
+		// Определения свойств
+		return {
+			// Функция получения определений свойств
+			getProperties: getProperties,
+			getInitialProperties: getInitialProperties,
+			getSupportProperties: getSupportProperties
 		};
 
-		// Определения свойств мер
-		var measureProperties = {
-			// Тип графика
-			chartType: {
-				ref: getColumnPropertyKey('chartType'),
-				type: 'string',
-				component: 'dropdown',
-				label: 'Тип графика',
-				options: [
-					{
-						value: 'LineChart',
-						label: 'Линейный график'
-					},
-					{
-						value: 'BarChart',
-						label: 'Столбчатая диаграмма'
-					}
-				],
-				defaultValue: 'LineChart'
-			}
-		};
-
-		// Настройки легенды
-		var legendProperties = {
-			type: 'items',
-			label: 'Легенда',
-			items: {
-				shown: {
-					ref: getExtensionPropertyKey('legend.shown'),
-					type: 'boolean',
-					component: 'switch',
-					label: 'Отображение легенды',
-					options: [
+		/**
+		 * Возвращает настройки первичной загрузки данных
+		 * @returns {*} Настройки первичной загрузки данных
+		 */
+		function getInitialProperties() {
+			return {
+				qHyperCubeDef: {
+					qDimensions: [],
+					qMeasures: [],
+					qInitialDataFetch: [
 						{
-							value: true,
-							label: 'Отобразить'
-						},
-						{
-							value: false,
-							label: 'Скрыть'
+							qWidth: 11,
+							qHeight: 900
 						}
-					],
-					defaultValue: true
-				},
-				position: {
-					ref: getExtensionPropertyKey('legend.position'),
+					]
+				}
+			};
+		}
+
+		/**
+		 * Возвращает настройки выгрузки
+		 * @returns {*} Настройки выгрузки
+		 */
+		function getSupportProperties() {
+			return {
+				snapshot: true,
+				export: true,
+				exportData: false
+			};
+		}
+
+		/**
+		 * Возвращает свойства
+		 * @param {*} qlikTheme Тема
+		 */
+		function getProperties(qlikTheme) {
+
+			return {
+				type: 'items',
+				component: 'accordion',
+				items: {
+					// Блок свойств Измерения
+					dimensions: {
+						uses: 'dimensions',
+						min: 1,
+						max: 1,
+						// Cвойства измерений графика
+						items: getDimensionProperties()
+					},
+					// Блок свойств Меры
+					measures: {
+						uses: 'measures',
+						min: 1,
+						max: 10,
+						// Свойства мер графика
+						items: getMeasureProperties()
+					},
+					// Блок свойств Сортировка
+					sorting: {
+						uses: 'sorting'
+					},
+					// Блок свойств Вид
+					settings: {
+						uses: 'settings'
+					},
+					// Свойства графика
+					chart: {
+						type: 'items',
+						component: 'expandable-items',
+						label: 'График',
+						items: getChartProperties(qlikTheme)
+					}
+				}
+			};
+		}
+
+		// Определения свойств секции Измерения
+		function getDimensionProperties() {
+			return {
+				// Тип шкалы
+				scaleType: {
+					ref: getColumnPropertyKey('scaleType'),
 					type: 'string',
 					component: 'dropdown',
-					label: 'Расположение легенды',
+					label: 'Тип шкалы',
 					options: [
 						{
-							value: 'Bottom',
-							label: 'Снизу'
+							value: 'CategoricalScale',
+							label: 'Категориальная шкала'
 						},
 						{
-							value: 'Right',
-							label: 'Справа'
+							value: 'NumericScale',
+							label: 'Числовая шкала'
 						},
 						{
-							value: 'Inside',
-							label: 'Внутри'
+							value: 'TemporalScale',
+							label: 'Временная шкала'
 						}
 					],
-					defaultValue: 'Bottom',
-					show: function(context) {
-						return context.properties.legend.shown;
+					defaultValue: 'CategoricalScale'
+				},
+				// Угол наклона подписей - текстовое поле
+				tickLabelAngleText: {
+					ref: getColumnPropertyKey('tickLabelAngle'),
+					type: 'number',
+					label: 'Угол наклона подписей',
+					min: -90,
+					max: 90,
+					defaultValue: 0
+				},
+				// Угол наклона подписей - слайдер
+				tickLabelAngle: {
+					ref: getColumnPropertyKey('tickLabelAngle'),
+					type: 'number',
+					component: 'slider',
+					min: -90,
+					max: 90,
+					step: 10,
+					defaultValue: 0
+				}
+			};
+		}
+
+		/**
+		 * Возвращает определение свойств секции Меры
+		 * @param {QlikTheme} qlikTheme
+		 * @returns {*} Определение свойств
+		 */
+		function getMeasureProperties() {
+			return {
+				// Тип графика
+				chartType: {
+					ref: getColumnPropertyKey('chartType'),
+					type: 'string',
+					component: 'dropdown',
+					label: 'Тип графика',
+					options: [
+						{
+							value: 'LineChart',
+							label: 'Линейный график'
+						},
+						{
+							value: 'BarChart',
+							label: 'Столбчатая диаграмма'
+						}
+					],
+					defaultValue: 'LineChart'
+				}
+			};
+		}
+		
+		/**
+		 * Возвращает определения свойств графика
+		 * @param {QlikTheme} qlikTheme
+		 */
+		function getChartProperties(qlikTheme) {
+			return {
+				// Свойства оси Y
+				axisY: {
+					type: 'items',
+					label: 'Ось Y',
+					items: {
+						// Подпись оси
+						title: {
+							ref: getExtensionPropertyKey('axisY.title'),
+							type: 'string',
+							label: 'Заголовок оси Y'
+						}
 					}
+				},
+				// Свойства легенды
+				legend: getLegendProperties(),
+				// Палитра
+				palette: getPaletteProperties(qlikTheme)
+			};
+		}
+				
+		// Настройки легенды
+		function getLegendProperties() {
+			return {
+				type: 'items',
+				label: 'Легенда',
+				items: {
+					shown: {
+						ref: getExtensionPropertyKey('legend.shown'),
+						type: 'boolean',
+						component: 'switch',
+						label: 'Отображение легенды',
+						options: [
+							{
+								value: true,
+								label: 'Отобразить'
+							},
+							{
+								value: false,
+								label: 'Скрыть'
+							}
+						],
+						defaultValue: true
+					},
+					position: {
+						ref: getExtensionPropertyKey('legend.position'),
+						type: 'string',
+						component: 'dropdown',
+						label: 'Расположение легенды',
+						options: [
+							{
+								value: 'Bottom',
+								label: 'Снизу'
+							},
+							{
+								value: 'Right',
+								label: 'Справа'
+							},
+							{
+								value: 'Inside',
+								label: 'Внутри'
+							}
+						],
+						defaultValue: 'Bottom',
+						show: function(context) {
+							return context.properties.legend.shown;
+						}
+					}
+				}
+			};
+		}
+
+		/**
+		 * Возвращает определение свойства палитры
+		 * @param {QlikTheme} qlikTheme Тема
+		 * @returns {*} Определение свойства
+		 */
+		function getPaletteProperties(qlikTheme) {
+			return {
+				type: 'items',
+				label: 'Палитра',
+				grouped: true,
+				items: {
+					// Элементы списка палитр
+					paletteItems: {
+						ref: getExtensionPropertyKey('paletteId'),
+						type: 'items',
+						component: 'item-selection-list', 
+						horizontal: false,
+						items: getPalettesOptions(qlikTheme)
+					}
+				},
+				shown: function() {
+					return qlikTheme != null;
 				}
 			}
-		};
+		}
 
-		// Свойства графика
-		var chartProperties = {
-			// Свойства оси Y
-			axisY: {
-				type: 'items',
-				label: 'Ось Y',
-				items: {
-					// Подпись оси
-					title: {
-						ref: getExtensionPropertyKey('axisY.title'),
-						type: 'string',
-						label: 'Заголовок оси Y'
-					}
-				}
-			},
-			// Свойства легенды
-			legend: legendProperties
-		};
+		/**
+		 * Возвращает определение списка выбора палитры
+		 * @param {QlikTheme} qlikTheme Тема
+		 * @return {QlikColorScaleComponent[]} Список выбора темы
+		 */
+		function getPalettesOptions(qlikTheme) {
+			if (qlikTheme == null) {
+				return null;
+			}
+			return getThemePalettes(qlikTheme)
+				.map(getColorScaleComponent);
+		}
 
+		/**
+		 * Возвращает опредление опции выбора палитры
+		 * @param {QlikDataPalette} qlikPalette Палитра
+		 * @returns {QlikColorScaleComponent} Опция выбора палитры
+		 */
+		function getColorScaleComponent(qlikPalette) {
+			return {
+				component: 'color-scale',
+				value: qlikPalette.propertyValue,
+				label: qlikPalette.name,
+				icon: '',
+				type: 'sequential',
+				colors: getPaletteScale(qlikPalette),
+			};
+		}
 
-		// these arrays contain the colors displayed in the palettes. the actual number of entries doesn't seem to match the name of the palette. 
-		var defaultUse=!![]; // true = palette, faalse = custom
-		var defaultRev=![]; // false = no reverse
-		var defaultGradientCalc='absolute';
-		var defaultGradientRange='full';
-		var defaultPalette='qlik10';
-
-		return getPalettesOptions()
-			.then(
-				function (paletteOptions) {
-
-					console.log('paletteOptions', paletteOptions);
-
-					// Свойства Вид
-					var settingsProperties = {
-						colorsandlegend: {
-							label: 'Colors', // usually colors and legend but we're not legending here. 
-							type: 'items',
-							grouped: true, // not sure what grouped does but its true
-							items: {
-								// usePalette: {
-								// 	ref: 'color.usePalette',
-								// 	type: 'boolean',
-								// 	component: 'switch',
-								// 	label: 'Colors',
-								// 	defaultValue:defaultUse, //true
-								// 	options: [{
-								// 		value:!![], //true
-								// 		label: 'Use Color Scheme'
-								// 	},{
-								// 		value:![], // false
-								// 			label: 'Use Custom Colors'
-								// 	}]
-								// },
-								paletteItems: {
-									ref: 'color.colorPalette',
-									type: 'items',
-									component: 'item-selection-list', 
-									horizontal: false,
-									items: paletteOptions
-									
-									/*function () {
-												return qlik.Promise.resolve([
-													{ component: "color-scale", value: "12", label: "12 Colors", icon: "", type: "sequential", colors: [ 'red' ] },
-													{ component: "color-scale", value: "100", label: "100 Colors", icon: "", type: "sequential", colors: [ 'blue' ] }
-												]);
-											}
-									*/	
-									// getPalettesOptions
-
-									// [
-									// 	{
-									// 		component: 'color-scale',
-									// 		icon: '',
-									// 		label: 'Qlik Sense',
-									// 		reverse: function (m) {
-									// 			return typeof(m.colors) != 'undefined' ? m.colors.reverse : defaultRev;
-									// 		},
-									// 		value: 'qlik10',
-									// 		type: 'sequential',
-									// 		colors:q10
-									// 	}
-									// ],
-									// show: function (m) {
-									// 	return typeof(m.color) != 'undefined' ? m.color.usePalette : defaultUse;
-									// },
-									//defaultValue: defaultPalette,
-								},
-								// customPalette: {
-								// 	ref: 'color.colorPaletteCustom',
-								// 	type: 'string',
-								// 	expression: 'optional',
-								// 	defaultValue:defaultCustomColors, 
-								// 	show: function(m) {
-								// 		return typeof(m.color)!='undefined'? m.color.usePalette==![]:!defaultUse;
-								// 	}
-								// },
-								// descTest: {
-								// 	label: 'Comma\x20separated\x20list\x20of\x20HEX\x20colors', // all this just to show a bit of text (smh)
-								// 	component: 'text',
-								// 	show:function(m) {
-								// 		return typeof(m.color)!='undefined'?m.color.usePalette==![]:!defaultUse;
-								// 	}
-								// },
-								// reverseColors: {
-								// 	type: 'boolean',  // a checkbox by default.
-								// 	ref: 'colors.reverse',
-								// 	label: 'Reverse\x20Colors',
-								// 	defaultValue: defaultRev
-								// }/*,
-								// 'consistentcolors': {
-								// 	'type': 'boolean', // to use same colors regardlesss of selection.. whatever. 
-								// 	'ref': 'color.consistent',
-								// 	'label': 'Consistent\x20Colors',
-								// 	'defaultValue': ![]
-								// }*/
-							}
-						}
-						
-						// GradientCalc: {
-						// 	label: 'Measure Is',
-						// 	component: 'dropdown',
-						// 	ref: 'props.gradientCalc',
-						// 	type: 'string',
-						// 	defaultValue:defaultGradientCalc,
-						// 	options: [
-						// 		{label: 'Absolute',value: 'absolute'},
-						// 		{label: 'Duration',value: 'duration'}
-						// 	],
-						// 	order:0
-						// },
-						// GradientRange: {
-						// 	label: 'Gradient Relative To',
-						// 	component: 'dropdown',
-						// 	ref: 'props.gradientRange',
-						// 	type: 'string',
-						// 	defaultValue:defaultGradientRange,
-						// 	options: [
-						// 		{label: 'Full Dataset',value: 'full'},
-						// 		{label: 'Dimension 1',value: 'dimension1'},
-						// 		{label: 'Dimension 2',value: 'dimension2'}
-						// 	],
-						// 	order:0
-						// }
-					};
-
-					// Определения свойств
-					var properties = {
-						type: 'items',
-						component: 'accordion',
-						items: {
-							// Блок свойств Измерения
-							dimensions: {
-								uses: 'dimensions',
-								min: 1,
-								max: 1,
-								// Cвойства измерений графика
-								items: dimensionProperties
-							},
-							// Блок свойств Меры
-							measures: {
-								uses: 'measures',
-								min: 1,
-								max: 10,
-								// Свойства мер графика
-								items: measureProperties
-							},
-							// Блок свойств Сортировка
-							sorting: {
-								uses: 'sorting'
-							},
-							// Блок свойств Вид
-							settings: {
-								uses: 'settings',
-								items: settingsProperties
-							},
-							// Свойства графика
-							chart: {
-								type: 'items',
-								component: 'expandable-items',
-								label: 'Настройки графика',
-								items: chartProperties
-							}
-						}
-					};
-
-					return properties;
-				}
-			);
-
+		// Вспомогательные функции определений свойств
+		
 		/**
 		 * Формирует ключ свойства для расширения
 		 * @param {String} propertyName Название свойства
@@ -348,49 +333,15 @@ define(
 			return 'qAttributeExpressions.' + cellAttributeIndex + '.qExpression';
 		}
 
+		// Функции Qlik API
+				
 		/**
-		 * Возвращает Promise списка выбора темы
-		 * @return {Promise<QlikColorScaleComponent[]>} Список выбора темы
-		 */
-		function getPalettesOptions() {
-			return qlik.currApp().theme.getApplied()
-				.then(getThemePalettes)
-				.then(
-					function (qlikPalettes) {
-						return qlikPalettes.map(getColorScaleComponent);
-					}
-				)
-				.then(
-					function (components) {
-						console.log('components', components);
-						return components;
-					}
-				);
-		}
-		
-		/**
-		 * 
-		 * @param {*} qlikTheme 
-		 * @returns {QlikDataPalette[]}
+		 * Возвращает список палитр темы
+		 * @param {QlikTheme} qlikTheme Тема
+		 * @returns {QlikDataPalette[]} Список палитр
 		 */
 		function getThemePalettes(qlikTheme) {
 			return qlikTheme.properties.palettes.data;
-		}
-
-		/**
-		 * Преобразует тесу из внутреннего представления в опцию выбора
-		 * @param {QlikDataPalette} qlikPalette Тема
-		 * @returns {QlikColorScaleComponent} Настройки цветового компонента
-		 */
-		function getColorScaleComponent(qlikPalette) {
-			return {
-				component: 'color-scale',
-				value: qlikPalette.propertyValue,
-				label: qlikPalette.name,
-				icon: '',
-				type: 'sequential',
-				colors: getPaletteScale(qlikPalette),
-			};
 		}
 
 		/**
@@ -443,16 +394,6 @@ define(
 		function getRowPaletteScale(qlikRowPalette) {
 			return qlikRowPalette.scale;
 		}
-
-		/**
-		 * Преобразует список тем из внутреннего представления в опции выбора
-		 * @param {QlikTheme[]} qlikThemes Список тем
-		 * @returns {QlikPropertyOption[]} Список опций выбора
-		 */
-		function toPaletteOptions(qlikThemes) {
-			
-			return qlikThemes.map(toPaletteOption);
-		}
 	}
 );
 
@@ -465,6 +406,7 @@ define(
  * @typedef {Object} ExtensionProperties
  * @property {AxisYProperties} axisY Настройки оси Y
  * @property {LegendProperties} Настройки легенды
+ * @property {string} paletteId Идентификатор палитры
  */
 
 /**
