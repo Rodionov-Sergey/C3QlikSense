@@ -40,56 +40,61 @@ define(
 			.appendTo($('head'));
 
 		// Модуль расширения Qlik Sense
-		var extensionModule = {
-			// Определения свойств
-			definition: properties,
+		return properties.then(
+			function (props) {
+				console.log('properties in C3Extension', props);
+				return {
+					// Определения свойств
+					definition: props,
 
-			// Настройки первичной загрузки данных
-			initialProperties: {
-				qHyperCubeDef: {
-					qDimensions: [],
-					qMeasures: [],
-					qInitialDataFetch: [
-						{
-							qWidth: 11,
-							qHeight: 900
+					// Настройки первичной загрузки данных
+					initialProperties: {
+						qHyperCubeDef: {
+							qDimensions: [],
+							qMeasures: [],
+							qInitialDataFetch: [
+								{
+									qWidth: 11,
+									qHeight: 900
+								}
+							]
 						}
-					]
-				}
-			},
+					},
 
-			// Настройки выгрузки
-			support: {
-				snapshot: true,
-				export: true,
-				exportData: false
-			},
+					// Настройки выгрузки
+					support: {
+						snapshot: true,
+						export: true,
+						exportData: false
+					},
 
-			/**
-			 * Создаёт и обновляет интерфейс расширения
-			 * @param {*} $parentElement Родительский jQuery-элемент
-			 * @param {QlikExtension} qlikExtension Данные расширения
-			 * @returns {Promise} Promise завершения отрисовки
-			 */
-			paint: function($parentElement, qlikExtension) {	
-				return getThemePromise(qlik)
-					.then(
-						function (qlikTheme) {
-							// Отрисовка графика
-							paintChart($parentElement, qlikExtension, qlikTheme);
-						}
-					)
-					.catch(
-						function (error) {
-							console.log(error);
-							throw error;
-						}
-					);
+					/**
+					 * Создаёт и обновляет интерфейс расширения
+					 * @param {*} $parentElement Родительский jQuery-элемент
+					 * @param {QlikExtension} qlikExtension Данные расширения
+					 * @returns {Promise} Promise завершения отрисовки
+					 */
+					paint: function($parentElement, qlikExtension) {	
+						console.log('paint');
+
+						return getThemePromise(qlik)
+							.then(
+								function (qlikTheme) {
+									// Отрисовка графика
+									paintChart($parentElement, qlikExtension, qlikTheme);
+								}
+							)
+							.catch(
+								function (error) {
+									console.log(error);
+									throw error;
+								}
+							);
+					}
+				};
 			}
-		};
-
-		return extensionModule;
-
+		);
+		
 		/**
 		 * Возвращает Promise текущей темы
 		 * @param {QlikApi} qlik Qlik API
@@ -205,27 +210,38 @@ define(
 			if (qlikPalettes == null || qlikPalettes.length === 0) {
 				return null;
 			}
-
+			
 			var qlikPalette = qlikPalettes[0];
+			var colorCount = qlikExtension.qHyperCube.qMeasureInfo.length;
+			return getPaletteScale(qlikPalette, colorCount);
+		}
+
+		/**
+		 * Возвращает цветовую шкалу палитры типа Пирамида
+		 * @param {QlikDataPalette} qlikPyramidPalette Палитра
+		 * @param {Number} colorCount Количество цветов
+		 * @returns {String[]} Массив цветов палитры
+		 */
+		function getPaletteScale(qlikPalette, colorCount) {
 
 			if (qlikPalette.type === 'pyramid') {
-				var measureCount = qlikExtension.qHyperCube.qMeasureInfo.length;
-				return getPyramidPaletteScale(qlikPalette, measureCount);
+				return getPyramidPaletteScale(qlikPalette, colorCount);
 			}
 			else if (qlikPalette.type === 'row') {
 				return getRowPaletteScale(qlikPalette);
 			}
-
+			
 			return null;
 		}
 
 		/**
 		 * Возвращает цветовую шкалу палитры типа Пирамида
-		 * @param {*} qlikPyramidPalette Палитра
-		 * @param {number} scaleSize Размер шкалы
+		 * @param {QlikDataPalette} qlikPyramidPalette Палитра
+		 * @param {Number} scaleSize Размер шкалы
 		 * @returns {String[]} Массив цветов палитры
 		 */
 		function getPyramidPaletteScale(qlikPyramidPalette, scaleSize) {
+			/** @type {Color[][]} */
 			var qlikPaletteScales = qlikPyramidPalette.scale
 				.filter(
 					function (scale) {
@@ -242,8 +258,8 @@ define(
 
 		/**
 		 * Возвращает цветовую шкалу палитры типа Ряд
-		 * @param {*} qlikRowPalette Палитра
-		 * @returns {String[]} Массив цветов палитры
+		 * @param {QlikDataPalette} qlikRowPalette Палитра
+		 * @returns {Color[]} Массив цветов палитры
 		 */
 		function getRowPaletteScale(qlikRowPalette) {
 			return qlikRowPalette.scale;
