@@ -164,13 +164,13 @@
  * Значения атрибутов ячейки Qlik
  * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxAttributeExpressionValues.html
  * @typedef {Object} QlikAttributes
- * @property {QlikValue} qValues Массив значений атрибутов
+ * @property {QlikValue[]] qValues Массив значений атрибутов
  */
 
 /**
  * Значение Qlik
- * @typedef {Object} QlikValue
  * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxSimpleValue.html
+ * @typedef {Object} QlikValue
  * @property {String} qText - Текстовое значение ячейки
  * @property {Number} qNum - Числовое значение ячейки; NaN, если нет числового значения
  */
