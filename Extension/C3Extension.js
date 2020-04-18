@@ -38,7 +38,7 @@ define(
 		$('<style>')
 			.html(c3Css)
 			.appendTo($('head'));
-
+		
 		// Модуль расширения Qlik Sense
 		return getThemePromise(qlik)
 			.then(
@@ -100,86 +100,25 @@ define(
 		function paintChart($parentElement, qlikExtension, qlikTheme) {
 
 			// DEBUG: Отладка данных расширения
-			console.log('Тема', qlikTheme);
+			//console.log('Тема', qlikTheme);
 
 			// Контейнер для графика
 			var $containerElement = prepareContainer($parentElement);
-
-			// Подготовка контейнера для графика
-			var containerNode = $containerElement.get(0);
 			
 			// DEBUG: Отладка данных расширения
 			//console.log('Данные расширения', qlikExtension);
 
 			// Формирование настроек графика C3
-			var c3Settings = getChartSettings(containerNode, qlikExtension, qlikTheme);
+			var c3Settings = getChartSettings(qlikExtension, qlikTheme);
 
 			// DEBUG: Отладка данных графика
 			//console.log('Данные графика C3', c3Settings);
 
 			// Отрисовка графика
-			var $chart = createChart(c3Settings);
+			var $chart = createChart($containerElement, c3Settings);
 
 			// Настройка стилей графика
-			applyC3Style($chart, c3Settings, qlikTheme)
-		}
-	
-		/**
-		 * Создаёт интерфейс графика
-		 * @param {C3Settings} c3Settings Настройки графика C3
-		 * @returns {*} jQuery-объект SVG-элемента графика
-		 */
-		function createChart(c3Settings) {
-			
-			// Отрисовка графика в SVG
-			c3.generate(c3Settings);
-
-			// Родительский элемент
-			var $parentElement = $(c3Settings.bindto);
-			// Поиск результирующего элемента
-			var $chartSvg = $parentElement.children('svg');
-
-			return $chartSvg;
-		}
-
-		/**
-		 * Настраивает стиль графика
-		 * @param {*} $chart jQuery-объект SVG-элемента графика
-		 * @param {C3Settings} c3Settings Настройки графика C3
-		 * @param {QlikTheme} qlikTheme Тема
-		 */
-		function applyC3Style($chart, c3Settings, qlikTheme) {
-			var themeProperties = refineThemeProperties(qlikTheme.properties);
-
-			console.log('themeProperties', themeProperties);
-
-			// Легенда
-			// Подпись элемента легенды
-			$chart
-				.find('.c3-legend-item > text')
-				.css('fill', themeProperties.object.legend.label.color);
-				//.css('fontSize', themeProperties.object.legend.label.fontSize);
-
-			// Ось
-			// Цвет оси
-			$chart
-				.find('.c3-axis > path.domain ')
-				.css('stroke', themeProperties.object.axis.line.major.color);
-			// Подпись оси
-			$chart
-				.find('text.c3-axis-x-label, text.c3-axis-y-label')
-				.css('fill', themeProperties.object.axis.title.color);
-
-			// Засечки оси
-			// Цвет засечек
-			$chart
-				.find('.c3-axis > .tick > line')
-				.css('stroke', themeProperties.object.axis.line.minor.color);
-			// Подписи засечек осей
-			$chart
-				.find('.c3-axis > .tick > text')
-				.css('fill', themeProperties.object.axis.label.name.color);
-			
+			styleChart($chart, c3Settings, qlikTheme)
 		}
 
 		/**
@@ -208,15 +147,12 @@ define(
 
 		/**
 		 * Создаёт настройки графика для C3
-		 * @param {*} parentElement Родительский DOM-элемент для встраивания графика
 		 * @param {QlikExtension} qlikExtension Данные расширения
 		 * @param {QlikTheme} qlikTheme Тема
 		 * @returns {C3Settings} Настройки графика C3
 		 */
-		function getChartSettings(parentElement, qlikExtension, qlikTheme) {
+		function getChartSettings(qlikExtension, qlikTheme) {
 			return {
-				// Родительский элемент
-				bindto: parentElement,
 				// Данные
 				data: getChartData(qlikExtension),
 				// Оси
@@ -622,124 +558,201 @@ define(
 					throw new Error('Неизвестное положение легенды: ' + position);
 			}
 		}
+		
+		/**
+		 * Создаёт интерфейс графика
+		 * @param {*} $containerElement jQuery-объект контейнера для графика
+		 * @param {C3Settings} c3Settings Настройки графика C3
+		 * @returns {*} jQuery-объект SVG-элемента графика
+		 */
+		function createChart($containerElement, c3Settings) {
+
+			// Указание контейнера для графика
+			c3Settings.bindto = $containerElement.get(0);
+
+			// Отрисовка графика в SVG
+			c3.generate(c3Settings);
+
+			// Созданный элемент
+			var $chartSvg = $containerElement.children('svg');
+
+			return $chartSvg;
+		}
+
+		/**
+		 * Настраивает стиль графика
+		 * @param {*} $chart jQuery-объект SVG-элемента графика
+		 * @param {C3Settings} c3Settings Настройки графика C3
+		 * @param {QlikTheme} qlikTheme Тема
+		 */
+		function styleChart($chart, c3Settings, qlikTheme) {
+			var themeProperties = getThemeProperties(qlikTheme);
+
+			// Легенда
+			// Подпись элемента легенды
+			$chart
+				.find('.c3-legend-item > text')
+				.css('fill', themeProperties.object.legend.label.color);
+				//.css('fontSize', themeProperties.object.legend.label.fontSize);
+
+			// Ось
+			// Цвет оси
+			$chart
+				.find('.c3-axis > path.domain ')
+				.css('stroke', themeProperties.object.axis.line.major.color);
+			// Подпись оси
+			$chart
+				.find('text.c3-axis-x-label, text.c3-axis-y-label')
+				.css('fill', themeProperties.object.axis.title.color);
+
+			// Засечки оси
+			// Цвет засечек
+			$chart
+				.find('.c3-axis > .tick > line')
+				.css('stroke', themeProperties.object.axis.line.minor.color);
+			// Подписи засечек осей
+			$chart
+				.find('.c3-axis > .tick > text')
+				.css('fill', themeProperties.object.axis.label.name.color);
+		}
+
+		// -------------------------------------------------------------------
 
 		// Работа с темами Qlik
-		
-		/**
-		 * 
-		 * @param {QlikThemeProperties} properties 
+
+		/***
+		 * Возваращает свойства темы
+		 * @param {QlikTheme} qlikTheme Тема
+		 * @returns {QlikThemeProperties} Свойства темы
 		 */
-		function refineThemeProperties(properties) {
-			properties = properties || { };
-			properties.color = refineThemeColor(properties.color);
-			properties.fontSize = refineThemeFontSize(properties.fontSize);
-			properties.backgroundColor = refineThemeColor(properties.backgroundColor);
-			properties.object = refineThemeObject(properties.object);
-			return properties;
+		function getThemeProperties(qlikTheme) {
+			var resultProperties = deepMerge({ }, defaultThemeProperties());
+			return deepMerge(resultProperties, qlikTheme.properties);
 		}
 
 		/**
-		 * 
-		 * @param {ObjectsThemeProperties} properties
+		 * Возвращает свойства темы по умолчанию
+		 * @returns {QlikThemeProperties} Свойства
 		 */
-		function refineThemeObject(properties) {
-			properties = properties || { };
-			properties.legend = refineThemeLegend(properties.legend);
-			properties.axis = refineThemeAxis(properties.axis);
-			return properties;
+		function defaultThemeProperties() {
+			return {
+				"color": null,
+				"fontSize": null,
+				"backgroundColor": null,
+				"dataColors": {
+					"primaryColor": null,
+					"othersColor": null,
+					"errorColor": null,
+					"nullColor": null
+				},
+				"object": {
+					"title": {
+						"main": defaultForegroundFontSize(),
+						"subTitle": defaultForegroundFontSize(),
+						"footer": defaultForegroundFontSizeBackground()
+					},
+				  	"label": {
+						"name": defaultForegroundFontSize(),
+						"value": defaultForegroundFontSize()
+				  	},
+				  	"axis": {
+						"title": defaultForegroundFontSize(),
+						"label": {
+							"name": defaultForegroundFontSize()
+						},
+						"line": {
+					  		"major": defaultForeground(),
+					  		"minor": defaultForeground()
+						}
+					},
+					"grid": {
+						"line": {
+							"highContrast": defaultForeground(),
+							"major": defaultForeground(),
+							"minor": defaultForeground()
+						}
+					},
+					"referenceLine": {
+						"label": {
+							"name": defaultForegroundFontSize()
+						},
+						"outOfBounds": defaultForegroundFontSizeBackground()
+					},
+					"legend": {
+						"title": defaultForegroundFontSize(),
+						"label": defaultForegroundFontSize()
+				  	}
+				},
+				"palettes": {
+				  "data": [],
+				  "ui": []
+				},
+				"scales": []
+			  };
 		}
 
 		/**
-		 * 
-		 * @param {QlikThemeLegendProperties} properties
+		 * Возвращает свойства темы по умолчанию, содержащие цвет, размер шрифта и цвет фона
+		 * @returns {QlikThemeForegroundFontSizeBackgoundProperties} Свойства
 		 */
-		function refineThemeLegend(properties) {
-			properties = properties || { };
-			properties.title = refineThemeForegroundFontSize(properties.title);
-			properties.label = refineThemeForegroundFontSize(properties.label);
-			return properties;
+		function defaultForegroundFontSizeBackground() {
+			return  {
+				"color": null,
+				"fontSize": null,
+				"backgroundColor": null
+		  	};
 		}
 
 		/**
-		 * 
-		 * @param {QlikThemeAxisProperties} properties
+		 * Возвращает свойства темы по умолчанию, содержащие цвет и размер шрифта
+		 * @returns {QlikThemeForegroundFontSizeProperties} Свойства
 		 */
-		function refineThemeAxis(properties) {
-			properties = properties || { };
-			properties.title = refineThemeForegroundFontSize(properties.title);
-			properties.label = refineThemeAxisLabel(properties.label);
-			properties.line = refineThemeLine(properties.line);
-			return properties;
-		}
-
-		/**
-		 * 
-		 * @param {QlikThemeAxisLabelProperties} properties
-		 */
-		function refineThemeAxisLabel(properties) {
-			properties = properties || { };
-			properties.name = refineThemeForegroundFontSize(properties.name);
-			return properties;
-		}
-
-		/**
-		 * 
-		 * @param {QlikThemeLineProperties} properties
-		 */
-		function refineThemeLine(properties) {
-			properties = properties || { };
-			properties.major = refineThemeForeground(properties.major);
-			properties.minor = refineThemeForeground(properties.minor);
-			return properties;
-		}
-
-		/**
-		 * 
-		 * @param {QlikThemeForegroundFontSizeBackgoundProperties} properties
-		 */
-		function refineThemeForegroundBackgroundFontSize(properties) {
-			properties = properties || { };
-			properties.color = refineThemeColor(properties.color);
-			properties.fontSize = refineThemeFontSize(properties.fontSize);
-			properties.backgroundColor = refineThemeColor(properties.backgroundColor);
-			return properties;
-		}
-
-		/**
-		 * 
-		 * @param {QlikThemeForegroundFontSizeProperties} properties
-		 */
-		function refineThemeForegroundFontSize(properties) {
-			properties = properties || { };
-			properties.color = refineThemeColor(properties.color);
-			properties.fontSize = refineThemeFontSize(properties.fontSize);
-			return properties;
-		}
-
-		/**
-		 * 
-		 * @param {QlikThemeForegroundProperties} properties
-		 */
-		function refineThemeForeground(properties) {
-			properties = properties || { };
-			properties.color = refineThemeColor(properties.color);
-			return properties;
-		}
-
-		/**
-		 * 
-		 * @param {Color=} color
-		 */
-		function refineThemeColor(color) {
-			return color != null && color != '' ? color : null;
+		function defaultForegroundFontSize() {
+			return  {
+				"color": null,
+				"fontSize": null
+		  	};
 		}
 		
 		/**
-		 * 
-		 * @param {String=} size
+		 * Возвращает свойства темы по умолчанию, содержащие цвет
+		 * @returns {QlikThemeForegroundFontSizeProperties} Свойства
 		 */
-		function refineThemeFontSize(size) {
-			return size != null && size != '' ? size : null;
+		function defaultForeground() {
+			return  {
+				"color": null
+		  	};
+		}
+		
+		/**
+		 * Рекурсивно сливает свойства источника в целевой объект
+		 * @param {*} target Дополняемый целевой объект
+		 * @param {*} source Объект-источник
+		 * @return {*} Целевой объект
+		 */
+		function deepMerge(target, source) {
+			if (isObject(target) && isObject(source)) {
+				for (var key in source) {
+					if (isObject(source[key])) {
+						if (target[key] == null) {
+							Object.assign(target, { [key]: {} });
+						}
+						deepMerge(target[key], source[key]);
+					} else {
+						Object.assign(target, { [key]: source[key] });
+					}
+				}
+			}
+			return target;
+		}
+
+		/**
+		 * Проверка на непустой объект
+		 * @param item Проверяемый элемент
+		 * @returns {Boolean} Признак объекта
+		 */
+		function isObject(item) {
+			return (item != null && typeof item === 'object' && !Array.isArray(item));
 		}
 	}
 );
