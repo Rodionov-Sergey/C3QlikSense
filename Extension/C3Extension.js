@@ -636,58 +636,58 @@ define(
 		 */
 		function defaultThemeProperties() {
 			return {
-				"color": null,
-				"fontSize": null,
-				"backgroundColor": null,
-				"dataColors": {
-					"primaryColor": null,
-					"othersColor": null,
-					"errorColor": null,
-					"nullColor": null
+				'color': null,
+				'fontSize': null,
+				'backgroundColor': null,
+				'dataColors': {
+					'primaryColor': null,
+					'othersColor': null,
+					'errorColor': null,
+					'nullColor': null
 				},
-				"object": {
-					"title": {
-						"main": defaultForegroundFontSize(),
-						"subTitle": defaultForegroundFontSize(),
-						"footer": defaultForegroundFontSizeBackground()
+				'object': {
+					'title': {
+						'main': defaultForegroundFontSize(),
+						'subTitle': defaultForegroundFontSize(),
+						'footer': defaultForegroundFontSizeBackground()
 					},
-				  	"label": {
-						"name": defaultForegroundFontSize(),
-						"value": defaultForegroundFontSize()
+				  	'label': {
+						'name': defaultForegroundFontSize(),
+						'value': defaultForegroundFontSize()
 				  	},
-				  	"axis": {
-						"title": defaultForegroundFontSize(),
-						"label": {
-							"name": defaultForegroundFontSize()
+				  	'axis': {
+						'title': defaultForegroundFontSize(),
+						'label': {
+							'name': defaultForegroundFontSize()
 						},
-						"line": {
-					  		"major": defaultForeground(),
-					  		"minor": defaultForeground()
+						'line': {
+					  		'major': defaultForeground(),
+					  		'minor': defaultForeground()
 						}
 					},
-					"grid": {
-						"line": {
-							"highContrast": defaultForeground(),
-							"major": defaultForeground(),
-							"minor": defaultForeground()
+					'grid': {
+						'line': {
+							'highContrast': defaultForeground(),
+							'major': defaultForeground(),
+							'minor': defaultForeground()
 						}
 					},
-					"referenceLine": {
-						"label": {
-							"name": defaultForegroundFontSize()
+					'referenceLine': {
+						'label': {
+							'name': defaultForegroundFontSize()
 						},
-						"outOfBounds": defaultForegroundFontSizeBackground()
+						'outOfBounds': defaultForegroundFontSizeBackground()
 					},
-					"legend": {
-						"title": defaultForegroundFontSize(),
-						"label": defaultForegroundFontSize()
+					'legend': {
+						'title': defaultForegroundFontSize(),
+						'label': defaultForegroundFontSize()
 				  	}
 				},
-				"palettes": {
-				  "data": [],
-				  "ui": []
+				'palettes': {
+				  'data': [],
+				  'ui': []
 				},
-				"scales": []
+				'scales': []
 			  };
 		}
 
@@ -697,9 +697,9 @@ define(
 		 */
 		function defaultForegroundFontSizeBackground() {
 			return  {
-				"color": null,
-				"fontSize": null,
-				"backgroundColor": null
+				'color': null,
+				'fontSize': null,
+				'backgroundColor': null
 		  	};
 		}
 
@@ -709,8 +709,8 @@ define(
 		 */
 		function defaultForegroundFontSize() {
 			return  {
-				"color": null,
-				"fontSize": null
+				'color': null,
+				'fontSize': null
 		  	};
 		}
 		
@@ -720,7 +720,7 @@ define(
 		 */
 		function defaultForeground() {
 			return  {
-				"color": null
+				'color': null
 		  	};
 		}
 		
