@@ -174,38 +174,45 @@ define(
 		 * Возвращает палитру из темы
 		 * @param {QlikExtension} qlikExtension Данные расширения
 		 * @param {QlikTheme} qlikTheme Палитра темы из Qlik
-		 * @returns {String[]} Массив цветов палитры
+		 * @returns {String[]} Массив цветов палитры; 
+		 *   null, если не указаны настройки или нет палитр в теме
 		 */
 		function getPalette(qlikExtension, qlikTheme) {
-			
+			// Не указаны настройки палитры
+			if (qlikExtension.properties == null ||
+				qlikExtension.properties.palette == null) {
+					return null;
+			}
+
+			// В теме нет свойств или палитр
 			if (qlikTheme.properties == null || 
 				qlikTheme.properties.palettes == null) {
 				return null;
 			}
 
+			// В палитрах нет данных
 			var qlikPalettes = qlikTheme.properties.palettes.data;
 			if (qlikPalettes == null || qlikPalettes.length === 0) {
 				return null;
 			}
 
+			// Поиск палитры в теме по идентификатору
 			var qlikPalette = null;
-
-			// Поиск по идентификатору выбранной темы
 			for (var i = 0; i < qlikPalettes.length; i++) {
-				if (qlikPalettes[i].propertyValue === qlikExtension.properties.paletteId) {
+				if (qlikPalettes[i].propertyValue === qlikExtension.properties.palette.id) {
 					qlikPalette = qlikPalettes[i];
 					break;
 				}
 			}
 
-			// Если не найдено
+			// Если палитра не найдена
 			if (qlikPalette == null) {
-				// Взять первую из темы
+				// Используется первая палитра из темы
 				qlikPalette = qlikPalettes[0];
 			}
 
+			// Получение цветов палитры
 			var colorCount = qlikExtension.qHyperCube.qMeasureInfo.length;
-
 			return getPaletteScale(qlikPalette, colorCount); 
 		}
 
@@ -216,15 +223,17 @@ define(
 		 * @returns {String[]} Массив цветов палитры
 		 */
 		function getPaletteScale(qlikPalette, colorCount) {
-
-			if (qlikPalette.type === 'pyramid') {
-				return getPyramidPaletteScale(qlikPalette, colorCount);
+			switch (qlikPalette.type) {
+				// Пирамидальная палитра
+				case 'pyramid':
+					return getPyramidPaletteScale(qlikPalette, colorCount);
+				// Палитра с набором цветов
+				case 'row':
+					return getRowPaletteScale(qlikPalette);
+				default:
+					// Цвета палитры не найдены
+					return null;
 			}
-			else if (qlikPalette.type === 'row') {
-				return getRowPaletteScale(qlikPalette);
-			}
-			
-			return null;
 		}
 
 		/**
@@ -234,19 +243,23 @@ define(
 		 * @returns {String[]} Массив цветов палитры
 		 */
 		function getPyramidPaletteScale(qlikPyramidPalette, scaleSize) {
-			/** @type {Color[][]} */
-			var qlikPaletteScales = qlikPyramidPalette.scale
-				.filter(
-					function (scale) {
-						return scale != null && scale.length === scaleSize;
-					}
-				);
-
-			if (qlikPaletteScales.length > 0) {
-				return qlikPaletteScales[0];
+			var colorScales = qlikPyramidPalette.scale;
+			// Нет цветовых шкал
+			if (colorScales.length === 0) {
+				return null;
 			}
-				
-			return qlikPyramidPalette.scale[qlikPyramidPalette.scale.length-1];
+
+			// Поиск цветовой шкалы требуемого размера
+			for (var i = 0; i < colorScales.length; i++) {
+				var colorScale = colorScales[i];
+				if (colorScale != null && colorScale.length === scaleSize) {
+					// Найдена цветовая шкала
+					return colorScale;
+				}
+			}
+			
+			// Иначе возьмём последнюю шкалу (предположительно самая большая)
+			return colorScales[colorScales.length-1];
 		}
 
 		/**

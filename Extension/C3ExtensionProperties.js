@@ -53,31 +53,19 @@ define(
 		}
 
 		/**
-		 * Возвращает свойства
+		 * Возвращает определения свойств, настраиваемых пользователем
 		 * @param {*} qlikTheme Тема
+		 * @returns {*} Определения свойств
 		 */
 		function getProperties(qlikTheme) {
-
 			return {
 				type: 'items',
 				component: 'accordion',
 				items: {
 					// Блок свойств Измерения
-					dimensions: {
-						uses: 'dimensions',
-						min: 1,
-						max: 1,
-						// Cвойства измерений графика
-						items: getDimensionProperties()
-					},
+					dimensions: getDimensionProperties(),
 					// Блок свойств Меры
-					measures: {
-						uses: 'measures',
-						min: 1,
-						max: 10,
-						// Свойства мер графика
-						items: getMeasureProperties()
-					},
+					measures: getMeasureProperties(),
 					// Блок свойств Сортировка
 					sorting: {
 						uses: 'sorting'
@@ -87,59 +75,63 @@ define(
 						uses: 'settings'
 					},
 					// Свойства графика
-					chart: {
-						type: 'items',
-						component: 'expandable-items',
-						label: 'График',
-						items: getChartProperties(qlikTheme)
-					}
+					chart: getChartProperties(qlikTheme)
 				}
 			};
 		}
 
-		// Определения свойств секции Измерения
+		/**
+		 * Возвращает определения свойств секции Измерения
+		 * @returns Определения свойств измерений
+		 */
 		function getDimensionProperties() {
 			return {
-				// Тип шкалы
-				scaleType: {
-					ref: getColumnPropertyKey('scaleType'),
-					type: 'string',
-					component: 'dropdown',
-					label: 'Тип шкалы',
-					options: [
-						{
-							value: 'CategoricalScale',
-							label: 'Категориальная шкала'
-						},
-						{
-							value: 'NumericScale',
-							label: 'Числовая шкала'
-						},
-						{
-							value: 'TemporalScale',
-							label: 'Временная шкала'
-						}
-					],
-					defaultValue: 'CategoricalScale'
-				},
-				// Угол наклона подписей - текстовое поле
-				tickLabelAngleText: {
-					ref: getColumnPropertyKey('tickLabelAngle'),
-					type: 'number',
-					label: 'Угол наклона подписей',
-					min: -90,
-					max: 90,
-					defaultValue: 0
-				},
-				// Угол наклона подписей - слайдер
-				tickLabelAngle: {
-					ref: getColumnPropertyKey('tickLabelAngle'),
-					type: 'number',
-					component: 'slider',
-					min: -90,
-					max: 90,
-					step: 10,
-					defaultValue: 0
+				uses: 'dimensions',
+				min: 1,
+				max: 1,
+				// Cвойства измерений графика
+				items: {
+					// Тип шкалы
+					scaleType: {
+						ref: getColumnPropertyKey('scaleType'),
+						type: 'string',
+						component: 'dropdown',
+						label: 'Тип шкалы',
+						options: [
+							{
+								value: 'CategoricalScale',
+								label: 'Категориальная шкала'
+							},
+							{
+								value: 'NumericScale',
+								label: 'Числовая шкала'
+							},
+							{
+								value: 'TemporalScale',
+								label: 'Временная шкала'
+							}
+						],
+						defaultValue: 'CategoricalScale'
+					},
+					// Угол наклона подписей - текстовое поле
+					tickLabelAngleText: {
+						ref: getColumnPropertyKey('tickLabelAngle'),
+						type: 'number',
+						label: 'Угол наклона подписей',
+						min: -90,
+						max: 90,
+						defaultValue: 0
+					},
+					// Угол наклона подписей - слайдер
+					tickLabelAngle: {
+						ref: getColumnPropertyKey('tickLabelAngle'),
+						type: 'number',
+						component: 'slider',
+						min: -90,
+						max: 90,
+						step: 10,
+						defaultValue: 0
+					}
 				}
 			};
 		}
@@ -147,54 +139,74 @@ define(
 		/**
 		 * Возвращает определение свойств секции Меры
 		 * @param {QlikTheme} qlikTheme
-		 * @returns {*} Определение свойств
+		 * @returns {*} Определение свойств меры
 		 */
 		function getMeasureProperties() {
 			return {
-				// Тип графика
-				chartType: {
-					ref: getColumnPropertyKey('chartType'),
-					type: 'string',
-					component: 'dropdown',
-					label: 'Тип графика',
-					options: [
-						{
-							value: 'LineChart',
-							label: 'Линейный график'
-						},
-						{
-							value: 'BarChart',
-							label: 'Столбчатая диаграмма'
-						}
-					],
-					defaultValue: 'LineChart'
+				uses: 'measures',
+				min: 1,
+				max: 10,
+				// Свойства мер графика
+				items: {
+					// Тип графика
+					chartType: {
+						ref: getColumnPropertyKey('chartType'),
+						type: 'string',
+						component: 'dropdown',
+						label: 'Тип графика',
+						options: [
+							{
+								value: 'LineChart',
+								label: 'Линейный график'
+							},
+							{
+								value: 'BarChart',
+								label: 'Столбчатая диаграмма'
+							}
+						],
+						defaultValue: 'LineChart'
+					}
 				}
 			};
 		}
 		
 		/**
 		 * Возвращает определения свойств графика
-		 * @param {QlikTheme} qlikTheme
+		 * @param {QlikTheme} qlikTheme Тема
+		 * @returns {*} Определения свойств графика
 		 */
 		function getChartProperties(qlikTheme) {
 			return {
-				// Свойства оси Y
-				axisY: {
-					type: 'items',
-					label: 'Ось Y',
-					items: {
-						// Подпись оси
-						title: {
-							ref: getExtensionPropertyKey('axisY.title'),
-							type: 'string',
-							label: 'Заголовок оси Y'
-						}
+				type: 'items',
+				component: 'expandable-items',
+				label: 'График',
+				items: {
+					// Свойства оси Y
+					axisY: getAxisYProperties(),
+					// Свойства легенды
+					legend: getLegendProperties(),
+					// Палитра
+					palette: getPaletteProperties(qlikTheme)
+				}
+			};
+		}
+
+		/**
+		 * Возвращает определения свойств оси Y
+		 * @returns {*} Определения свойств оси
+		 */
+		function getAxisYProperties() {
+			return {
+				type: 'items',
+				label: 'Ось Y',
+				items: {
+					// Подпись оси
+					title: {
+						ref: getExtensionPropertyKey('axisY.title'),
+						type: 'string',
+						label: 'Заголовок оси Y'
 					}
-				},
-				// Свойства легенды
-				legend: getLegendProperties(),
-				// Палитра
-				palette: getPaletteProperties(qlikTheme)
+				}
 			};
 		}
 				
@@ -262,7 +274,7 @@ define(
 				items: {
 					// Элементы списка палитр
 					paletteItems: {
-						ref: getExtensionPropertyKey('paletteId'),
+						ref: getExtensionPropertyKey('palette.id'),
 						type: 'items',
 						component: 'item-selection-list', 
 						horizontal: false,
@@ -406,8 +418,14 @@ define(
  * @typedef {Object} ExtensionProperties
  * @property {AxisYProperties} axisY Настройки оси Y
  * @property {LegendProperties} Настройки легенды
- * @property {string} paletteId Идентификатор палитры
+ * @property {PaletteProperties} palette Настройки палитры
  */
+
+ /**
+  * Настройки палитры
+  * @typedef {Object} PaletteProperties
+  * @property {String} id Идентификатор палитры
+  */
 
 /**
  * Измерение гиперкуба
