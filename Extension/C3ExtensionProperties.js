@@ -455,7 +455,7 @@ define(
  
 /**
  * Позиция легенды
- * @typedef {String} LegendPosition
+ * @typedef {'Bottom'|'Right'|'Inside'} LegendPosition
  * - 'Bottom' - Снизу
  * - 'Right' - Справа
  * - 'Inside' - Внутри
@@ -463,7 +463,7 @@ define(
 
 /**
  * Тип шкалы
- * @typedef {String} ScaleType
+ * @typedef {'CategoricalScale'|'NumericScale'|'TemporalScale'} ScaleType
  * - 'CategoricalScale' - Категориальная шкала
  * - 'NumericScale' - Числовая шкала
  * - 'TemporalScale' - Временная шкала
@@ -471,7 +471,7 @@ define(
 
 /**
  * Тип графика
- * @typedef {String} ChartType
+ * @typedef {'LineChart'|'BarChart'} ChartType
  * - 'LineChart' - линейный график
  * - 'BarChart' - столбчатая диаграмма
  */

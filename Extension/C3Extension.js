@@ -415,15 +415,12 @@ define(
 		 */
 		function getColumnType(chartType) {
 			switch (chartType) {
-				case 'LineChart': {
+				case 'LineChart':
 					return 'line';
-				}
-				case 'BarChart': {
+				case 'BarChart':
 					return 'bar';
-				}
-				default: {
+				default:
 					throw new Error('Неизвестный тип графика: ' + chartType);
-				}
 			}
 		}
 
