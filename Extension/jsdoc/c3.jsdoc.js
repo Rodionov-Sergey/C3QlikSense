@@ -20,7 +20,7 @@
 
 /**
  * Положение легенды
- * @typedef {String} C3LegendPosition
+ * @typedef {'right'|'bottom'|'inset'} C3LegendPosition
  * - 'right' - Справа
  * - 'bottom' - Снизу
  * - 'inset' - Внутри
@@ -44,7 +44,7 @@
 
 /**
  * Тип графика
- * @typedef {String} C3ChartType
+ * @typedef {'line'|'bar'} C3ChartType
  * - 'line' - Линейный график
  * - 'bar' - Столбчатая диаграмма
  */
@@ -69,7 +69,7 @@
 
 /**
  * Тип оси X
- * @typedef {String} C3XAxisType
+ * @typedef {'category'|'linear'|'log'|'timeseries'} C3XAxisType
  * - 'category' - Категориальная ось - фиксированный список значений, не сравнимых по значению
  * - 'linear' - Линейная числовая ось
  * - 'log' - Логарифмическая числовая ось
@@ -85,7 +85,8 @@
 
 /**
  * Тип расположения оси X
- * @typedef {String} C3XAxisPosition
+ * @typedef {'inner-right'|'inner-center'|'inner-left'|
+ *   'outer-right'|'outer-center'|'outer-left'} C3XAxisPosition
  * - 'inner-right' - Внутри справа
  * - 'inner-center' - Внутри по центру
  * - 'inner-left' - Внутри слева
@@ -111,7 +112,8 @@
 
 /**
  * Тип расположения оси Y
- * @typedef {String} C3YAxisPosition
+ * @typedef {'inner-top'|'inner-middle'|'inner-bottom'|
+ *   'outer-top'|'outer-middle'|'outer-bottom'} C3YAxisPosition
  * - 'inner-top' - Внутри сверху
  * - 'inner-middle' - Внутри по центру
  * - 'inner-bottom' - Внутри снизу

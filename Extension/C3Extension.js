@@ -22,13 +22,13 @@ define(
 	 * Создаёт модуль расширения
 	 * @param {QlikApi} qlik API Qlik Sense
 	 * @param {*} $ jQuery - библиотека для работы с HTML
-	 * @param {*} properties - Определения настроек расширения
+	 * @param {*} propertiesFactory - Определения настроек расширения
 	 * @param {*} d3 D3.js - библиотека для манипулирования документами на основе данных
 	 * @param {*} c3 C3.js - библиотека для построения графиков
 	 * @param {*} c3Css Содержимое стилей C3.js
 	 * @returns {*} Модуль
 	 */
-	function(qlik, $, properties, d3, c3, c3Css) {
+	function(qlik, $, propertiesFactory, d3, c3, c3Css) {
 		'use strict';
 
 		// HACK: Так C3.js найдёт свою зависимость D3.js по имени d3
@@ -40,69 +40,82 @@ define(
 			.appendTo($('head'));
 
 		// Модуль расширения Qlik Sense
-		var extensionModule = {
-			// Определения свойств
-			definition: properties,
+		return getThemePromise(qlik)
+			.then(
+				function (qlikTheme) {
 
-			// Настройки первичной загрузки данных
-			initialProperties: {
-				qHyperCubeDef: {
-					qDimensions: [],
-					qMeasures: [],
-					qInitialDataFetch: [
-						{
-							qWidth: 11,
-							qHeight: 900
-						}
-					]
-				}
-			},
-
-			// Настройки выгрузки
-			support: {
-				snapshot: true,
-				export: true,
-				exportData: false
-			},
-
-			/**
-			 * Создаёт и обновляет интерфейс расширения
-			 * @param {*} $element Родительский jQuery-элемент
-			 * @param {QlikExtension} qlikExtension Данные расширения
-			 * @returns {Promise} Promise завершения отрисовки
-			 */
-			paint: function($element, qlikExtension) {
-				try {
+					var properties = propertiesFactory.getProperties(qlikTheme);					
 
 					// DEBUG: Отладка настроек расширения
 					//console.log('Определения настроек расширения', properties);
 
-					// Подготовка контенера для графика
-					var $containerElement = prepareContainer($element);
-					var containerNode = $containerElement.get(0);
-					
-					// DEBUG: Отладка данных расширения
-					//console.log('Данные расширения', qlikExtension);
+					return {
+						// Определения свойств
+						definition: properties,
+						// Настройки первичной загрузки данных
+						initialProperties: propertiesFactory.getInitialProperties(),
+						// Настройки выгрузки
+						support: propertiesFactory.getSupportProperties(),
 
-					// Формирование настроек графика C3
-					var c3Settings = getChartSettings(containerNode, qlikExtension);
-
-					// DEBUG: Отладка данных графика
-					//console.log('Данные графика C3', c3Settings);
-
-					// Отрисовка графика
-					c3.generate(c3Settings);
+						/**
+						 * Создаёт и обновляет интерфейс расширения
+						 * @param {*} $parentElement Родительский jQuery-элемент
+						 * @param {QlikExtension} qlikExtension Данные расширения
+						 * @returns {Promise} Promise завершения отрисовки
+						 */
+						paint: function($parentElement, qlikExtension) {
+							return getThemePromise(qlik)
+								.then(
+									function (qlikTheme) {
+										// Отрисовка графика
+										paintChart($parentElement, qlikExtension, qlikTheme);
+									}
+								)
+								.catch(
+									function (error) {
+										console.log(error);
+										throw error;
+									}
+								);
+						}
+					};
 				}
-				catch (error) {
-					console.log(error);
-					throw error;
-				}
+			);
+		
+		/**
+		 * Возвращает Promise текущей темы
+		 * @param {QlikApi} qlik Qlik API
+		 * @returns {Promise<QlikTheme>}
+		 */
+		function getThemePromise(qlik) {
+			return qlik.currApp().theme.getApplied();
+		}
 
-				return qlik.Promise.resolve();
-			}
-		};
+		/**
+		 * Рисует график
+		 * @param {*} $parentElement Родительский jQuery-элемент
+		 * @param {QlikExtension} qlikExtension Данные расширения
+		 * @param {QlikTheme} qlikTheme Тема
+		 */
+		function paintChart($parentElement, qlikExtension, qlikTheme) {
+			// Контейнер для графика
+			var $containerElement = prepareContainer($parentElement);
 
-		return extensionModule;
+			// Подготовка контейнера для графика
+			var containerNode = $containerElement.get(0);
+			
+			// DEBUG: Отладка данных расширения
+			//console.log('Данные расширения', qlikExtension);
+
+			// Формирование настроек графика C3
+			var c3Settings = getChartSettings(containerNode, qlikExtension, qlikTheme);
+
+			// DEBUG: Отладка данных графика
+			//console.log('Данные графика C3', c3Settings);
+
+			// Отрисовка графика
+			c3.generate(c3Settings);
+		}
 
 		/**
 		 * Подготавливает контейнер для графика
@@ -122,6 +135,7 @@ define(
 			var $newElement = $('<div>')
 				.addClass(containerClass)
 				.appendTo($parentElement);
+			
 			return $newElement;
 		}
 
@@ -131,14 +145,15 @@ define(
 		 * Создаёт настройки графика для C3
 		 * @param {*} parentElement Родительский DOM-элемент для встраивания графика
 		 * @param {QlikExtension} qlikExtension Данные расширения
+		 * @param {QlikTheme} qlikTheme Тема
 		 * @returns {C3Settings} Настройки графика C3
 		 */
-		function getChartSettings(parentElement, qlikExtension) {
+		function getChartSettings(parentElement, qlikExtension, qlikTheme) {
 			return {
 				// Родительский элемент
 				bindto: parentElement,
 				// Данные
-				data: getData(qlikExtension),
+				data: getChartData(qlikExtension),
 				// Оси
 				axis: {
 					// Ось X
@@ -147,8 +162,113 @@ define(
 					y: getYAxis(qlikExtension)
 				},
 				// Легенда
-				legend: getLegend(qlikExtension)
+				legend: getLegend(qlikExtension),
+				// Палитра
+				color: {
+					pattern: getPalette(qlikExtension, qlikTheme)
+				}
 			};
+		}
+
+		/**
+		 * Возвращает палитру из темы
+		 * @param {QlikExtension} qlikExtension Данные расширения
+		 * @param {QlikTheme} qlikTheme Палитра темы из Qlik
+		 * @returns {String[]} Массив цветов палитры; 
+		 *   null, если не указаны настройки или нет палитр в теме
+		 */
+		function getPalette(qlikExtension, qlikTheme) {
+			// Не указаны настройки палитры
+			if (qlikExtension.properties == null ||
+				qlikExtension.properties.palette == null) {
+					return null;
+			}
+
+			// В теме нет свойств или палитр
+			if (qlikTheme.properties == null || 
+				qlikTheme.properties.palettes == null) {
+				return null;
+			}
+
+			// В палитрах нет данных
+			var qlikPalettes = qlikTheme.properties.palettes.data;
+			if (qlikPalettes == null || qlikPalettes.length === 0) {
+				return null;
+			}
+
+			// Поиск палитры в теме по идентификатору
+			var qlikPalette = null;
+			for (var i = 0; i < qlikPalettes.length; i++) {
+				if (qlikPalettes[i].propertyValue === qlikExtension.properties.palette.id) {
+					qlikPalette = qlikPalettes[i];
+					break;
+				}
+			}
+
+			// Если палитра не найдена
+			if (qlikPalette == null) {
+				// Используется первая палитра из темы
+				qlikPalette = qlikPalettes[0];
+			}
+
+			// Получение цветов палитры
+			var colorCount = qlikExtension.qHyperCube.qMeasureInfo.length;
+			return getPaletteScale(qlikPalette, colorCount); 
+		}
+
+		/**
+		 * Возвращает цветовую шкалу палитры типа Пирамида
+		 * @param {QlikDataPalette} qlikPyramidPalette Палитра
+		 * @param {Number} colorCount Количество цветов
+		 * @returns {String[]} Массив цветов палитры
+		 */
+		function getPaletteScale(qlikPalette, colorCount) {
+			switch (qlikPalette.type) {
+				// Пирамидальная палитра
+				case 'pyramid':
+					return getPyramidPaletteScale(qlikPalette, colorCount);
+				// Палитра с набором цветов
+				case 'row':
+					return getRowPaletteScale(qlikPalette);
+				default:
+					// Цвета палитры не найдены
+					return null;
+			}
+		}
+
+		/**
+		 * Возвращает цветовую шкалу палитры типа Пирамида
+		 * @param {QlikDataPalette} qlikPyramidPalette Палитра
+		 * @param {Number} scaleSize Размер шкалы
+		 * @returns {String[]} Массив цветов палитры
+		 */
+		function getPyramidPaletteScale(qlikPyramidPalette, scaleSize) {
+			var colorScales = qlikPyramidPalette.scale;
+			// Нет цветовых шкал
+			if (colorScales.length === 0) {
+				return null;
+			}
+
+			// Поиск цветовой шкалы требуемого размера
+			for (var i = 0; i < colorScales.length; i++) {
+				var colorScale = colorScales[i];
+				if (colorScale != null && colorScale.length === scaleSize) {
+					// Найдена цветовая шкала
+					return colorScale;
+				}
+			}
+			
+			// Иначе возьмём последнюю шкалу (предположительно самая большая)
+			return colorScales[colorScales.length-1];
+		}
+
+		/**
+		 * Возвращает цветовую шкалу палитры типа Ряд
+		 * @param {QlikDataPalette} qlikRowPalette Палитра
+		 * @returns {Color[]} Массив цветов палитры
+		 */
+		function getRowPaletteScale(qlikRowPalette) {
+			return qlikRowPalette.scale;
 		}
 
 		/**
@@ -156,7 +276,7 @@ define(
 		 * @param {QlikExtension} qlikExtension Данные расширения
 		 * @returns {C3Data} Данные графика C3
 		 */
-		function getData(qlikExtension) {
+		function getChartData(qlikExtension) {
 
 			var qlikHyperCube = qlikExtension.qHyperCube;
 
@@ -295,15 +415,12 @@ define(
 		 */
 		function getColumnType(chartType) {
 			switch (chartType) {
-				case 'LineChart': {
+				case 'LineChart':
 					return 'line';
-				}
-				case 'BarChart': {
+				case 'BarChart':
 					return 'bar';
-				}
-				default: {
+				default:
 					throw new Error('Неизвестный тип графика: ' + chartType);
-				}
 			}
 		}
 
