@@ -41,18 +41,78 @@
  * Свойства темы Qlik
  * @see https://help.qlik.com/en-US/sense-developer/February2020/Subsystems/Extensions/Content/Sense_Extensions/CustomThemes/custom-themes-properties.htm
  * @typedef {Object} QlikThemeProperties
+ * @property {Color} color Цвет фона объектов
+ * @property {Color} backgroundColor Цвет фона листа
+ * @property {String} fontSize Размер шрифта
+ * @property {ObjectsThemeProperties} object Настройки объектов
  * @property {QlikDataColors} dataColors Цветовые настройки
  * @property {QlikPalettes} palettes Цветовые палитры
  * @property {QlikColorScale[]} scales Цветовые шкалы
  */
 
 /**
+ * Настройки темы объектов
+ * @typedef {Object} ObjectsThemeProperties
+ * @property {QlikThemeLegendProperties} legend Настройки темы легенды
+ * @property {QlikThemeAxisProperties} axis Настройки темы оси
+ */
+
+/**
+ * Настройки темы легенды
+ * @typedef {Object} QlikThemeLegendProperties
+ * @property {QlikThemeForegroundFontSizeProperties} title Настройки заголовка легенды
+ * @property {QlikThemeForegroundFontSizeProperties} label Настройки подписей элементов легенды
+ */
+
+/**
+ * Настройки темы оси
+ * @typedef {Object} QlikThemeAxisProperties
+ * @property {QlikThemeForegroundFontSizeProperties} title Настройки заголовка легенды
+ * @property {QlikThemeAxisLabelProperties} label Настройки темы подписей засечек
+ * @property {QlikThemeLineProperties} line Настройки темы линий осей
+ */
+
+/**
+ * Настройки темы подписей засечек
+ * @typedef {Object} QlikThemeAxisLabelProperties
+ * @property {QlikThemeForegroundFontSizeProperties} name Настройки названия
+ */
+
+/**
+ * Настройки темы линий
+ * @typedef {Object} QlikThemeLineProperties
+ * @property {QlikThemeForegroundProperties} major Настройки цвета основной линии
+ * @property {QlikThemeForegroundProperties} minor Настройки цвета дополнительной линии
+ */
+
+ /**
+ * Настройки темы легенды
+ * @typedef {Object} QlikThemeForegroundFontSizeBackgoundProperties
+ * @property {Color=} color Цвет
+ * @property {String=} fontSize Размер шрифта
+ * @property {Color=} backgroundColor Цвет фона
+ */
+
+ /**
+ * Настройки темы легенды
+ * @typedef {Object} QlikThemeForegroundFontSizeProperties
+ * @property {Color=} color Цвет
+ * @property {String=} fontSize Размер шрифта
+ */
+
+ /**
+ * Настройки темы легенды
+ * @typedef {Object} QlikThemeForegroundProperties
+ * @property {Color=} color Цвет
+ */
+
+/**
  * Настройки цветов данных
  * @typedef {Object} QlikDataColors
- * @property {Color} primaryColor Основной цвет данных
- * @property {Color} othersColor Цвет прочих данных
- * @property {Color} errorColor Цвет ошибочных данных
- * @property {Color} nullColor Цвет пустых данных
+ * @property {Color=} primaryColor Основной цвет данных
+ * @property {Color=} othersColor Цвет прочих данных
+ * @property {Color=} errorColor Цвет ошибочных данных
+ * @property {Color=} nullColor Цвет пустых данных
  */
 
 /**
@@ -74,9 +134,9 @@
 
 /**
  * Тип палитры
- * @typedef {String} QlikDataPaletteType
- * - row - Ряд цветов
- * - pyramid - Пирамидальная - набор палитр разной длины
+ * @typedef {'row'|'pyramid'} QlikDataPaletteType
+ * - 'row' - Ряд цветов
+ * - 'pyramid' - Пирамидальная - набор палитр разной длины
  */
 
 /**

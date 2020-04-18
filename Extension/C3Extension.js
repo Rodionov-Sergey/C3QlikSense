@@ -98,6 +98,10 @@ define(
 		 * @param {QlikTheme} qlikTheme Тема
 		 */
 		function paintChart($parentElement, qlikExtension, qlikTheme) {
+
+			// DEBUG: Отладка данных расширения
+			console.log('Тема', qlikTheme);
+
 			// Контейнер для графика
 			var $containerElement = prepareContainer($parentElement);
 
@@ -114,7 +118,68 @@ define(
 			//console.log('Данные графика C3', c3Settings);
 
 			// Отрисовка графика
+			var $chart = createChart(c3Settings);
+
+			// Настройка стилей графика
+			applyC3Style($chart, c3Settings, qlikTheme)
+		}
+	
+		/**
+		 * Создаёт интерфейс графика
+		 * @param {C3Settings} c3Settings Настройки графика C3
+		 * @returns {*} jQuery-объект SVG-элемента графика
+		 */
+		function createChart(c3Settings) {
+			
+			// Отрисовка графика в SVG
 			c3.generate(c3Settings);
+
+			// Родительский элемент
+			var $parentElement = $(c3Settings.bindto);
+			// Поиск результирующего элемента
+			var $chartSvg = $parentElement.children('svg');
+
+			return $chartSvg;
+		}
+
+		/**
+		 * Настраивает стиль графика
+		 * @param {*} $chart jQuery-объект SVG-элемента графика
+		 * @param {C3Settings} c3Settings Настройки графика C3
+		 * @param {QlikTheme} qlikTheme Тема
+		 */
+		function applyC3Style($chart, c3Settings, qlikTheme) {
+			var themeProperties = refineThemeProperties(qlikTheme.properties);
+
+			console.log('themeProperties', themeProperties);
+
+			// Легенда
+			// Подпись элемента легенды
+			$chart
+				.find('.c3-legend-item > text')
+				.css('fill', themeProperties.object.legend.label.color);
+				//.css('fontSize', themeProperties.object.legend.label.fontSize);
+
+			// Ось
+			// Цвет оси
+			$chart
+				.find('.c3-axis > path.domain ')
+				.css('stroke', themeProperties.object.axis.line.major.color);
+			// Подпись оси
+			$chart
+				.find('text.c3-axis-x-label, text.c3-axis-y-label')
+				.css('fill', themeProperties.object.axis.title.color);
+
+			// Засечки оси
+			// Цвет засечек
+			$chart
+				.find('.c3-axis > .tick > line')
+				.css('stroke', themeProperties.object.axis.line.minor.color);
+			// Подписи засечек осей
+			$chart
+				.find('.c3-axis > .tick > text')
+				.css('fill', themeProperties.object.axis.label.name.color);
+			
 		}
 
 		/**
@@ -556,6 +621,125 @@ define(
 				default:
 					throw new Error('Неизвестное положение легенды: ' + position);
 			}
+		}
+
+		// Работа с темами Qlik
+		
+		/**
+		 * 
+		 * @param {QlikThemeProperties} properties 
+		 */
+		function refineThemeProperties(properties) {
+			properties = properties || { };
+			properties.color = refineThemeColor(properties.color);
+			properties.fontSize = refineThemeFontSize(properties.fontSize);
+			properties.backgroundColor = refineThemeColor(properties.backgroundColor);
+			properties.object = refineThemeObject(properties.object);
+			return properties;
+		}
+
+		/**
+		 * 
+		 * @param {ObjectsThemeProperties} properties
+		 */
+		function refineThemeObject(properties) {
+			properties = properties || { };
+			properties.legend = refineThemeLegend(properties.legend);
+			properties.axis = refineThemeAxis(properties.axis);
+			return properties;
+		}
+
+		/**
+		 * 
+		 * @param {QlikThemeLegendProperties} properties
+		 */
+		function refineThemeLegend(properties) {
+			properties = properties || { };
+			properties.title = refineThemeForegroundFontSize(properties.title);
+			properties.label = refineThemeForegroundFontSize(properties.label);
+			return properties;
+		}
+
+		/**
+		 * 
+		 * @param {QlikThemeAxisProperties} properties
+		 */
+		function refineThemeAxis(properties) {
+			properties = properties || { };
+			properties.title = refineThemeForegroundFontSize(properties.title);
+			properties.label = refineThemeAxisLabel(properties.label);
+			properties.line = refineThemeLine(properties.line);
+			return properties;
+		}
+
+		/**
+		 * 
+		 * @param {QlikThemeAxisLabelProperties} properties
+		 */
+		function refineThemeAxisLabel(properties) {
+			properties = properties || { };
+			properties.name = refineThemeForegroundFontSize(properties.name);
+			return properties;
+		}
+
+		/**
+		 * 
+		 * @param {QlikThemeLineProperties} properties
+		 */
+		function refineThemeLine(properties) {
+			properties = properties || { };
+			properties.major = refineThemeForeground(properties.major);
+			properties.minor = refineThemeForeground(properties.minor);
+			return properties;
+		}
+
+		/**
+		 * 
+		 * @param {QlikThemeForegroundFontSizeBackgoundProperties} properties
+		 */
+		function refineThemeForegroundBackgroundFontSize(properties) {
+			properties = properties || { };
+			properties.color = refineThemeColor(properties.color);
+			properties.fontSize = refineThemeFontSize(properties.fontSize);
+			properties.backgroundColor = refineThemeColor(properties.backgroundColor);
+			return properties;
+		}
+
+		/**
+		 * 
+		 * @param {QlikThemeForegroundFontSizeProperties} properties
+		 */
+		function refineThemeForegroundFontSize(properties) {
+			properties = properties || { };
+			properties.color = refineThemeColor(properties.color);
+			properties.fontSize = refineThemeFontSize(properties.fontSize);
+			return properties;
+		}
+
+		/**
+		 * 
+		 * @param {QlikThemeForegroundProperties} properties
+		 */
+		function refineThemeForeground(properties) {
+			properties = properties || { };
+			properties.color = refineThemeColor(properties.color);
+			return properties;
+		}
+
+		/**
+		 * 
+		 * @param {Color=} color
+		 */
+		function refineThemeColor(color) {
+			return color != null && color != '' ? color : null;
+		}
+		
+		/**
+		 * 
+		 * @param {String=} size
+		 */
+		function refineThemeFontSize(size) {
+			return size != null && size != '' ? size : null;
 		}
 	}
 );
