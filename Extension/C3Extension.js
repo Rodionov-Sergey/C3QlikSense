@@ -303,8 +303,10 @@ define(
 				xFormat: getXFormat(argumentDimension),
 				// Значения X и значения Y кривых
 				columns: allValues,
-				// Типы графиков для линий
-				types: getColumnTypes(valueMeasures)
+				// Типы графиков для серий
+				types: getColumnTypes(valueMeasures),
+				// Отображаемые названия серий
+				names: getColumnTitles(valueMeasures)
 			};
 		}
 
@@ -314,7 +316,7 @@ define(
 		 * @returns {String} Идентификатор столбца
 		 */
 		function getColumnId(qlikColumn) {
-			return qlikColumn.qFallbackTitle;
+			return qlikColumn.cId;
 		}
 
 		/**
@@ -416,12 +418,27 @@ define(
 		function getColumnType(chartType) {
 			switch (chartType) {
 				case 'LineChart':
-					return 'line';
+					return 'area';
 				case 'BarChart':
 					return 'bar';
 				default:
 					throw new Error('Неизвестный тип графика: ' + chartType);
 			}
+		}
+
+		/**
+		 * Возвращает названия серий для мер
+		 * @param {QlikMeasure[]} qlikMeasures Меры
+		 * @returns {*} Названия столбцов
+		 */
+		function getColumnTitles(qlikMeasures) {
+			return qlikMeasures.reduce(
+				function(titles, qlikMeasure) {
+					titles[getColumnId(qlikMeasure)] = qlikMeasure.qFallbackTitle;
+					return titles;
+				}, 
+				{}
+			);
 		}
 
 		/**
