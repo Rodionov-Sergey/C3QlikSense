@@ -118,7 +118,7 @@ define(
 			var $chart = createChartUi($containerElement, c3Settings, qlikExtension);
 
 			// Настройка стилей графика
-			styleChartUi($chart, c3Settings, qlikTheme)
+			styleChartUi($chart, qlikTheme)
 		}
 
 		/**
@@ -636,174 +636,34 @@ define(
 		/**
 		 * Настраивает стиль графика
 		 * @param {*} $chart jQuery-объект SVG-элемента графика
-		 * @param {C3Settings} c3Settings Настройки графика C3
 		 * @param {QlikTheme} qlikTheme Тема
 		 */
-		function styleChartUi($chart, c3Settings, qlikTheme) {
-			var themeProperties = getThemeProperties(qlikTheme);
-
+		function styleChartUi($chart, qlikTheme) {
 			// Легенда
 			// Подпись элемента легенды
 			$chart
 				.find('.c3-legend-item > text')
-				.css('fill', themeProperties.object.legend.label.color);
+				.css('fill', qlikTheme.getStyle('object', 'legend.label', 'color'));
 
 			// Ось
 			// Цвет оси
 			$chart
 				.find('.c3-axis > path.domain ')
-				.css('stroke', themeProperties.object.axis.line.major.color);
+				.css('stroke', qlikTheme.getStyle('object', 'axis.line.major', 'color'));
 			// Подпись оси
 			$chart
 				.find('text.c3-axis-x-label, text.c3-axis-y-label')
-				.css('fill', themeProperties.object.axis.title.color);
+				.css('fill', qlikTheme.getStyle('object', 'axis.title', 'color'));
 
 			// Засечки оси
 			// Цвет засечек
 			$chart
 				.find('.c3-axis > .tick > line')
-				.css('stroke', themeProperties.object.axis.line.minor.color);
+				.css('stroke', qlikTheme.getStyle('object', 'axis.line.minor', 'color'));
 			// Подписи засечек осей
 			$chart
 				.find('.c3-axis > .tick > text')
-				.css('fill', themeProperties.object.axis.label.name.color);
-		}
-
-		// Работа с темами Qlik
-
-		/***
-		 * Возваращает свойства темы
-		 * @param {QlikTheme} qlikTheme Тема
-		 * @returns {QlikThemeProperties} Свойства темы
-		 */
-		function getThemeProperties(qlikTheme) {
-			var resultProperties = deepMerge({ }, defaultThemeProperties());
-			return deepMerge(resultProperties, qlikTheme.properties);
-		}
-
-		/**
-		 * Возвращает свойства темы по умолчанию
-		 * @returns {QlikThemeProperties} Свойства
-		 */
-		function defaultThemeProperties() {
-			return {
-				'color': null,
-				'fontSize': null,
-				'backgroundColor': null,
-				'dataColors': {
-					'primaryColor': null,
-					'othersColor': null,
-					'errorColor': null,
-					'nullColor': null
-				},
-				'object': {
-					'title': {
-						'main': defaultForegroundFontSize(),
-						'subTitle': defaultForegroundFontSize(),
-						'footer': defaultForegroundFontSizeBackground()
-					},
-				  	'label': {
-						'name': defaultForegroundFontSize(),
-						'value': defaultForegroundFontSize()
-				  	},
-				  	'axis': {
-						'title': defaultForegroundFontSize(),
-						'label': {
-							'name': defaultForegroundFontSize()
-						},
-						'line': {
-					  		'major': defaultForeground(),
-					  		'minor': defaultForeground()
-						}
-					},
-					'grid': {
-						'line': {
-							'highContrast': defaultForeground(),
-							'major': defaultForeground(),
-							'minor': defaultForeground()
-						}
-					},
-					'referenceLine': {
-						'label': {
-							'name': defaultForegroundFontSize()
-						},
-						'outOfBounds': defaultForegroundFontSizeBackground()
-					},
-					'legend': {
-						'title': defaultForegroundFontSize(),
-						'label': defaultForegroundFontSize()
-				  	}
-				},
-				'palettes': {
-				  'data': [],
-				  'ui': []
-				},
-				'scales': []
-			  };
-		}
-
-		/**
-		 * Возвращает свойства темы по умолчанию, содержащие цвет, размер шрифта и цвет фона
-		 * @returns {QlikThemeForegroundFontSizeBackgoundProperties} Свойства
-		 */
-		function defaultForegroundFontSizeBackground() {
-			return  {
-				'color': null,
-				'fontSize': null,
-				'backgroundColor': null
-		  	};
-		}
-
-		/**
-		 * Возвращает свойства темы по умолчанию, содержащие цвет и размер шрифта
-		 * @returns {QlikThemeForegroundFontSizeProperties} Свойства
-		 */
-		function defaultForegroundFontSize() {
-			return  {
-				'color': null,
-				'fontSize': null
-		  	};
-		}
-		
-		/**
-		 * Возвращает свойства темы по умолчанию, содержащие цвет
-		 * @returns {QlikThemeForegroundFontSizeProperties} Свойства
-		 */
-		function defaultForeground() {
-			return  {
-				'color': null
-		  	};
-		}
-		
-		/**
-		 * Рекурсивно сливает свойства источника в целевой объект
-		 * @param {*} target Дополняемый целевой объект
-		 * @param {*} source Объект-источник
-		 * @return {*} Целевой объект
-		 */
-		function deepMerge(target, source) {
-			if (isObject(target) && isObject(source)) {
-				for (var key in source) {
-					if (isObject(source[key])) {
-						if (target[key] == null) {
-							Object.assign(target, { [key]: {} });
-						}
-						deepMerge(target[key], source[key]);
-					} else {
-						Object.assign(target, { [key]: source[key] });
-					}
-				}
-			}
-			return target;
-		}
-
-		/**
-		 * Проверка на непустой объект
-		 * @param item Проверяемый элемент
-		 * @returns {Boolean} Признак объекта
-		 */
-		function isObject(item) {
-			return (item != null && typeof item === 'object' && !Array.isArray(item));
+				.css('fill', qlikTheme.getStyle('object', 'axis.label.name', 'color'));
 		}
 	}
 );
