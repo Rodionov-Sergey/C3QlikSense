@@ -21,6 +21,8 @@
  * @property {QlikThemeApi} theme API тем Qlik
  */
 
+ // Qlik Theme API
+
 /**
  * API тем Qlik
  * @see https://help.qlik.com/en-US/sense-developer/February2020/Subsystems/APIs/Content/Sense_ClientAPIs/CapabilityAPIs/ThemeAPI/ThemeAPI.htm
@@ -35,24 +37,93 @@
  * @property {String} id Идентификатор темы
  * @property {String} name Отображаемое название темы
  * @property {QlikThemeProperties} properties Настройки темы
+ * @property {function(String, String, String):String} getStyle Возвращает строковое значение свойства
+ * Поиск осуществляется вверх от указанного базового пути по указанному пути и названию.
+ * Если свойство не найдено, поиск повторяется с родительского от базового. И так далее.
+ * Аргументы:
+ *   1. Базовый путь свойства (через точки)
+ *   2. Путь к свойству (через точки)
+ *   3. Название свойства
+ * Результат:
+ *   * Строковое значение свойства; null, если не найдено
  */
 
 /**
  * Свойства темы Qlik
  * @see https://help.qlik.com/en-US/sense-developer/February2020/Subsystems/Extensions/Content/Sense_Extensions/CustomThemes/custom-themes-properties.htm
  * @typedef {Object} QlikThemeProperties
+ * @property {Color} color Цвет фона объектов
+ * @property {Color} backgroundColor Цвет фона листа
+ * @property {String} fontSize Размер шрифта
+ * @property {QlikObjectsThemeProperties} object Настройки объектов
  * @property {QlikDataColors} dataColors Цветовые настройки
  * @property {QlikPalettes} palettes Цветовые палитры
  * @property {QlikColorScale[]} scales Цветовые шкалы
  */
 
 /**
+ * Настройки темы объектов
+ * @typedef {Object} QlikObjectsThemeProperties
+ * @property {QlikThemeLegendProperties} legend Настройки темы легенды
+ * @property {QlikThemeAxisProperties} axis Настройки темы оси
+ */
+
+/**
+ * Настройки темы легенды
+ * @typedef {Object} QlikThemeLegendProperties
+ * @property {QlikThemeForegroundFontSizeProperties} title Настройки заголовка легенды
+ * @property {QlikThemeForegroundFontSizeProperties} label Настройки подписей элементов легенды
+ */
+
+/**
+ * Настройки темы оси
+ * @typedef {Object} QlikThemeAxisProperties
+ * @property {QlikThemeForegroundFontSizeProperties} title Настройки заголовка легенды
+ * @property {QlikThemeAxisLabelProperties} label Настройки темы подписей засечек
+ * @property {QlikThemeLineProperties} line Настройки темы линий осей
+ */
+
+/**
+ * Настройки темы подписей засечек
+ * @typedef {Object} QlikThemeAxisLabelProperties
+ * @property {QlikThemeForegroundFontSizeProperties} name Настройки названия
+ */
+
+/**
+ * Настройки темы линий
+ * @typedef {Object} QlikThemeLineProperties
+ * @property {QlikThemeForegroundProperties} major Настройки цвета основной линии
+ * @property {QlikThemeForegroundProperties} minor Настройки цвета дополнительной линии
+ */
+
+ /**
+ * Настройки темы легенды
+ * @typedef {Object} QlikThemeForegroundFontSizeBackgoundProperties
+ * @property {Color=} color Цвет
+ * @property {String=} fontSize Размер шрифта
+ * @property {Color=} backgroundColor Цвет фона
+ */
+
+ /**
+ * Настройки темы легенды
+ * @typedef {Object} QlikThemeForegroundFontSizeProperties
+ * @property {Color=} color Цвет
+ * @property {String=} fontSize Размер шрифта
+ */
+
+ /**
+ * Настройки темы легенды
+ * @typedef {Object} QlikThemeForegroundProperties
+ * @property {Color=} color Цвет
+ */
+
+/**
  * Настройки цветов данных
  * @typedef {Object} QlikDataColors
- * @property {Color} primaryColor Основной цвет данных
- * @property {Color} othersColor Цвет прочих данных
- * @property {Color} errorColor Цвет ошибочных данных
- * @property {Color} nullColor Цвет пустых данных
+ * @property {Color=} primaryColor Основной цвет данных
+ * @property {Color=} othersColor Цвет прочих данных
+ * @property {Color=} errorColor Цвет ошибочных данных
+ * @property {Color=} nullColor Цвет пустых данных
  */
 
 /**
@@ -74,9 +145,9 @@
 
 /**
  * Тип палитры
- * @typedef {String} QlikDataPaletteType
- * - row - Ряд цветов
- * - pyramid - Пирамидальная - набор палитр разной длины
+ * @typedef {'row'|'pyramid'} QlikDataPaletteType
+ * - 'row' - Ряд цветов
+ * - 'pyramid' - Пирамидальная - набор палитр разной длины
  */
 
 /**
@@ -112,17 +183,11 @@
  */
 
 /**
- * Столбец гиперкуба Qlik
- * @typedef {Object} QlikColumn
- * @property {String} qFallbackTitle - Заголовок меры
- * @property {String} othersLabel - Текст специального значения Прочее
- */
-
-/**
  * Измерение гиперкуба Qlik
  * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxDimensionInfo.html
  * @typedef {Object} QlikDimension
- * @property {String} qFallbackTitle - Заголовок меры
+ * @property {String} cId - Идентификтор измерения
+ * @property {String} qFallbackTitle - Заголовок измерения
  * @property {String} othersLabel - Текст специального значения Прочее
  * @property {DimensionProperties} properties - Кастомные свойства измерения (определяются расширением)
  */
@@ -131,6 +196,7 @@
  * Мера гиперкуба Qlik
  * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxMeasureInfo.html
  * @typedef {Object} QlikMeasure
+ * @property {String} cId - Идентификатор меры
  * @property {String} qFallbackTitle - Заголовок меры
  * @property {String} othersLabel - Текст специального значения Прочее
  * @property {MeasureProperties} properties - Кастомные свойства меры (определяются расширением)

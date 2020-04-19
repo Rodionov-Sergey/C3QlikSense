@@ -38,7 +38,7 @@ define(
 		$('<style>')
 			.html(c3Css)
 			.appendTo($('head'));
-
+		
 		// Модуль расширения Qlik Sense
 		return getThemePromise(qlik)
 			.then(
@@ -98,23 +98,27 @@ define(
 		 * @param {QlikTheme} qlikTheme Тема
 		 */
 		function paintChart($parentElement, qlikExtension, qlikTheme) {
+
+			// DEBUG: Отладка данных расширения
+			//console.log('Тема', qlikTheme);
+
 			// Контейнер для графика
 			var $containerElement = prepareContainer($parentElement);
-
-			// Подготовка контейнера для графика
-			var containerNode = $containerElement.get(0);
 			
 			// DEBUG: Отладка данных расширения
 			//console.log('Данные расширения', qlikExtension);
 
 			// Формирование настроек графика C3
-			var c3Settings = getChartSettings(containerNode, qlikExtension, qlikTheme);
+			var c3Settings = getChartSettings(qlikExtension, qlikTheme);
 
 			// DEBUG: Отладка данных графика
 			//console.log('Данные графика C3', c3Settings);
 
 			// Отрисовка графика
-			c3.generate(c3Settings);
+			var $chart = createChartUi($containerElement, c3Settings, qlikExtension);
+
+			// Настройка стилей графика
+			styleChartUi($chart, qlikTheme)
 		}
 
 		/**
@@ -143,15 +147,12 @@ define(
 
 		/**
 		 * Создаёт настройки графика для C3
-		 * @param {*} parentElement Родительский DOM-элемент для встраивания графика
 		 * @param {QlikExtension} qlikExtension Данные расширения
 		 * @param {QlikTheme} qlikTheme Тема
 		 * @returns {C3Settings} Настройки графика C3
 		 */
-		function getChartSettings(parentElement, qlikExtension, qlikTheme) {
+		function getChartSettings(qlikExtension, qlikTheme) {
 			return {
-				// Родительский элемент
-				bindto: parentElement,
 				// Данные
 				data: getChartData(qlikExtension),
 				// Оси
@@ -303,8 +304,10 @@ define(
 				xFormat: getXFormat(argumentDimension),
 				// Значения X и значения Y кривых
 				columns: allValues,
-				// Типы графиков для линий
-				types: getColumnTypes(valueMeasures)
+				// Типы графиков для серий
+				types: getColumnTypes(valueMeasures),
+				// Отображаемые названия серий
+				names: getColumnTitles(valueMeasures)
 			};
 		}
 
@@ -314,7 +317,7 @@ define(
 		 * @returns {String} Идентификатор столбца
 		 */
 		function getColumnId(qlikColumn) {
-			return qlikColumn.qFallbackTitle;
+			return qlikColumn.cId;
 		}
 
 		/**
@@ -416,12 +419,27 @@ define(
 		function getColumnType(chartType) {
 			switch (chartType) {
 				case 'LineChart':
-					return 'line';
+					return 'area';
 				case 'BarChart':
 					return 'bar';
 				default:
 					throw new Error('Неизвестный тип графика: ' + chartType);
 			}
+		}
+
+		/**
+		 * Возвращает названия серий для мер
+		 * @param {QlikMeasure[]} qlikMeasures Меры
+		 * @returns {*} Названия столбцов
+		 */
+		function getColumnTitles(qlikMeasures) {
+			return qlikMeasures.reduce(
+				function(titles, qlikMeasure) {
+					titles[getColumnId(qlikMeasure)] = qlikMeasure.qFallbackTitle;
+					return titles;
+				}, 
+				{}
+			);
 		}
 
 		/**
@@ -539,6 +557,113 @@ define(
 				default:
 					throw new Error('Неизвестное положение легенды: ' + position);
 			}
+		}
+		
+		/**
+		 * Создаёт интерфейс графика
+		 * @param {*} $containerElement jQuery-объект контейнера для графика
+		 * @param {C3Settings} c3Settings Настройки графика C3
+		 * @param {QlikExtension} qlikExtension Расширение
+		 * @returns {*} jQuery-объект SVG-элемента графика
+		 */
+		function createChartUi($containerElement, c3Settings, qlikExtension) {
+
+			// Указание контейнера для графика
+			c3Settings.bindto = $containerElement.get(0);
+
+			// Отрисовка графика в SVG
+			c3.generate(c3Settings);
+
+			// Созданный элемент
+			var $chartElement = $containerElement.children('svg');
+
+			// Исправление элементов графика
+			refineChartUi($chartElement, qlikExtension);
+
+			return $chartElement;
+		}
+
+		/**
+		 * Исправляет интерфейс графика
+		 * @param {*} $chartElement jQuery-объект графика
+		 * @param {QlikExtension} qlikExtension Расширение
+		 * @returns {*} jQuery-объект SVG-элемента графика
+		 */
+		function refineChartUi($chartElement, qlikExtension) {
+
+			// Улучшения для серий
+			qlikExtension.qHyperCube.qMeasureInfo.forEach(
+				function (qlikMeasure) {
+					refineSeriesUi($chartElement, qlikMeasure);
+				}
+			);
+		}
+
+		/**
+		 * Исправляет интерфейс серии графика
+		 * @param {*} $chartElement jQuery-объект графика
+		 * @param {QlikMeasure} qlikMeasure Мера
+		 */
+		function refineSeriesUi($chartElement, qlikMeasure) {
+
+			// Для линейного графика
+			if (qlikMeasure.properties.chartType === "LineChart" && 
+				qlikMeasure.properties.lineChart != null) {
+
+				// Управление видимостью точек
+				if (!qlikMeasure.properties.lineChart.pointsShown) {
+					$chartElement
+						.find(".c3-circles-" + qlikMeasure.cId)
+						.remove();
+				}
+				
+				// Управление видимостью линии
+				if (!qlikMeasure.properties.lineChart.lineShown) {
+					$chartElement
+						.find(".c3-lines-" + qlikMeasure.cId)
+						.remove();
+				}
+
+				// Управление видимостью области
+				if (!qlikMeasure.properties.lineChart.areaShown) {
+					$chartElement
+						.find(".c3-areas-" + qlikMeasure.cId)
+						.remove();
+				}
+			}
+		}
+
+		/**
+		 * Настраивает стиль графика
+		 * @param {*} $chart jQuery-объект SVG-элемента графика
+		 * @param {QlikTheme} qlikTheme Тема
+		 */
+		function styleChartUi($chart, qlikTheme) {
+			// Легенда
+			// Подпись элемента легенды
+			$chart
+				.find('.c3-legend-item > text')
+				.css('fill', qlikTheme.getStyle('object', 'legend.label', 'color'));
+
+			// Ось
+			// Цвет оси
+			$chart
+				.find('.c3-axis > path.domain ')
+				.css('stroke', qlikTheme.getStyle('object', 'axis.line.major', 'color'));
+			// Подпись оси
+			$chart
+				.find('text.c3-axis-x-label, text.c3-axis-y-label')
+				.css('fill', qlikTheme.getStyle('object', 'axis.title', 'color'));
+
+			// Засечки оси
+			// Цвет засечек
+			$chart
+				.find('.c3-axis > .tick > line')
+				.css('stroke', qlikTheme.getStyle('object', 'axis.line.minor', 'color'));
+			// Подписи засечек осей
+			$chart
+				.find('.c3-axis > .tick > text')
+				.css('fill', qlikTheme.getStyle('object', 'axis.label.name', 'color'));
 		}
 	}
 );

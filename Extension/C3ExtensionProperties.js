@@ -165,6 +165,37 @@ define(
 							}
 						],
 						defaultValue: 'LineChart'
+					},
+					// Настройки линейного графика
+					lineChart: {
+						type: 'items',
+						label: 'Ленейный график',
+						items: {
+							pointsShown: {
+								ref: getColumnPropertyKey('lineChart.pointsShown'),
+								type: 'boolean',
+								label: 'Отображение точек',
+								defaultValue: true
+							},
+							lineShown: {
+								ref: getColumnPropertyKey('lineChart.lineShown'),
+								type: 'boolean',
+								label: 'Отображение линии',
+								defaultValue: true
+							},
+							areaShown: {
+								ref: getColumnPropertyKey('lineChart.areaShown'),
+								type: 'boolean',
+								label: 'Отображение области',
+								defaultValue: true
+							}
+						},
+						show: function (context) {
+							/** @type {MeasureProperties} */
+							var properties = context.qDef.properties;
+							// Отображение только для линейного графика
+							return properties.chartType === "LineChart";
+						}
 					}
 				}
 			};
@@ -438,6 +469,15 @@ define(
  * Мера гиперкуба
  * @typedef {Object} MeasureProperties
  * @property {ChartType} chartType Тип графика
+ * @property {LineChart} lineChart Настройки линейного графика
+ */
+
+/**
+ * Настройки линейного графика
+ * @typedef {Object} LineChart
+ * @property {Boolean} pointsShown Признак отображения точек
+ * @property {Boolean} lineShown Признак отображения линии
+ * @property {Boolean} areaShown Признак отображения области
  */
 
 /**
