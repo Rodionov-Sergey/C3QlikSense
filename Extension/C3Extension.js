@@ -278,7 +278,7 @@ define(
 		 * @returns {C3Data} Данные графика C3
 		 */
 		function getChartData(qlikExtension) {
-
+			
 			var qlikHyperCube = qlikExtension.qHyperCube;
 
 			if (qlikHyperCube.qDimensionInfo.length !== 1) {
@@ -299,15 +299,17 @@ define(
 
 			return {
 				// Название столбца, определяющего значения X
-				x: getColumnId(argumentDimension),
+				x: getSeriesId(argumentDimension),
 				// Формат аргументов
 				xFormat: getXFormat(argumentDimension),
 				// Значения X и значения Y кривых
 				columns: allValues,
 				// Типы графиков для серий
-				types: getColumnTypes(valueMeasures),
+				types: getSeriesTypes(valueMeasures),
 				// Отображаемые названия серий
-				names: getColumnTitles(valueMeasures)
+				names: getSeriesTitles(valueMeasures),
+				// Группы
+				groups: getSeriesGroups(valueMeasures)
 			};
 		}
 
@@ -316,7 +318,7 @@ define(
 		 * @param {QlikDimension|QlikMEasure} qlikColumn Столбец данных
 		 * @returns {String} Идентификатор столбца
 		 */
-		function getColumnId(qlikColumn) {
+		function getSeriesId(qlikColumn) {
 			return qlikColumn.cId;
 		}
 
@@ -352,7 +354,7 @@ define(
 		 * @returns {(Number|String)[]} Идентификатор и значения ячеек
 		 */
 		function getColumnIdAndValues(qlikHyperCube, qlikColumn, index, scaleType) {
-			var columnId = getColumnId(qlikColumn);
+			var columnId = getSeriesId(qlikColumn);
 			var values = getColumnValues(qlikHyperCube, index, scaleType);
 			return [columnId].concat(values);
 		}
@@ -401,10 +403,10 @@ define(
 		 * @param {QlikMeasure[]} qlikMeasures Меры
 		 * @returns {*} Типы столбцов
 		 */
-		function getColumnTypes(qlikMeasures) {
+		function getSeriesTypes(qlikMeasures) {
 			return qlikMeasures.reduce(
 				function(types, qlikMeasure) {
-					types[getColumnId(qlikMeasure)] = getColumnType(qlikMeasure.properties.chartType);
+					types[getSeriesId(qlikMeasure)] = getColumnType(qlikMeasure.properties.chartType);
 					return types;
 				}, 
 				{}
@@ -432,16 +434,37 @@ define(
 		 * @param {QlikMeasure[]} qlikMeasures Меры
 		 * @returns {*} Названия столбцов
 		 */
-		function getColumnTitles(qlikMeasures) {
+		function getSeriesTitles(qlikMeasures) {
 			return qlikMeasures.reduce(
 				function(titles, qlikMeasure) {
-					titles[getColumnId(qlikMeasure)] = qlikMeasure.qFallbackTitle;
+					titles[getSeriesId(qlikMeasure)] = qlikMeasure.qFallbackTitle;
 					return titles;
 				}, 
 				{}
 			);
 		}
 
+		/**
+		 * Возвращает группы серий для мер
+		 * @param {QlikMeasure[]} qlikMeasures Меры
+		 * @returns {String[][]} Группы серий
+		 */
+		function getSeriesGroups(qlikMeasures) {
+			var groups = {};
+			for ( var i = 0; i < qlikMeasures.length; i++) {
+				var qlikMeasure = qlikMeasures[i];
+				var groupKey = qlikMeasure.properties.groupKey;
+				// Если указана группа
+				if (groupKey != null && groupKey != '') {
+					if (groups[groupKey] == null) {
+						groups[groupKey] = [];
+					}
+					groups[groupKey].push(qlikMeasure.cId);
+				}	
+			}
+			// Преобразование в массив
+			return Object.values(groups);
+		}
 		/**
 		 * Возвращает настройки оси X
 		 * @param {QlikExtension} qlikExtension Данные расширения
