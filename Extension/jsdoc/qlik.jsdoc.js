@@ -21,6 +21,8 @@
  * @property {QlikThemeApi} theme API тем Qlik
  */
 
+ // Qlik Theme API
+
 /**
  * API тем Qlik
  * @see https://help.qlik.com/en-US/sense-developer/February2020/Subsystems/APIs/Content/Sense_ClientAPIs/CapabilityAPIs/ThemeAPI/ThemeAPI.htm
@@ -44,7 +46,7 @@
  * @property {Color} color Цвет фона объектов
  * @property {Color} backgroundColor Цвет фона листа
  * @property {String} fontSize Размер шрифта
- * @property {ObjectsThemeProperties} object Настройки объектов
+ * @property {QlikObjectsThemeProperties} object Настройки объектов
  * @property {QlikDataColors} dataColors Цветовые настройки
  * @property {QlikPalettes} palettes Цветовые палитры
  * @property {QlikColorScale[]} scales Цветовые шкалы
@@ -52,7 +54,7 @@
 
 /**
  * Настройки темы объектов
- * @typedef {Object} ObjectsThemeProperties
+ * @typedef {Object} QlikObjectsThemeProperties
  * @property {QlikThemeLegendProperties} legend Настройки темы легенды
  * @property {QlikThemeAxisProperties} axis Настройки темы оси
  */
@@ -172,17 +174,11 @@
  */
 
 /**
- * Столбец гиперкуба Qlik
- * @typedef {Object} QlikColumn
- * @property {String} qFallbackTitle - Заголовок меры
- * @property {String} othersLabel - Текст специального значения Прочее
- */
-
-/**
  * Измерение гиперкуба Qlik
  * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxDimensionInfo.html
  * @typedef {Object} QlikDimension
- * @property {String} qFallbackTitle - Заголовок меры
+ * @property {String} cId - Идентификтор измерения
+ * @property {String} qFallbackTitle - Заголовок измерения
  * @property {String} othersLabel - Текст специального значения Прочее
  * @property {DimensionProperties} properties - Кастомные свойства измерения (определяются расширением)
  */
@@ -191,6 +187,7 @@
  * Мера гиперкуба Qlik
  * @see https://help.qlik.com/en-US/sense-developer/June2019/APIs/EngineAPI/definitions-NxMeasureInfo.html
  * @typedef {Object} QlikMeasure
+ * @property {String} cId - Идентификатор меры
  * @property {String} qFallbackTitle - Заголовок меры
  * @property {String} othersLabel - Текст специального значения Прочее
  * @property {MeasureProperties} properties - Кастомные свойства меры (определяются расширением)

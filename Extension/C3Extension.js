@@ -613,21 +613,21 @@ define(
 				// Управление видимостью точек
 				if (!qlikMeasure.properties.lineChart.pointsShown) {
 					$chartElement
-						.find(".c3-circles.c3-circles-GhEdwLS")
+						.find(".c3-circles-" + qlikMeasure.cId)
 						.remove();
 				}
 				
 				// Управление видимостью линии
 				if (!qlikMeasure.properties.lineChart.lineShown) {
 					$chartElement
-						.find(".c3-lines.c3-lines-GhEdwLS")
+						.find(".c3-lines-" + qlikMeasure.cId)
 						.remove();
 				}
 
 				// Управление видимостью области
 				if (!qlikMeasure.properties.lineChart.areaShown) {
 					$chartElement
-						.find(".c3-areas.c3-areas-GhEdwLS")
+						.find(".c3-areas-" + qlikMeasure.cId)
 						.remove();
 				}
 			}
@@ -647,7 +647,6 @@ define(
 			$chart
 				.find('.c3-legend-item > text')
 				.css('fill', themeProperties.object.legend.label.color);
-				//.css('fontSize', themeProperties.object.legend.label.fontSize);
 
 			// Ось
 			// Цвет оси
