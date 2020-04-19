@@ -118,7 +118,7 @@ define(
 			var $chart = createChartUi($containerElement, c3Settings, qlikExtension);
 
 			// Настройка стилей графика
-			styleChart($chart, c3Settings, qlikTheme)
+			styleChartUi($chart, c3Settings, qlikTheme)
 		}
 
 		/**
@@ -639,7 +639,7 @@ define(
 		 * @param {C3Settings} c3Settings Настройки графика C3
 		 * @param {QlikTheme} qlikTheme Тема
 		 */
-		function styleChart($chart, c3Settings, qlikTheme) {
+		function styleChartUi($chart, c3Settings, qlikTheme) {
 			var themeProperties = getThemeProperties(qlikTheme);
 
 			// Легенда
@@ -668,8 +668,6 @@ define(
 				.find('.c3-axis > .tick > text')
 				.css('fill', themeProperties.object.axis.label.name.color);
 		}
-
-		// -------------------------------------------------------------------
 
 		// Работа с темами Qlik
 
