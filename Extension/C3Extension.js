@@ -115,7 +115,7 @@ define(
 			//console.log('Данные графика C3', c3Settings);
 
 			// Отрисовка графика
-			var $chart = createChart($containerElement, c3Settings);
+			var $chart = createChartUi($containerElement, c3Settings, qlikExtension);
 
 			// Настройка стилей графика
 			styleChart($chart, c3Settings, qlikTheme)
@@ -563,9 +563,10 @@ define(
 		 * Создаёт интерфейс графика
 		 * @param {*} $containerElement jQuery-объект контейнера для графика
 		 * @param {C3Settings} c3Settings Настройки графика C3
+		 * @param {QlikExtension} qlikExtension Расширение
 		 * @returns {*} jQuery-объект SVG-элемента графика
 		 */
-		function createChart($containerElement, c3Settings) {
+		function createChartUi($containerElement, c3Settings, qlikExtension) {
 
 			// Указание контейнера для графика
 			c3Settings.bindto = $containerElement.get(0);
@@ -574,9 +575,62 @@ define(
 			c3.generate(c3Settings);
 
 			// Созданный элемент
-			var $chartSvg = $containerElement.children('svg');
+			var $chartElement = $containerElement.children('svg');
 
-			return $chartSvg;
+			// Исправление элементов графика
+			refineChartUi($chartElement, qlikExtension);
+
+			return $chartElement;
+		}
+
+		/**
+		 * Исправляет интерфейс графика
+		 * @param {*} $chartElement jQuery-объект графика
+		 * @param {QlikExtension} qlikExtension Расширение
+		 * @returns {*} jQuery-объект SVG-элемента графика
+		 */
+		function refineChartUi($chartElement, qlikExtension) {
+
+			// Улучшения для серий
+			qlikExtension.qHyperCube.qMeasureInfo.forEach(
+				function (qlikMeasure) {
+					refineSeriesUi($chartElement, qlikMeasure);
+				}
+			);
+		}
+
+		/**
+		 * Исправляет интерфейс серии графика
+		 * @param {*} $chartElement jQuery-объект графика
+		 * @param {QlikMeasure} qlikMeasure Мера
+		 */
+		function refineSeriesUi($chartElement, qlikMeasure) {
+
+			// Для линейного графика
+			if (qlikMeasure.properties.chartType === "LineChart" && 
+				qlikMeasure.properties.lineChart != null) {
+
+				// Управление видимостью точек
+				if (!qlikMeasure.properties.lineChart.pointsShown) {
+					$chartElement
+						.find(".c3-circles.c3-circles-GhEdwLS")
+						.remove();
+				}
+				
+				// Управление видимостью линии
+				if (!qlikMeasure.properties.lineChart.lineShown) {
+					$chartElement
+						.find(".c3-lines.c3-lines-GhEdwLS")
+						.remove();
+				}
+
+				// Управление видимостью области
+				if (!qlikMeasure.properties.lineChart.areaShown) {
+					$chartElement
+						.find(".c3-areas.c3-areas-GhEdwLS")
+						.remove();
+				}
+			}
 		}
 
 		/**

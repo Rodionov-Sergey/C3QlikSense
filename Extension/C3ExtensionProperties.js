@@ -172,23 +172,29 @@ define(
 						label: 'Ленейный график',
 						items: {
 							pointsShown: {
-								ref: getExtensionPropertyKey('lineChart.pointsShown'),
+								ref: getColumnPropertyKey('lineChart.pointsShown'),
 								type: 'boolean',
 								label: 'Отображение точек',
 								defaultValue: true
 							},
 							lineShown: {
-								ref: getExtensionPropertyKey('lineChart.lineShown'),
+								ref: getColumnPropertyKey('lineChart.lineShown'),
 								type: 'boolean',
 								label: 'Отображение линии',
 								defaultValue: true
 							},
 							areaShown: {
-								ref: getExtensionPropertyKey('lineChart.areaShown'),
+								ref: getColumnPropertyKey('lineChart.areaShown'),
 								type: 'boolean',
 								label: 'Отображение области',
 								defaultValue: true
 							}
+						},
+						show: function (context) {
+							/** @type {MeasureProperties} */
+							var properties = context.qDef.properties;
+							// Отображение только для линейного графика
+							return properties.chartType === "LineChart";
 						}
 					}
 				}
