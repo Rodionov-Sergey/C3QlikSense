@@ -166,6 +166,12 @@ define(
 						],
 						defaultValue: 'LineChart'
 					},
+					// Настройка группировки
+					groupKey: {
+						ref: getColumnPropertyKey('groupKey'),
+						type: 'string',
+						label: 'Идентификатор группы',
+					},
 					// Настройки линейного графика
 					lineChart: {
 						type: 'items',
@@ -315,7 +321,7 @@ define(
 				shown: function() {
 					return qlikTheme != null;
 				}
-			}
+			};
 		}
 
 		/**
@@ -470,6 +476,7 @@ define(
  * @typedef {Object} MeasureProperties
  * @property {ChartType} chartType Тип графика
  * @property {LineChart} lineChart Настройки линейного графика
+ * @property {String} groupKey Идентификатор группы
  */
 
 /**

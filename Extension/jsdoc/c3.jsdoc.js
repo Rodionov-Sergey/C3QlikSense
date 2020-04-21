@@ -34,6 +34,7 @@
  * @property {C3Value[][]} columns Массив столбцов; Столбец - массив из идентификатора столбца и значений
  * @property {C3Value[][]} rows Массив строк; Строка - массив значений
  * @property {C3Types} types Настройки типов столбцов
+ * @property {String[][]} groups Группы серий
  */
 
 /**
