@@ -118,7 +118,7 @@ define(
 			var $chart = createChartUi($containerElement, c3Settings, qlikExtension);
 
 			// Настройка стилей графика
-			styleChartUi($chart, qlikTheme)
+			styleChartUi($chart, qlikTheme);
 		}
 
 		/**
@@ -462,9 +462,22 @@ define(
 					groups[groupKey].push(qlikMeasure.cId);
 				}	
 			}
-			// Преобразование в массив
-			return Object.values(groups);
+			return objectValues(groups);
 		}
+
+		/**
+		 * Преобразует значений объектов в массив
+		 * @param {*} obj Объект
+		 * @returns {any[]} Массив значений
+		 */
+		function objectValues(obj) {		
+			var values = [];
+			for (var key in obj) {
+				values.push(obj[key]);
+			}
+			return values;
+		}
+
 		/**
 		 * Возвращает настройки оси X
 		 * @param {QlikExtension} qlikExtension Данные расширения
