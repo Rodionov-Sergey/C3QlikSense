@@ -277,6 +277,13 @@ define(
 						type: 'string',
 						label: 'Подпись'
 					},
+					// Цвет
+					color: {
+						ref: 'color',
+						type: 'string',
+						label: 'Цвет',
+						expression: 'optional'
+					}
 				},
 				// Подпись элемента в боковой панели
 				itemTitleRef: function (item)
@@ -548,8 +555,10 @@ define(
 /**
  * Дополнительная линия по оси
  * @typedef {Object} AxisGridLine
+ * @property {String} cId Идентификатор, назначаемый Qlik
  * @property {Number} value Значение
  * @property {Number} title Подпись
+ * @property {String} color Цвет
  */
 
 /**

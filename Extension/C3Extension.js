@@ -103,7 +103,7 @@ define(
 			//console.log('Тема', qlikTheme);
 
 			// Контейнер для графика
-			var $containerElement = prepareContainer($parentElement);
+			var $container = prepareContainer($parentElement);
 			
 			// DEBUG: Отладка данных расширения
 			//console.log('Данные расширения', qlikExtension);
@@ -115,7 +115,7 @@ define(
 			//console.log('Данные графика C3', c3Settings);
 
 			// Отрисовка графика
-			var $chart = createChartUi($containerElement, c3Settings, qlikExtension);
+			var $chart = createChartUi($container, c3Settings, qlikExtension);
 
 			// Настройка стилей графика
 			styleChartUi($chart, qlikTheme);
@@ -123,24 +123,24 @@ define(
 
 		/**
 		 * Подготавливает контейнер для графика
-		 * @param {*} $parentElement Родительский jQuery-объект
+		 * @param {*} $parent Родительский jQuery-объект
 		 * @returns {*} jQuery-объект контейнера
 		 */
-		function prepareContainer($parentElement) {
+		function prepareContainer($parent) {
 			var containerClass = 'chart-container';
 
 			// Поиск существующего контейнера
-			var $existingElement = $parentElement.find('div.' + containerClass);
+			var $existingElement = $parent.find('div.' + containerClass);
 			if ($existingElement.length > 0) {
 				return $existingElement;
 			}
 
 			// Создание контейнера
-			var $newElement = $('<div>')
+			var $container = $('<div>')
 				.addClass(containerClass)
-				.appendTo($parentElement);
+				.appendTo($parent);
 			
-			return $newElement;
+			return $container;
 		}
 
 		/* Преобразование промежуточного представления в представление C3 */
@@ -207,8 +207,12 @@ define(
 		 */
 		function getAxisGridLine(line) {
 			return {
+				// Значение
 				value: line.value,
-				text: line.title
+				// Подпись
+				text: line.title,
+				// Класс для применения стиля после отрисовки
+				'class': line.cId
 			}
 		}
 
@@ -638,21 +642,21 @@ define(
 		
 		/**
 		 * Создаёт интерфейс графика
-		 * @param {*} $containerElement jQuery-объект контейнера для графика
+		 * @param {*} $container jQuery-объект контейнера для графика
 		 * @param {C3Settings} c3Settings Настройки графика C3
 		 * @param {QlikExtension} qlikExtension Расширение
 		 * @returns {*} jQuery-объект SVG-элемента графика
 		 */
-		function createChartUi($containerElement, c3Settings, qlikExtension) {
+		function createChartUi($container, c3Settings, qlikExtension) {
 
 			// Указание контейнера для графика
-			c3Settings.bindto = $containerElement.get(0);
+			c3Settings.bindto = $container.get(0);
 
 			// Отрисовка графика в SVG
 			c3.generate(c3Settings);
 
 			// Созданный элемент
-			var $chartElement = $containerElement.children('svg');
+			var $chartElement = $container.children('svg');
 
 			// Исправление элементов графика
 			refineChartUi($chartElement, qlikExtension);
@@ -662,26 +666,42 @@ define(
 
 		/**
 		 * Исправляет интерфейс графика
-		 * @param {*} $chartElement jQuery-объект графика
+		 * @param {*} $chart jQuery-объект графика
 		 * @param {QlikExtension} qlikExtension Расширение
 		 * @returns {*} jQuery-объект SVG-элемента графика
 		 */
-		function refineChartUi($chartElement, qlikExtension) {
+		function refineChartUi($chart, qlikExtension) {
 
 			// Улучшения для серий
-			qlikExtension.qHyperCube.qMeasureInfo.forEach(
-				function (qlikMeasure) {
-					refineSeriesUi($chartElement, qlikMeasure);
+			qlikExtension.qHyperCube.qMeasureInfo
+				.forEach(
+					function (qlikMeasure) {
+						refineSeriesUi($chart, qlikMeasure);
+					}
+				);
+
+			if (qlikExtension.properties != null) {
+				
+				// Дополнительные линии
+				if (qlikExtension.properties.axisY != null &&
+					qlikExtension.properties.axisY.lines != null)
+				{
+					qlikExtension.properties.axisY.lines
+						.forEach(
+							function (line) {
+								return refineLineUi($chart, line);
+							}
+						);
 				}
-			);
+			}
 		}
 
 		/**
 		 * Исправляет интерфейс серии графика
-		 * @param {*} $chartElement jQuery-объект графика
+		 * @param {*} $chart jQuery-объект графика
 		 * @param {QlikMeasure} qlikMeasure Мера
 		 */
-		function refineSeriesUi($chartElement, qlikMeasure) {
+		function refineSeriesUi($chart, qlikMeasure) {
 
 			// Для линейного графика
 			if (qlikMeasure.properties.chartType === "LineChart" && 
@@ -689,24 +709,45 @@ define(
 
 				// Управление видимостью точек
 				if (!qlikMeasure.properties.lineChart.pointsShown) {
-					$chartElement
+					$chart
 						.find(".c3-circles-" + qlikMeasure.cId)
 						.remove();
 				}
 				
 				// Управление видимостью линии
 				if (!qlikMeasure.properties.lineChart.lineShown) {
-					$chartElement
+					$chart
 						.find(".c3-lines-" + qlikMeasure.cId)
 						.remove();
 				}
 
 				// Управление видимостью области
 				if (!qlikMeasure.properties.lineChart.areaShown) {
-					$chartElement
+					$chart
 						.find(".c3-areas-" + qlikMeasure.cId)
 						.remove();
 				}
+			}
+		}
+
+		/**
+		 * Исправляет интерфейс серии графика
+		 * @param {*} $chart jQuery-объект графика
+		 * @param {AxisGridLine} axisGridLine Линия
+		 */
+		function refineLineUi($chart, axisGridLine) {
+			// Контейнер с классом равным идентификатору
+			var $lineContainer = $chart.find('.c3-grid-lines g.' + axisGridLine.cId);
+			
+			if (axisGridLine.color != null && axisGridLine.color != '') {
+				// Цвет линии
+				$lineContainer
+					.children('line')
+					.css('stroke', axisGridLine.color);
+				// Цвет подписи
+				$lineContainer
+					.children('text')
+					.css('fill', axisGridLine.color);
 			}
 		}
 

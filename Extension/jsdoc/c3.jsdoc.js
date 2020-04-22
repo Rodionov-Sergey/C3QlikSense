@@ -32,6 +32,7 @@
  * @property {Number} value Значение, в котором проводится линия
  * @property {String} text Подпись линии
  * @property {'start'|'middle'|'end'} position Место расположения подписи
+ * @property {String} class Название класса для контейнера линии
  */
 
 /**
