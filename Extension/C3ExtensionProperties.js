@@ -268,7 +268,8 @@ define(
 					value: {
 						ref: 'value',
 						type: 'number',
-						label: 'Значение'
+						label: 'Значение',
+						expression: 'optional'
 					},
 					// Подпись
 					title: {
@@ -279,8 +280,20 @@ define(
 				},
 				// Подпись элемента в боковой панели
 				itemTitleRef: function (item)
-				{ 
-					return item.value + (item.title != '' ? ' (' + item.title + ')' : ''); 
+				{
+					var valueString = '';
+					// Число
+					if (typeof(item.value) === 'number') {
+						valueString = item.value.toString();
+					}
+					// Выражение
+					else if (typeof(item.value) === 'object' && 
+						item.value.qValueExpression != null) {
+						valueString = item.value.qValueExpression.qExpr;
+					}
+
+					var titleString = item.title != null && item.title != '' ? item.title + ': ' : ''
+					return titleString + valueString; 
 				}
 			};
 		}
