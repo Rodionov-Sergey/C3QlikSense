@@ -9,6 +9,29 @@
  * @property {C3Data} data Данные для построения
  * @property {C3Axes} axis Настройки осей
  * @property {C3Legend} legend Настройки легенды
+ * @property {C3Grid} grid Настройки сетки
+ */
+
+/**
+ * Настройки сетки
+ * @typedef {Object} C3Grid
+ * @property {C3AxisGrid} x Настройки сетки по оси X
+ * @property {C3AxisGrid} y Настройки сетки по оси Y
+ */
+
+/**
+ * Настройки сетки по оси
+ * @typedef {Object} C3AxisGrid
+ * @property {Boolean} show Признак отображения основной сетки
+ * @property {С3AxisGridLine} lines Список дополнительных линий
+ */
+
+/**
+ * Настройки дополнительной линии по оси
+ * @typedef {Object} С3AxisGridLine
+ * @property {Number} value Значение, в котором проводится линия
+ * @property {String} text Подпись линии
+ * @property {'start'|'middle'|'end'} position Место расположения подписи
  */
 
 /**

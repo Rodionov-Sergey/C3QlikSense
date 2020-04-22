@@ -200,7 +200,7 @@ define(
 							/** @type {MeasureProperties} */
 							var properties = context.qDef.properties;
 							// Отображение только для линейного графика
-							return properties.chartType === "LineChart";
+							return properties.chartType === 'LineChart';
 						}
 					}
 				}
@@ -220,6 +220,8 @@ define(
 				items: {
 					// Свойства оси Y
 					axisY: getAxisYProperties(),
+					// Линии оси Y
+					axisYLines: getLinesProperties(getExtensionPropertyKey('axisY')),
 					// Свойства легенды
 					legend: getLegendProperties(),
 					// Палитра
@@ -243,6 +245,42 @@ define(
 						type: 'string',
 						label: 'Заголовок оси Y'
 					}
+				}
+			};
+		}
+
+		/**
+		 * Возвращает определения свойств линий
+		 * @param {String} parentPropertyPath Путь к родительскому свойству
+		 * @returns {*} Определения свойств линий
+		 */
+		function getLinesProperties(parentPropertyPath) {
+			return {
+				ref: parentPropertyPath + '.lines',
+				type: 'array',
+				label: 'Ось Y. Линии',
+				allowAdd: true,
+				allowRemove: true,
+				addTranslation: 'Добавить',
+				// Свойства линии
+				items: {
+					// Значение
+					value: {
+						ref: 'value',
+						type: 'number',
+						label: 'Значение'
+					},
+					// Подпись
+					title: {
+						ref: 'title',
+						type: 'string',
+						label: 'Подпись'
+					},
+				},
+				// Подпись элемента в боковой панели
+				itemTitleRef: function (item)
+				{ 
+					return item.value + (item.title != '' ? ' (' + item.title + ')' : ''); 
 				}
 			};
 		}
@@ -491,6 +529,14 @@ define(
  * Свойства оси Y
  * @typedef {Object} AxisYProperties
  * @property {String} title Подпись оси
+ * @property {AxisGridLine[]} lines Линии
+ */
+
+/**
+ * Дополнительная линия по оси
+ * @typedef {Object} AxisGridLine
+ * @property {Number} value Значение
+ * @property {Number} title Подпись
  */
 
 /**

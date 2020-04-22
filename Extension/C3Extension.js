@@ -167,8 +167,49 @@ define(
 				// Палитра
 				color: {
 					pattern: getPalette(qlikExtension, qlikTheme)
-				}
+				},
+				// Сетка
+				grid: getGrid(qlikExtension)
 			};
+		}
+
+		/**
+		 * Возвращает настройки сетки
+		 * @param {QlikExtension} qlikExtension Данные расширения
+		 * @returns {C3Grid} Настройки сетки
+		 */
+		function getGrid(qlikExtension) {
+			/** @type {ExtensionProperties} */
+			var properties = qlikExtension.properties || { };
+			return {
+				// Сетка по Y
+				y: getYAxisGrid(properties.axisY)
+				
+			};
+		}
+
+		/**
+		 * Возвращает настройки сетки по оси Y
+		 * @param {AxisYProperties} axisYProperties Свойства оси Y
+		 * @returns {C3AxisGrid} Настройки сетки по оси
+		 */
+		function getYAxisGrid(axisYProperties) {
+			return {
+				// Дополнительные линии
+				lines: axisYProperties.lines.map(getAxisGridLine)
+			};
+		}
+
+		/**
+		 * Возвращает настройки дополнительной линии сетки
+		 * @param {AxisGridLine} line Свойства оси Y
+		 * @returns {C3AxisGridLine} Настройки дополнительной сетки по оси C3
+		 */
+		function getAxisGridLine(line) {
+			return {
+				value: line.value,
+				text: line.title
+			}
 		}
 
 		/**
