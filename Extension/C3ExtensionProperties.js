@@ -200,7 +200,7 @@ define(
 							/** @type {MeasureProperties} */
 							var properties = context.qDef.properties;
 							// Отображение только для линейного графика
-							return properties.chartType === "LineChart";
+							return properties.chartType === 'LineChart';
 						}
 					}
 				}
@@ -220,6 +220,8 @@ define(
 				items: {
 					// Свойства оси Y
 					axisY: getAxisYProperties(),
+					// Линии оси Y
+					axisYLines: getLinesProperties(getExtensionPropertyKey('axisY')),
 					// Свойства легенды
 					legend: getLegendProperties(),
 					// Палитра
@@ -243,6 +245,62 @@ define(
 						type: 'string',
 						label: 'Заголовок оси Y'
 					}
+				}
+			};
+		}
+
+		/**
+		 * Возвращает определения свойств линий
+		 * @param {String} parentPropertyPath Путь к родительскому свойству
+		 * @returns {*} Определения свойств линий
+		 */
+		function getLinesProperties(parentPropertyPath) {
+			return {
+				ref: parentPropertyPath + '.lines',
+				type: 'array',
+				label: 'Ось Y. Линии',
+				allowAdd: true,
+				allowRemove: true,
+				addTranslation: 'Добавить',
+				// Свойства линии
+				items: {
+					// Значение
+					value: {
+						ref: 'value',
+						type: 'number',
+						label: 'Значение',
+						expression: 'optional'
+					},
+					// Подпись
+					title: {
+						ref: 'title',
+						type: 'string',
+						label: 'Подпись'
+					},
+					// Цвет
+					color: {
+						ref: 'color',
+						type: 'string',
+						label: 'Цвет',
+						expression: 'optional'
+					}
+				},
+				// Подпись элемента в боковой панели
+				itemTitleRef: function (item)
+				{
+					var valueString = '';
+					// Число
+					if (typeof(item.value) === 'number') {
+						valueString = item.value.toString();
+					}
+					// Выражение
+					else if (typeof(item.value) === 'object' && 
+						item.value.qValueExpression != null) {
+						valueString = item.value.qValueExpression.qExpr;
+					}
+
+					var titleString = item.title != null && item.title != '' ? item.title + ': ' : ''
+					return titleString + valueString; 
 				}
 			};
 		}
@@ -491,6 +549,16 @@ define(
  * Свойства оси Y
  * @typedef {Object} AxisYProperties
  * @property {String} title Подпись оси
+ * @property {AxisGridLine[]} lines Линии
+ */
+
+/**
+ * Дополнительная линия по оси
+ * @typedef {Object} AxisGridLine
+ * @property {String} cId Идентификатор, назначаемый Qlik
+ * @property {Number} value Значение
+ * @property {Number} title Подпись
+ * @property {String} color Цвет
  */
 
 /**
