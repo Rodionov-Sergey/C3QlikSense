@@ -182,29 +182,34 @@ define(
 			/** @type {ExtensionProperties} */
 			var properties = qlikExtension.properties || { };
 			return {
+				// Сетка по X
+				x: getAxisGrid(properties.axisX),
 				// Сетка по Y
-				y: getYAxisGrid(properties.axisY)
+				y: getAxisGrid(properties.axisY)
 				
 			};
 		}
 
 		/**
-		 * Возвращает настройки сетки по оси Y
-		 * @param {AxisYProperties} axisYProperties Свойства оси Y
+		 * Возвращает настройки сетки по оси
+		 * @param {AxisXProperties|AxisYProperties} axis Свойства оси
 		 * @returns {C3AxisGrid} Настройки сетки по оси
 		 */
-		function getYAxisGrid(axisYProperties) {
+		function getAxisGrid(axis) {
+			if (axis == null) {
+				return undefined;
+			}
 			return {
-				// Отображение сетки по Y
-				show: axisYProperties.grid.shown,
+				// Отображение сетки
+				show: axis.grid != null ? axis.grid.shown : false,
 				// Дополнительные линии
-				lines: axisYProperties.lines.map(getAxisGridLine)
+				lines: axis.lines != null ? axis.lines.map(getAxisGridLine) : undefined
 			};
 		}
 
 		/**
 		 * Возвращает настройки дополнительной линии сетки
-		 * @param {AxisGridLine} line Свойства оси Y
+		 * @param {AxisGridLine} line Свойства оси
 		 * @returns {C3AxisGridLine} Настройки дополнительной сетки по оси C3
 		 */
 		function getAxisGridLine(line) {

@@ -218,6 +218,8 @@ define(
 				component: 'expandable-items',
 				label: 'График',
 				items: {
+					// Свойства оси X
+					axisX: getAxisXProperties(),
 					// Свойства оси Y
 					axisY: getAxisYProperties(),
 					// Линии оси Y
@@ -226,6 +228,37 @@ define(
 					legend: getLegendProperties(),
 					// Палитра
 					palette: getPaletteProperties(qlikTheme)
+				}
+			};
+		}
+
+		/**
+		 * Возвращает определения свойств оси X
+		 * @returns {*} Определения свойств оси
+		 */
+		function getAxisXProperties() {
+			return {
+				type: 'items',
+				label: 'Ось X',
+				items: {
+					// Признак отображение сетки
+					gridShown: {
+						ref: getExtensionPropertyKey('axisX.grid.shown'),
+						type: 'boolean',
+						component: 'switch',
+						label: 'Отображение сетки',
+						options: [
+							{
+								value: true,
+								label: 'Отобразить'
+							},
+							{
+								value: false,
+								label: 'Скрыть'
+							}
+						],
+						defaultValue: false
+					}
 				}
 			};
 		}
@@ -529,6 +562,7 @@ define(
 /**
  * Данные расширения Qlik
  * @typedef {Object} ExtensionProperties
+ * @property {AxisXProperties} axisX Настройки оси X
  * @property {AxisYProperties} axisY Настройки оси Y
  * @property {LegendProperties} Настройки легенды
  * @property {PaletteProperties} palette Настройки палитры
@@ -561,6 +595,12 @@ define(
  * @property {Boolean} pointsShown Признак отображения точек
  * @property {Boolean} lineShown Признак отображения линии
  * @property {Boolean} areaShown Признак отображения области
+ */
+
+/**
+ * Свойства оси X
+ * @typedef {Object} AxisXProperties
+ * @property {AxisGrid} grid Сетка
  */
 
 /**
