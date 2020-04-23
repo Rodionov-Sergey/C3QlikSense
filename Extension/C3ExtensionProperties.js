@@ -218,6 +218,8 @@ define(
 				component: 'expandable-items',
 				label: 'График',
 				items: {
+					// Свойства оси X
+					axisX: getAxisXProperties(),
 					// Свойства оси Y
 					axisY: getAxisYProperties(),
 					// Линии оси Y
@@ -226,6 +228,37 @@ define(
 					legend: getLegendProperties(),
 					// Палитра
 					palette: getPaletteProperties(qlikTheme)
+				}
+			};
+		}
+
+		/**
+		 * Возвращает определения свойств оси X
+		 * @returns {*} Определения свойств оси
+		 */
+		function getAxisXProperties() {
+			return {
+				type: 'items',
+				label: 'Ось X',
+				items: {
+					// Признак отображение сетки
+					gridShown: {
+						ref: getExtensionPropertyKey('axisX.grid.shown'),
+						type: 'boolean',
+						component: 'switch',
+						label: 'Отображение сетки',
+						options: [
+							{
+								value: true,
+								label: 'Отобразить'
+							},
+							{
+								value: false,
+								label: 'Скрыть'
+							}
+						],
+						defaultValue: false
+					}
 				}
 			};
 		}
@@ -244,6 +277,24 @@ define(
 						ref: getExtensionPropertyKey('axisY.title'),
 						type: 'string',
 						label: 'Заголовок оси Y'
+					},
+					// Признак отображение сетки
+					gridShown: {
+						ref: getExtensionPropertyKey('axisY.grid.shown'),
+						type: 'boolean',
+						component: 'switch',
+						label: 'Отображение сетки',
+						options: [
+							{
+								value: true,
+								label: 'Отобразить'
+							},
+							{
+								value: false,
+								label: 'Скрыть'
+							}
+						],
+						defaultValue: false
 					}
 				}
 			};
@@ -299,7 +350,7 @@ define(
 						valueString = item.value.qValueExpression.qExpr;
 					}
 
-					var titleString = item.title != null && item.title != '' ? item.title + ': ' : ''
+					var titleString = item.title != null && item.title != '' ? item.title + ': ' : '';
 					return titleString + valueString; 
 				}
 			};
@@ -511,6 +562,7 @@ define(
 /**
  * Данные расширения Qlik
  * @typedef {Object} ExtensionProperties
+ * @property {AxisXProperties} axisX Настройки оси X
  * @property {AxisYProperties} axisY Настройки оси Y
  * @property {LegendProperties} Настройки легенды
  * @property {PaletteProperties} palette Настройки палитры
@@ -546,10 +598,23 @@ define(
  */
 
 /**
+ * Свойства оси X
+ * @typedef {Object} AxisXProperties
+ * @property {AxisGrid} grid Сетка
+ */
+
+/**
  * Свойства оси Y
  * @typedef {Object} AxisYProperties
  * @property {String} title Подпись оси
  * @property {AxisGridLine[]} lines Линии
+ * @property {AxisGrid} grid Сетка
+ */
+
+ /**
+ * Свойства сетки по оси
+ * @typedef {Object} AxisGrid
+ * @property {Boolean} shown Признак отображения
  */
 
 /**
