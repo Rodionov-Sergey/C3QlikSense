@@ -101,18 +101,9 @@ define(
 						component: 'dropdown',
 						label: 'Тип шкалы',
 						options: [
-							{
-								value: 'CategoricalScale',
-								label: 'Категориальная шкала'
-							},
-							{
-								value: 'NumericScale',
-								label: 'Числовая шкала'
-							},
-							{
-								value: 'TemporalScale',
-								label: 'Временная шкала'
-							}
+							option('CategoricalScale', 'Категориальная шкала'),
+							option('NumericScale', 'Числовая шкала'),
+							option('TemporalScale', 'Временная шкала')
 						],
 						defaultValue: 'CategoricalScale'
 					},
@@ -159,14 +150,8 @@ define(
 						component: 'dropdown',
 						label: 'Тип графика',
 						options: [
-							{
-								value: 'LineChart',
-								label: 'Линейный график'
-							},
-							{
-								value: 'BarChart',
-								label: 'Столбчатая диаграмма'
-							}
+							option('LineChart', 'Линейный график'),
+							option('BarChart', 'Столбчатая диаграмма')
 						],
 						defaultValue: 'LineChart'
 					},
@@ -265,23 +250,10 @@ define(
 				label: 'Ось X',
 				items: {
 					// Признак отображение сетки
-					gridShown: {
-						ref: path(basePath, 'grid', 'shown'),
-						type: 'boolean',
-						component: 'switch',
-						label: 'Отображение сетки',
-						options: [
-							{
-								value: true,
-								label: 'Отобразить'
-							},
-							{
-								value: false,
-								label: 'Скрыть'
-							}
-						],
-						defaultValue: false
-					}
+					gridShown: shownSwitch(
+						path(basePath, 'grid', 'shown'), 
+						'Отображение сетки',
+					)
 				}
 			};
 		}
@@ -303,23 +275,10 @@ define(
 						label: 'Заголовок оси Y'
 					},
 					// Признак отображение сетки
-					gridShown: {
-						ref: path(basePath, 'grid', 'shown'),
-						type: 'boolean',
-						component: 'switch',
-						label: 'Отображение сетки',
-						options: [
-							{
-								value: true,
-								label: 'Отобразить'
-							},
-							{
-								value: false,
-								label: 'Скрыть'
-							}
-						],
-						defaultValue: false
-					}
+					gridShown: shownSwitch(
+						path(basePath, 'grid', 'shown'),
+						'Отображение сетки'
+					)
 				}
 			};
 		}
@@ -390,41 +349,20 @@ define(
 				type: 'items',
 				label: 'Легенда',
 				items: {
-					shown: {
-						ref: path(basePath, 'shown'),
-						type: 'boolean',
-						component: 'switch',
-						label: 'Отображение легенды',
-						options: [
-							{
-								value: true,
-								label: 'Отобразить'
-							},
-							{
-								value: false,
-								label: 'Скрыть'
-							}
-						],
-						defaultValue: true
-					},
+					shown: shownSwitch(
+						path(basePath, 'shown'),
+						'Отображение легенды',
+						true
+					),
 					position: {
 						ref: path(basePath, 'position'),
 						type: 'string',
 						component: 'dropdown',
 						label: 'Расположение легенды',
 						options: [
-							{
-								value: 'Bottom',
-								label: 'Снизу'
-							},
-							{
-								value: 'Right',
-								label: 'Справа'
-							},
-							{
-								value: 'Inside',
-								label: 'Внутри'
-							}
+							option('Bottom', 'Снизу'),
+							option('Right', 'Справа'),
+							option('Inside', 'Внутри')
 						],
 						defaultValue: 'Bottom',
 						show: function(context) {
@@ -492,6 +430,39 @@ define(
 		}
 
 		// Вспомогательные функции определений свойств
+
+		/**
+		 * Возвращает определение булева свойства в виде переключателя
+		 * @param {*} propertyPath Путь к свойству целевого объекта
+		 * @param {*} title Заголовок свойства
+		 * @param {*} defaultValue значение по умолчанию
+		 */
+		function shownSwitch(propertyPath, title, defaultValue) {
+			return {
+				ref: propertyPath,
+				type: 'boolean',
+				component: 'switch',
+				label: title,
+				options: [
+					option(true, 'Отобразить'),
+					option(false, 'Скрыть')
+				],
+				defaultValue: defaultValue
+			};
+		}
+
+		/**
+		 * Создаёт опцию выбора
+		 * @param {String|Number|Boolean} value Значение
+		 * @param {String} title Подпись
+		 * @returns {*} Опция выбора
+		 */
+		function option(value, title) {
+			return {
+				value: value,
+				label: title
+			};
+		}
 
 		/**
 		 * Соединяет части пути к свойству
