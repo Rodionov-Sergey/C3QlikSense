@@ -58,14 +58,16 @@ define(
 		 * @returns {*} Определения свойств
 		 */
 		function getProperties(qlikTheme) {
+			var columnPropertiesPath = path('qDef', 'properties');
+			var extensionPropertiesPath = 'properties';
 			return {
 				type: 'items',
 				component: 'accordion',
 				items: {
 					// Блок свойств Измерения
-					dimensions: getDimensionProperties(),
+					dimensions: getDimensionProperties(columnPropertiesPath),
 					// Блок свойств Меры
-					measures: getMeasureProperties(),
+					measures: getMeasureProperties(columnPropertiesPath),
 					// Блок свойств Сортировка
 					sorting: {
 						uses: 'sorting'
@@ -75,16 +77,17 @@ define(
 						uses: 'settings'
 					},
 					// Свойства графика
-					chart: getChartProperties(qlikTheme)
+					chart: getChartProperties(extensionPropertiesPath, qlikTheme)
 				}
 			};
 		}
 
 		/**
 		 * Возвращает определения свойств секции Измерения
+		 * @param {String} basePath Базовый путь к свойству
 		 * @returns Определения свойств измерений
 		 */
-		function getDimensionProperties() {
+		function getDimensionProperties(basePath) {
 			return {
 				uses: 'dimensions',
 				min: 1,
@@ -93,7 +96,7 @@ define(
 				items: {
 					// Тип шкалы
 					scaleType: {
-						ref: getColumnPropertyKey('scaleType'),
+						ref: path(basePath, 'scaleType'),
 						type: 'string',
 						component: 'dropdown',
 						label: 'Тип шкалы',
@@ -115,7 +118,7 @@ define(
 					},
 					// Угол наклона подписей - текстовое поле
 					tickLabelAngleText: {
-						ref: getColumnPropertyKey('tickLabelAngle'),
+						ref: path(basePath, 'tickLabelAngle'),
 						type: 'number',
 						label: 'Угол наклона подписей',
 						min: -90,
@@ -124,7 +127,7 @@ define(
 					},
 					// Угол наклона подписей - слайдер
 					tickLabelAngle: {
-						ref: getColumnPropertyKey('tickLabelAngle'),
+						ref: path(basePath, 'tickLabelAngle'),
 						type: 'number',
 						component: 'slider',
 						min: -90,
@@ -138,10 +141,11 @@ define(
 
 		/**
 		 * Возвращает определение свойств секции Меры
+		 * @param {String} basePath Базовый путь к свойству
 		 * @param {QlikTheme} qlikTheme
 		 * @returns {*} Определение свойств меры
 		 */
-		function getMeasureProperties() {
+		function getMeasureProperties(basePath) {
 			return {
 				uses: 'measures',
 				min: 1,
@@ -150,7 +154,7 @@ define(
 				items: {
 					// Тип графика
 					chartType: {
-						ref: getColumnPropertyKey('chartType'),
+						ref: path(basePath, 'chartType'),
 						type: 'string',
 						component: 'dropdown',
 						label: 'Тип графика',
@@ -168,82 +172,101 @@ define(
 					},
 					// Настройка группировки
 					groupKey: {
-						ref: getColumnPropertyKey('groupKey'),
+						ref: path(basePath, 'groupKey'),
 						type: 'string',
 						label: 'Идентификатор группы',
 					},
 					// Настройки линейного графика
-					lineChart: {
-						type: 'items',
-						label: 'Ленейный график',
-						items: {
-							pointsShown: {
-								ref: getColumnPropertyKey('lineChart.pointsShown'),
-								type: 'boolean',
-								label: 'Отображение точек',
-								defaultValue: true
-							},
-							lineShown: {
-								ref: getColumnPropertyKey('lineChart.lineShown'),
-								type: 'boolean',
-								label: 'Отображение линии',
-								defaultValue: true
-							},
-							areaShown: {
-								ref: getColumnPropertyKey('lineChart.areaShown'),
-								type: 'boolean',
-								label: 'Отображение области',
-								defaultValue: true
-							}
-						},
-						show: function (context) {
-							/** @type {MeasureProperties} */
-							var properties = context.qDef.properties;
-							// Отображение только для линейного графика
-							return properties.chartType === 'LineChart';
-						}
+					lineChart: getLineChartProperties(
+						path(basePath, 'lineChart'))
+				}
+			};
+		}
+
+		/**
+		 * Возвращает определения свойств линейного графика
+		 * @param {String} basePath Базовый путь к свойству
+		 * @returns {*} Определения свойств
+		 */
+		function getLineChartProperties(basePath) {
+			return {
+				type: 'items',
+				items: {
+					_header: {
+						type: 'string',
+						component: 'text',
+						label: 'Линейный график'
+					},
+					pointsShown: {
+						ref: path(basePath, 'pointsShown'),
+						type: 'boolean',
+						label: 'Отображение точек',
+						defaultValue: true
+					},
+					lineShown: {
+						ref: path(basePath, 'lineShown'),
+						type: 'boolean',
+						label: 'Отображение линии',
+						defaultValue: true
+					},
+					areaShown: {
+						ref: path(basePath, 'areaShown'),
+						type: 'boolean',
+						label: 'Отображение области',
+						defaultValue: true
 					}
+				},
+				show: function (context) {
+					/** @type {MeasureProperties} */
+					var properties = context.qDef.properties;
+					// Отображение только для линейного графика
+					return properties.chartType === 'LineChart';
 				}
 			};
 		}
 		
 		/**
 		 * Возвращает определения свойств графика
+		 * @param {String} basePath Базовый путь к свойству
 		 * @param {QlikTheme} qlikTheme Тема
 		 * @returns {*} Определения свойств графика
 		 */
-		function getChartProperties(qlikTheme) {
+		function getChartProperties(basePath, qlikTheme) {
 			return {
 				type: 'items',
 				component: 'expandable-items',
 				label: 'График',
 				items: {
 					// Свойства оси X
-					axisX: getAxisXProperties(),
+					axisX: getAxisXProperties(path(basePath, 'axisX')),
 					// Свойства оси Y
-					axisY: getAxisYProperties(),
+					axisY: getAxisYProperties(path(basePath, 'axisY')),
 					// Линии оси Y
-					axisYLines: getLinesProperties(getExtensionPropertyKey('axisY')),
+					axisYLines: getLinesProperties(path(basePath, 'axisY')),
 					// Свойства легенды
-					legend: getLegendProperties(),
+					legend: getLegendProperties(path(basePath, 'legend')),
 					// Палитра
-					palette: getPaletteProperties(qlikTheme)
+					palette: getPaletteProperties(
+						path(basePath, 'palette'),
+						qlikTheme
+					)
 				}
 			};
 		}
 
 		/**
 		 * Возвращает определения свойств оси X
+		 * @param {String} basePath Базовый путь к свойству
 		 * @returns {*} Определения свойств оси
 		 */
-		function getAxisXProperties() {
+		function getAxisXProperties(basePath) {
 			return {
 				type: 'items',
 				label: 'Ось X',
 				items: {
 					// Признак отображение сетки
 					gridShown: {
-						ref: getExtensionPropertyKey('axisX.grid.shown'),
+						ref: path(basePath, 'grid', 'shown'),
 						type: 'boolean',
 						component: 'switch',
 						label: 'Отображение сетки',
@@ -265,22 +288,23 @@ define(
 
 		/**
 		 * Возвращает определения свойств оси Y
+		 * @param {String} basePath Базовый путь к свойству
 		 * @returns {*} Определения свойств оси
 		 */
-		function getAxisYProperties() {
+		function getAxisYProperties(basePath) {
 			return {
 				type: 'items',
 				label: 'Ось Y',
 				items: {
 					// Подпись оси
 					title: {
-						ref: getExtensionPropertyKey('axisY.title'),
+						ref: path(basePath, 'title'),
 						type: 'string',
 						label: 'Заголовок оси Y'
 					},
 					// Признак отображение сетки
 					gridShown: {
-						ref: getExtensionPropertyKey('axisY.grid.shown'),
+						ref: path(basePath, 'grid', 'shown'),
 						type: 'boolean',
 						component: 'switch',
 						label: 'Отображение сетки',
@@ -302,12 +326,12 @@ define(
 
 		/**
 		 * Возвращает определения свойств линий
-		 * @param {String} parentPropertyPath Путь к родительскому свойству
+		 * @param {String} basePath Базовый путь к свойству
 		 * @returns {*} Определения свойств линий
 		 */
-		function getLinesProperties(parentPropertyPath) {
+		function getLinesProperties(basePath) {
 			return {
-				ref: parentPropertyPath + '.lines',
+				ref: path(basePath, 'lines'),
 				type: 'array',
 				label: 'Ось Y. Линии',
 				allowAdd: true,
@@ -355,15 +379,19 @@ define(
 				}
 			};
 		}
-				
-		// Настройки легенды
-		function getLegendProperties() {
+
+		/**
+		 * Возвращает определения свойств легенды
+		 * @param {String} basePath Базовый путь к свойству
+		 * @returns {*} Определения свойств
+		 */
+		function getLegendProperties(basePath) {
 			return {
 				type: 'items',
 				label: 'Легенда',
 				items: {
 					shown: {
-						ref: getExtensionPropertyKey('legend.shown'),
+						ref: path(basePath, 'shown'),
 						type: 'boolean',
 						component: 'switch',
 						label: 'Отображение легенды',
@@ -380,7 +408,7 @@ define(
 						defaultValue: true
 					},
 					position: {
-						ref: getExtensionPropertyKey('legend.position'),
+						ref: path(basePath, 'position'),
 						type: 'string',
 						component: 'dropdown',
 						label: 'Расположение легенды',
@@ -409,10 +437,11 @@ define(
 
 		/**
 		 * Возвращает определение свойства палитры
+		 * @param {String} basePath Базовый путь к свойству
 		 * @param {QlikTheme} qlikTheme Тема
 		 * @returns {*} Определение свойства
 		 */
-		function getPaletteProperties(qlikTheme) {
+		function getPaletteProperties(basePath, qlikTheme) {
 			return {
 				type: 'items',
 				label: 'Палитра',
@@ -420,7 +449,7 @@ define(
 				items: {
 					// Элементы списка палитр
 					paletteItems: {
-						ref: getExtensionPropertyKey('palette.id'),
+						ref: path(basePath, 'id'),
 						type: 'items',
 						component: 'item-selection-list', 
 						horizontal: false,
@@ -463,32 +492,15 @@ define(
 		}
 
 		// Вспомогательные функции определений свойств
-		
-		/**
-		 * Формирует ключ свойства для расширения
-		 * @param {String} propertyName Название свойства
-		 * @returns {String} Ключ свойства
-		 */
-		function getExtensionPropertyKey(propertyName) {
-			return 'properties.' + propertyName;
-		}
 
 		/**
-		 * Формирует ключ свойства для столбца (измерения или меры)
-		 * @param {String} propertyName Название свойства
-		 * @returns {String} Ключ свойства
+		 * Соединяет части пути к свойству
+		 * @param {...String} args Части пути
+		 * @returns {String} Общий путь к свойству
 		 */
-		function getColumnPropertyKey(propertyName) {
-			return 'qDef.properties.' + propertyName;
-		}
-
-		/**
-		 * Формирует ключ свойства для ячейки (атрибут ячейки)
-		 * @param {Number} cellAttributeIndex Индекс атрибута ячейки
-		 * @returns {String} Ключ свойства
-		 */
-		function getCellPropertyKey(cellAttributeIndex) {
-			return 'qAttributeExpressions.' + cellAttributeIndex + '.qExpression';
+		function path(args) {
+			args = Array.prototype.slice.call(arguments);
+			return args.join('.');
 		}
 
 		// Функции Qlik API
