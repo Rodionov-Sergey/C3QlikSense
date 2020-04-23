@@ -244,6 +244,24 @@ define(
 						ref: getExtensionPropertyKey('axisY.title'),
 						type: 'string',
 						label: 'Заголовок оси Y'
+					},
+					// Признак отображение сетки
+					gridShown: {
+						ref: getExtensionPropertyKey('axisY.grid.shown'),
+						type: 'boolean',
+						component: 'switch',
+						label: 'Отображение сетки',
+						options: [
+							{
+								value: true,
+								label: 'Отобразить'
+							},
+							{
+								value: false,
+								label: 'Скрыть'
+							}
+						],
+						defaultValue: false
 					}
 				}
 			};
@@ -299,7 +317,7 @@ define(
 						valueString = item.value.qValueExpression.qExpr;
 					}
 
-					var titleString = item.title != null && item.title != '' ? item.title + ': ' : ''
+					var titleString = item.title != null && item.title != '' ? item.title + ': ' : '';
 					return titleString + valueString; 
 				}
 			};
@@ -550,6 +568,13 @@ define(
  * @typedef {Object} AxisYProperties
  * @property {String} title Подпись оси
  * @property {AxisGridLine[]} lines Линии
+ * @property {AxisGrid} grid Сетка
+ */
+
+ /**
+ * Свойства сетки по оси
+ * @typedef {Object} AxisGrid
+ * @property {Boolean} shown Признак отображения
  */
 
 /**

@@ -195,6 +195,8 @@ define(
 		 */
 		function getYAxisGrid(axisYProperties) {
 			return {
+				// Отображение сетки по Y
+				show: axisYProperties.grid.shown,
 				// Дополнительные линии
 				lines: axisYProperties.lines.map(getAxisGridLine)
 			};
@@ -213,7 +215,7 @@ define(
 				text: line.title,
 				// Класс для применения стиля после отрисовки
 				'class': line.cId
-			}
+			};
 		}
 
 		/**
