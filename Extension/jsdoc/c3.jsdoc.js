@@ -153,7 +153,7 @@
  * @property {String|function(Number|Date):String} format Формат или функция форматирования
  * @property {Number} rotate Угол поворота подписей засечек
  * @property {Boolean} multiline Признак включения переноса текста в подписи засечек
- * /
+ */
 
 /**
  * Значение в C3

@@ -3,7 +3,7 @@
  */
 define(
 	// Зависимости
-  	[],
+	[],
 
 	/**
 	 * Создаёт модуль
@@ -224,17 +224,16 @@ define(
 				items: {
 					// Свойства оси X
 					axisX: getAxisXProperties(path(basePath, 'axisX')),
+					// Линии оси X
+					axisXLines: getLinesProperties(path(basePath, 'axisX'), 'Ось X. Линии'),
 					// Свойства оси Y
 					axisY: getAxisYProperties(path(basePath, 'axisY')),
 					// Линии оси Y
-					axisYLines: getLinesProperties(path(basePath, 'axisY')),
+					axisYLines: getLinesProperties(path(basePath, 'axisY'), 'Ось Y. Линии'),
 					// Свойства легенды
 					legend: getLegendProperties(path(basePath, 'legend')),
 					// Палитра
-					palette: getPaletteProperties(
-						path(basePath, 'palette'),
-						qlikTheme
-					)
+					palette: getPaletteProperties(path(basePath, 'palette'), qlikTheme)
 				}
 			};
 		}
@@ -252,7 +251,7 @@ define(
 					// Признак отображение сетки
 					gridShown: shownSwitch(
 						path(basePath, 'grid', 'shown'), 
-						'Отображение сетки',
+						'Отображение сетки'
 					)
 				}
 			};
@@ -272,7 +271,7 @@ define(
 					title: {
 						ref: path(basePath, 'title'),
 						type: 'string',
-						label: 'Заголовок оси Y'
+						label: 'Заголовок оси'
 					},
 					// Признак отображение сетки
 					gridShown: shownSwitch(
@@ -286,13 +285,14 @@ define(
 		/**
 		 * Возвращает определения свойств линий
 		 * @param {String} basePath Базовый путь к свойству
+		 * @param {String} title Заголовок секции
 		 * @returns {*} Определения свойств линий
 		 */
-		function getLinesProperties(basePath) {
+		function getLinesProperties(basePath, title) {
 			return {
 				ref: path(basePath, 'lines'),
 				type: 'array',
-				label: 'Ось Y. Линии',
+				label: title,
 				allowAdd: true,
 				allowRemove: true,
 				addTranslation: 'Добавить',
@@ -584,14 +584,15 @@ define(
  * Свойства оси X
  * @typedef {Object} AxisXProperties
  * @property {AxisGrid} grid Сетка
+ * @property {AxisGridLine[]} lines Линии
  */
 
 /**
  * Свойства оси Y
  * @typedef {Object} AxisYProperties
  * @property {String} title Подпись оси
- * @property {AxisGridLine[]} lines Линии
  * @property {AxisGrid} grid Сетка
+ * @property {AxisGridLine[]} lines Линии
  */
 
  /**
