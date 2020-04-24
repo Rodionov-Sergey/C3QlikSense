@@ -74,7 +74,7 @@ module.exports = {
         "func-name-matching": "error",
         "func-names": "off",
         "func-style": [
-            "error",
+            "off",
             "declaration"
         ],
         "function-paren-newline": "off",

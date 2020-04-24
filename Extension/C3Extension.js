@@ -687,31 +687,54 @@ define(
 		 * @param {QlikTheme} qlikTheme Тема
 		 */
 		function themeChart($chart, qlikTheme) {
+
+			var getThemeValue = function (propertyPath, propertyName) {
+				return qlikTheme.getStyle('object.lineChart', propertyPath, propertyName);
+			};
+
 			// Легенда
 			// Подпись элемента легенды
 			$chart
 				.find('.c3-legend-item > text')
-				.css('fill', qlikTheme.getStyle('object', 'legend.label', 'color'));
+				.css('fill', getThemeValue('legend.label', 'color'));
 
 			// Ось
 			// Цвет оси
 			$chart
 				.find('.c3-axis > path.domain ')
-				.css('stroke', qlikTheme.getStyle('object', 'axis.line.major', 'color'));
+				.css('stroke', getThemeValue('axis.line.major', 'color'));
 			// Подпись оси
 			$chart
 				.find('text.c3-axis-x-label, text.c3-axis-y-label')
-				.css('fill', qlikTheme.getStyle('object', 'axis.title', 'color'));
+				.css('fill', getThemeValue('axis.title', 'color'))
+				.css('fontSize', getThemeValue('axis.title', 'fontSize'));
 
 			// Засечки оси
 			// Цвет засечек
 			$chart
 				.find('.c3-axis > .tick > line')
-				.css('stroke', qlikTheme.getStyle('object', 'axis.line.minor', 'color'));
+				.css('stroke', getThemeValue('axis.line.minor', 'color'));
 			// Подписи засечек осей
 			$chart
 				.find('.c3-axis > .tick > text')
-				.css('fill', qlikTheme.getStyle('object', 'axis.label.name', 'color'));
+				.css('fill', getThemeValue('axis.label.name', 'color'))
+				.css('fontSize', getThemeValue('axis.label.name', 'fontSize'));
+
+			// Сетка
+			$chart
+				.find('line.c3-xgrid, line.c3-ygrid')
+				.css('stroke', getThemeValue('grid.line.minor', 'color'));
+
+			// Дополнительные линии
+			var $gridLineContainer = $chart
+				.find('.c3-xgrid-line, .c3-ygrid-line');
+			$gridLineContainer
+				.children('line')
+				.css('stroke', getThemeValue('referenceLine.label.name', 'color'));
+			$gridLineContainer
+				.children('text')
+				.css('fill', getThemeValue('referenceLine.label.name', 'color'))
+				.css('font-size', getThemeValue('referenceLine.label.name', 'fontSize'));
 		}
 
 		// === Применение стилей ===

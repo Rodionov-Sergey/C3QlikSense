@@ -66,6 +66,7 @@
  * @typedef {Object} QlikObjectsThemeProperties
  * @property {QlikThemeLegendProperties} legend Настройки темы легенды
  * @property {QlikThemeAxisProperties} axis Настройки темы оси
+ * @property {QlikThemeGridProperties} grid Настройки темы сетки
  */
 
 /**
@@ -79,14 +80,27 @@
  * Настройки темы оси
  * @typedef {Object} QlikThemeAxisProperties
  * @property {QlikThemeForegroundFontSizeProperties} title Настройки заголовка легенды
- * @property {QlikThemeAxisLabelProperties} label Настройки темы подписей засечек
+ * @property {QlikThemeLabelProperties} label Настройки темы подписей засечек
  * @property {QlikThemeLineProperties} line Настройки темы линий осей
  */
 
 /**
  * Настройки темы подписей засечек
- * @typedef {Object} QlikThemeAxisLabelProperties
+ * @typedef {Object} QlikThemeLabelProperties
  * @property {QlikThemeForegroundFontSizeProperties} name Настройки названия
+ */
+
+/**
+ * Настройки сетки
+ * @typedef {Object} QlikThemeGridProperties
+ * @property {QlikThemeLineProperties} line Настройки темы линии сетки
+ */
+
+/**
+ * Настройки дополнительной линии
+ * @typedef {Object} QlikThemeReferenceLineProperties
+ * @property {QlikThemeLabelProperties} label Настройки метки линии
+ * @property {QlikThemeForegroundFontSizeBackgoundProperties} outOfBounds Настройки индикатора линий вне границ графика
  */
 
 /**
