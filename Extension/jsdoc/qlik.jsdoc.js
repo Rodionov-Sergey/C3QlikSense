@@ -40,10 +40,12 @@
  * @property {function(String, String, String):String} getStyle Возвращает строковое значение свойства
  * Поиск осуществляется вверх от указанного базового пути по указанному пути и названию.
  * Если свойство не найдено, поиск повторяется с родительского от базового. И так далее.
+ * 
  * Аргументы:
  *   1. Базовый путь свойства (через точки)
  *   2. Путь к свойству (через точки)
  *   3. Название свойства
+ * 
  * Результат:
  *   * Строковое значение свойства; null, если не найдено
  */
@@ -144,11 +146,11 @@
  * Настройки цветовых палитр
  * @typedef {Object} QlikPalettes
  * @property {QlikDataPalette[]} data Палитры для данных
- * @property {*} ui Палитры для UI
+ * @property {QlikUiPalette[]} ui Палитры для интерфейса
  */
 
 /**
- * Настройки цветовых палитр
+ * Настройки цветовой палитры для данных
  * @typedef {Object} QlikDataPalette
  * @property {String} propertyValue Идентификатор палитры
  * @property {String=} name Название палитры
@@ -163,6 +165,15 @@
  * - 'row' - Ряд цветов
  * - 'pyramid' - Пирамидальная - набор палитр разной длины
  */
+
+/**
+ * Настройка цветовой палитры для интерфейса
+ * @typedef {Object} QlikUiPalette
+ * @property {String=} name Название палитры
+ * @property {Color[]} colors Цвета в палитре
+ */
+
+// TODO: QlikColorScale объединить с QlikDataPalette, добавить типы 'class' и 'gradient'
 
 /**
  * Настройки
@@ -272,4 +283,11 @@
  * @property {String} label Отображаемое название
  * @property {String} type Тип шкалы
  * @property {Color[]} colors Список цветов
+ */
+
+/**
+ * Цветовой объект
+ * @typedef {Object} QlikColorObject
+ * @property {String} color Цвет (строка с шестнадцатиричным RGB-кодом)
+ * @property {Number} index Индекс в палитре, начинающийся с единицы; -1, если используется цветовой код
  */

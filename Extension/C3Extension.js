@@ -126,7 +126,7 @@ define(
 			themeChart($chart, qlikTheme);
 
 			// Применяет стили к графику
-			styleChart($chart, qlikExtension);
+			styleChart($chart, qlikExtension, qlikTheme);
 		}
 
 		/**
@@ -743,8 +743,9 @@ define(
 		 * Стилизует график
 		 * @param {*} $chart jQuery-объект графика
 		 * @param {QlikExtension} qlikExtension Расширение
+		 * @param {QlikTheme} qlikTheme Тема
 		 */
-		function styleChart($chart, qlikExtension) {
+		function styleChart($chart, qlikExtension, qlikTheme) {
 
 			// Cерии
 			qlikExtension.qHyperCube.qMeasureInfo
@@ -756,18 +757,19 @@ define(
 
 			if (qlikExtension.properties != null) {
 				// Дополнительные линии по X
-				styleAxis($chart, qlikExtension.properties.axisX);
+				styleAxis($chart, qlikExtension.properties.axisX, qlikTheme);
 				// Дополнительные линии по Y
-				styleAxis($chart, qlikExtension.properties.axisY);
+				styleAxis($chart, qlikExtension.properties.axisY, qlikTheme);
 			}
 		}
 
 		/**
 		 * Стилизует ось графика
 		 * @param {*} $chart jQuery-объект графика
-		 * @param {*} axis Настройки оси
+		 * @param {AxisXProperties|AxisYProperties} axis Настройки оси
+		 * @param {QlikTheme} qlikTheme Тема
 		 */
-		function styleAxis($chart, axis) {
+		function styleAxis($chart, axis, qlikTheme) {
 			if (axis == null || axis.lines == null) {
 				return;
 			}
@@ -775,7 +777,7 @@ define(
 			axis.lines
 				.forEach(
 					function (line) {
-						return styleAxisGridLine($chart, line);
+						return styleAxisGridLine($chart, line, qlikTheme);
 					}
 				);
 		}
@@ -818,21 +820,92 @@ define(
 		 * Стилизует линию по оси
 		 * @param {*} $chart jQuery-объект графика
 		 * @param {AxisGridLine} axisGridLine Линия по оси
+		 * @param {QlikTheme} qlikTheme Тема
 		 */
-		function styleAxisGridLine($chart, axisGridLine) {
+		function styleAxisGridLine($chart, axisGridLine, qlikTheme) {
+			
 			// Контейнер с классом равным идентификатору
 			var $lineContainer = $chart.find('.c3-grid-lines g.' + axisGridLine.cId);
 			
-			if (axisGridLine.color != null && axisGridLine.color != '') {
+			// Цвет переднего плана
+			var foregroundColor = findColor(axisGridLine.foreground, qlikTheme);
+
+			if (foregroundColor != null) {
 				// Цвет линии
 				$lineContainer
 					.children('line')
-					.css('stroke', axisGridLine.color);
+					.css('stroke', foregroundColor);
 				// Цвет подписи
 				$lineContainer
 					.children('text')
-					.css('fill', axisGridLine.color);
+					.css('fill', foregroundColor);
 			}
+		}
+
+		/**
+		 * Возвращает цвет из цветового объекта
+		 * @param {QlikColorObject} colorObject Цветовой объект
+		 * @param {QlikTheme} qlikTheme Тема
+		 * @returns {String} Цвет; null, если цвет не определён
+		 */
+		function findColor(colorObject, qlikTheme) {
+			if (colorObject == null) {
+				return null;
+			}
+			
+			// Режим цвета из палитры
+			if (colorObject.index !== -1) {
+				var qlikPalette = findThemeUiPallete(qlikTheme);
+				var paletteColor = findPaletteColor(qlikPalette, colorObject.index);
+				if (paletteColor != null) {
+					return paletteColor;
+				}
+			}
+
+			// Режим указания конкретного цвета
+			if (colorObject.color == null || colorObject.color == '') {
+				return null;
+			}
+			
+			return colorObject.color;
+		}
+
+		/**
+		 * Возвращает палитру для интерфейса из темы
+		 * @param {QlikTheme} qlikTheme Тема
+		 * @returns {QlikUiPalette} Палитра; null, если палитры нет
+		 */
+		function findThemeUiPallete(qlikTheme) {
+			if (qlikTheme.properties == null ||
+				qlikTheme.properties.palettes == null ||
+				qlikTheme.properties.palettes.ui == null ||
+				qlikTheme.properties.palettes.ui.length == 0) {
+					// Отсутствуют настройки палитр для интерфейса
+					return null;
+			}
+
+			// Первая палитра для интерфейса
+			return qlikTheme.properties.palettes.ui[0];
+		}
+
+		/**
+		 * Возвращает цвет из цветового объекта
+		 * @param {QlikUiPalette} qlikPalette Цветовая палитра
+		 * @param {Number} colorIndex Индекс цвета в палитре
+		 * @returns {String} Цвет
+		 */
+		function findPaletteColor(qlikPalette, colorIndex) {
+			if (qlikPalette == null || qlikPalette.colors == null) {
+				return null;
+			}
+
+			// Индексация с единицы
+			var arrayIndex = colorIndex - 1;
+			if (arrayIndex < 0 || arrayIndex >= qlikPalette.colors.length) {
+				return null;
+			}
+
+			return qlikPalette.colors[arrayIndex];
 		}
 	}
 );

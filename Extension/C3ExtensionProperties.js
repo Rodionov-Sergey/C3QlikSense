@@ -51,6 +51,9 @@ define(
 				exportData: false
 			};
 		}
+		
+		// Настройка пользовательских свойст для боковой панели расширения
+		// https://help.qlik.com/en-US/sense-developer/April2020/Subsystems/Extensions/Content/Sense_Extensions/Howtos/working-with-custom-properties.htm
 
 		/**
 		 * Возвращает определения свойств, настраиваемых пользователем
@@ -309,15 +312,11 @@ define(
 					title: {
 						ref: 'title',
 						type: 'string',
-						label: 'Подпись'
+						label: 'Подпись',
+						expression: 'optional'
 					},
 					// Цвет
-					color: {
-						ref: 'color',
-						type: 'string',
-						label: 'Цвет',
-						expression: 'optional'
-					}
+					color: colorPicker('foreground', 'Цвет')
 				},
 				// Подпись элемента в боковой панели
 				itemTitleRef: function (item)
@@ -410,15 +409,17 @@ define(
 				return null;
 			}
 			return getThemePalettes(qlikTheme)
-				.map(getColorScaleComponent);
+				.map(colorScaleComponent);
 		}
 
+		// Повторноиспользуемые компоненты
+		
 		/**
 		 * Возвращает опредление опции выбора палитры
 		 * @param {QlikDataPalette} qlikPalette Палитра
 		 * @returns {QlikColorScaleComponent} Опция выбора палитры
 		 */
-		function getColorScaleComponent(qlikPalette) {
+		function colorScaleComponent(qlikPalette) {
 			return {
 				component: 'color-scale',
 				value: qlikPalette.propertyValue,
@@ -429,7 +430,20 @@ define(
 			};
 		}
 
-		// Вспомогательные функции определений свойств
+		/**
+		 * Создаёт определение свойства выбора цвета
+		 * @param {String} propertyPath Название свойства
+		 * @param {String} title Заголовок
+		 * @returns {*} Определение свойства
+		 */
+		function colorPicker(propertyPath, title) {
+			return {
+				ref: propertyPath,
+				component: 'color-picker',
+				type: 'object',
+				label: title
+			};
+		}
 
 		/**
 		 * Возвращает определение булева свойства в виде переключателя
@@ -463,6 +477,8 @@ define(
 				label: title
 			};
 		}
+
+		// Вспомогательные функции определений свойств
 
 		/**
 		 * Соединяет части пути к свойству

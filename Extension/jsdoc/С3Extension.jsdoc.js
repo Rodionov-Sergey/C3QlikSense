@@ -67,7 +67,7 @@
  * @property {String} cId Идентификатор, назначаемый Qlik
  * @property {Number} value Значение
  * @property {Number} title Подпись
- * @property {String} color Цвет
+ * @property {QlikColorObject} foreground Настройки переднего плана
  */
 
 /**
