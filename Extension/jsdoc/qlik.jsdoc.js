@@ -40,10 +40,12 @@
  * @property {function(String, String, String):String} getStyle Возвращает строковое значение свойства
  * Поиск осуществляется вверх от указанного базового пути по указанному пути и названию.
  * Если свойство не найдено, поиск повторяется с родительского от базового. И так далее.
+ * 
  * Аргументы:
  *   1. Базовый путь свойства (через точки)
  *   2. Путь к свойству (через точки)
  *   3. Название свойства
+ * 
  * Результат:
  *   * Строковое значение свойства; null, если не найдено
  */
@@ -57,8 +59,8 @@
  * @property {String} fontSize Размер шрифта
  * @property {QlikObjectsThemeProperties} object Настройки объектов
  * @property {QlikDataColors} dataColors Цветовые настройки
- * @property {QlikPalettes} palettes Цветовые палитры
- * @property {QlikColorScale[]} scales Цветовые шкалы
+ * @property {QlikPalettes} palettes Цветовые палитры измерений и для интерфейса
+ * @property {QlikPalette[]} scales Цветовые палитры мер
  */
 
 /**
@@ -66,6 +68,7 @@
  * @typedef {Object} QlikObjectsThemeProperties
  * @property {QlikThemeLegendProperties} legend Настройки темы легенды
  * @property {QlikThemeAxisProperties} axis Настройки темы оси
+ * @property {QlikThemeGridProperties} grid Настройки темы сетки
  */
 
 /**
@@ -79,14 +82,27 @@
  * Настройки темы оси
  * @typedef {Object} QlikThemeAxisProperties
  * @property {QlikThemeForegroundFontSizeProperties} title Настройки заголовка легенды
- * @property {QlikThemeAxisLabelProperties} label Настройки темы подписей засечек
+ * @property {QlikThemeLabelProperties} label Настройки темы подписей засечек
  * @property {QlikThemeLineProperties} line Настройки темы линий осей
  */
 
 /**
  * Настройки темы подписей засечек
- * @typedef {Object} QlikThemeAxisLabelProperties
+ * @typedef {Object} QlikThemeLabelProperties
  * @property {QlikThemeForegroundFontSizeProperties} name Настройки названия
+ */
+
+/**
+ * Настройки сетки
+ * @typedef {Object} QlikThemeGridProperties
+ * @property {QlikThemeLineProperties} line Настройки темы линии сетки
+ */
+
+/**
+ * Настройки дополнительной линии
+ * @typedef {Object} QlikThemeReferenceLineProperties
+ * @property {QlikThemeLabelProperties} label Настройки метки линии
+ * @property {QlikThemeForegroundFontSizeBackgoundProperties} outOfBounds Настройки индикатора линий вне границ графика
  */
 
 /**
@@ -129,30 +145,44 @@
 /**
  * Настройки цветовых палитр
  * @typedef {Object} QlikPalettes
- * @property {QlikDataPalette[]} data Палитры для данных
- * @property {*} ui Палитры для UI
+ * @property {QlikPalette[]} data Палитры для измерений
+ * @property {QlikUiPalette[]} ui Палитры для выбора пользователем с интерфейса
  */
 
 /**
- * Настройки цветовых палитр
- * @typedef {Object} QlikDataPalette
+ * Настройки цветовой палитры
+ * @typedef {Object} QlikPalette
  * @property {String} propertyValue Идентификатор палитры
  * @property {String=} name Название палитры
  * @property {String} translation Отображаемое название палитры
- * @property {QlikDataPaletteType} type Тип палитры
+ * @property {QlikDimensionPaletteType|QlikMeasurePaletteType} type Тип палитры
  * @property {Color[]|Color[][]} scale Цветовые шкалы в палитре
  */
 
 /**
- * Тип палитры
- * @typedef {'row'|'pyramid'} QlikDataPaletteType
+ * Тип палитры для измерения
+ * @typedef {'row'|'pyramid'} QlikDimensionPaletteType
  * - 'row' - Ряд цветов
- * - 'pyramid' - Пирамидальная - набор палитр разной длины
+ * - 'pyramid' - Пирамидальная палитра - набор палитр разной длины
+ */
+
+ /**
+ * Тип палитры для меры
+ * @typedef {'gradient'|'class-pyramid'} QlikMeasurePaletteType
+ * - 'gradient' - Градиентная палитра - плавный переход между рядом цветов согласно значению меры
+ * - 'class-pyramid' - Пирамидальная палитра - интервальное назначени цветов согласно значению меры
  */
 
 /**
- * Настройки
- * @typedef {Object} QlikColorScale
+ * Настройка цветовой палитры для интерфейса
+ * @typedef {Object} QlikUiPalette
+ * @property {String=} name Название палитры
+ * @property {Color[]} colors Цвета в палитре
+ */
+
+/**
+ * Цвет, представленный строкой с шестнадцатиричным RGB-кодом, начинающейся с '#'
+ * @typedef {String} Color 
  */
 
 /**
@@ -258,4 +288,11 @@
  * @property {String} label Отображаемое название
  * @property {String} type Тип шкалы
  * @property {Color[]} colors Список цветов
+ */
+
+/**
+ * Цветовой объект
+ * @typedef {Object} QlikColorObject
+ * @property {Color} color Цвет
+ * @property {Number} index Индекс в палитре, начинающийся с единицы; -1, если используется цветовой код
  */

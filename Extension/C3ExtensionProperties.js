@@ -3,7 +3,7 @@
  */
 define(
 	// Зависимости
-  	[],
+	[],
 
 	/**
 	 * Создаёт модуль
@@ -51,6 +51,9 @@ define(
 				exportData: false
 			};
 		}
+		
+		// Настройка пользовательских свойст для боковой панели расширения
+		// https://help.qlik.com/en-US/sense-developer/April2020/Subsystems/Extensions/Content/Sense_Extensions/Howtos/working-with-custom-properties.htm
 
 		/**
 		 * Возвращает определения свойств, настраиваемых пользователем
@@ -182,24 +185,9 @@ define(
 						component: 'text',
 						label: 'Линейный график'
 					},
-					pointsShown: {
-						ref: path(basePath, 'pointsShown'),
-						type: 'boolean',
-						label: 'Отображение точек',
-						defaultValue: true
-					},
-					lineShown: {
-						ref: path(basePath, 'lineShown'),
-						type: 'boolean',
-						label: 'Отображение линии',
-						defaultValue: true
-					},
-					areaShown: {
-						ref: path(basePath, 'areaShown'),
-						type: 'boolean',
-						label: 'Отображение области',
-						defaultValue: true
-					}
+					pointsShown: checkBox(path(basePath, 'pointsShown'), 'Отображение точек', true),
+					lineShown: checkBox(path(basePath, 'lineShown'), 'Отображение линии', true),
+					areaShown: checkBox(path(basePath, 'areaShown'), 'Отображение области', true)
 				},
 				show: function (context) {
 					/** @type {MeasureProperties} */
@@ -224,17 +212,16 @@ define(
 				items: {
 					// Свойства оси X
 					axisX: getAxisXProperties(path(basePath, 'axisX')),
+					// Линии оси X
+					axisXLines: getLinesProperties(path(basePath, 'axisX'), 'Ось X. Линии'),
 					// Свойства оси Y
 					axisY: getAxisYProperties(path(basePath, 'axisY')),
 					// Линии оси Y
-					axisYLines: getLinesProperties(path(basePath, 'axisY')),
+					axisYLines: getLinesProperties(path(basePath, 'axisY'), 'Ось Y. Линии'),
 					// Свойства легенды
 					legend: getLegendProperties(path(basePath, 'legend')),
 					// Палитра
-					palette: getPaletteProperties(
-						path(basePath, 'palette'),
-						qlikTheme
-					)
+					palette: getPaletteProperties(path(basePath, 'palette'), qlikTheme)
 				}
 			};
 		}
@@ -250,10 +237,7 @@ define(
 				label: 'Ось X',
 				items: {
 					// Признак отображение сетки
-					gridShown: shownSwitch(
-						path(basePath, 'grid', 'shown'), 
-						'Отображение сетки',
-					)
+					gridShown: shownSwitcher(path(basePath, 'grid', 'shown'), 'Отображение сетки')
 				}
 			};
 		}
@@ -272,13 +256,10 @@ define(
 					title: {
 						ref: path(basePath, 'title'),
 						type: 'string',
-						label: 'Заголовок оси Y'
+						label: 'Заголовок оси'
 					},
 					// Признак отображение сетки
-					gridShown: shownSwitch(
-						path(basePath, 'grid', 'shown'),
-						'Отображение сетки'
-					)
+					gridShown: shownSwitcher(path(basePath, 'grid', 'shown'), 'Отображение сетки')
 				}
 			};
 		}
@@ -286,13 +267,14 @@ define(
 		/**
 		 * Возвращает определения свойств линий
 		 * @param {String} basePath Базовый путь к свойству
+		 * @param {String} title Заголовок секции
 		 * @returns {*} Определения свойств линий
 		 */
-		function getLinesProperties(basePath) {
+		function getLinesProperties(basePath, title) {
 			return {
 				ref: path(basePath, 'lines'),
 				type: 'array',
-				label: 'Ось Y. Линии',
+				label: title,
 				allowAdd: true,
 				allowRemove: true,
 				addTranslation: 'Добавить',
@@ -309,15 +291,11 @@ define(
 					title: {
 						ref: 'title',
 						type: 'string',
-						label: 'Подпись'
+						label: 'Подпись',
+						expression: 'optional'
 					},
 					// Цвет
-					color: {
-						ref: 'color',
-						type: 'string',
-						label: 'Цвет',
-						expression: 'optional'
-					}
+					color: colorPicker('foreground', 'Цвет')
 				},
 				// Подпись элемента в боковой панели
 				itemTitleRef: function (item)
@@ -349,11 +327,7 @@ define(
 				type: 'items',
 				label: 'Легенда',
 				items: {
-					shown: shownSwitch(
-						path(basePath, 'shown'),
-						'Отображение легенды',
-						true
-					),
+					shown: shownSwitcher(path(basePath, 'shown'), 'Отображение легенды', true),
 					position: {
 						ref: path(basePath, 'position'),
 						type: 'string',
@@ -410,15 +384,17 @@ define(
 				return null;
 			}
 			return getThemePalettes(qlikTheme)
-				.map(getColorScaleComponent);
+				.map(colorScaleComponent);
 		}
 
+		// Повторноиспользуемые компоненты
+		
 		/**
 		 * Возвращает опредление опции выбора палитры
-		 * @param {QlikDataPalette} qlikPalette Палитра
+		 * @param {QlikPalette} qlikPalette Палитра
 		 * @returns {QlikColorScaleComponent} Опция выбора палитры
 		 */
-		function getColorScaleComponent(qlikPalette) {
+		function colorScaleComponent(qlikPalette) {
 			return {
 				component: 'color-scale',
 				value: qlikPalette.propertyValue,
@@ -429,23 +405,63 @@ define(
 			};
 		}
 
-		// Вспомогательные функции определений свойств
+		/**
+		 * Создаёт определение свойства выбора цвета
+		 * @param {String} propertyPath Название свойства
+		 * @param {String} title Заголовок
+		 * @returns {*} Определение свойства
+		 */
+		function colorPicker(propertyPath, title) {
+			return {
+				ref: propertyPath,
+				component: 'color-picker',
+				type: 'object',
+				label: title
+			};
+		}
 
 		/**
-		 * Возвращает определение булева свойства в виде переключателя
+		 * Создаёт определение булева свойства, отображаемого в виде галочки
 		 * @param {*} propertyPath Путь к свойству целевого объекта
 		 * @param {*} title Заголовок свойства
-		 * @param {*} defaultValue значение по умолчанию
+		 * @param {*} defaultValue Значение по умолчанию
 		 */
-		function shownSwitch(propertyPath, title, defaultValue) {
+		function checkBox(propertyPath, title, defaultValue) {
+			return {
+				ref: propertyPath,
+				type: 'boolean',
+				label: title,
+				defaultValue: defaultValue
+			};
+		}
+
+		/**
+		 * Создаёт определение булева свойства видимости, отображаемого в виде переключателя
+		 * @param {String} propertyPath Путь к свойству целевого объекта
+		 * @param {String} title Заголовок свойства
+		 * @param {Boolean=} defaultValue Значение по умолчанию
+		 */
+		function shownSwitcher(propertyPath, title, defaultValue) {
+			return switcher(propertyPath, title, 'Отобразить', 'Скрыть', defaultValue);
+		}
+
+		/**
+		 * Создаёт определение булева свойства, отображаемого в виде переключателя
+		 * @param {String} propertyPath Путь к свойству целевого объекта
+		 * @param {String} title Заголовок свойства
+		 * @param {String} onTitle Заголовок включенноё опции
+		 * @param {String} offTitle Заголовок выключенноё опции
+		 * @param {Boolean=} defaultValue Значение по умолчанию
+		 */
+		function switcher(propertyPath, title, trueTitle, falseTitle, defaultValue) {
 			return {
 				ref: propertyPath,
 				type: 'boolean',
 				component: 'switch',
 				label: title,
 				options: [
-					option(true, 'Отобразить'),
-					option(false, 'Скрыть')
+					option(true, trueTitle),
+					option(false, falseTitle)
 				],
 				defaultValue: defaultValue
 			};
@@ -464,6 +480,8 @@ define(
 			};
 		}
 
+		// Вспомогательные функции определений свойств
+
 		/**
 		 * Соединяет части пути к свойству
 		 * @param {...String} args Части пути
@@ -479,7 +497,7 @@ define(
 		/**
 		 * Возвращает список палитр темы
 		 * @param {QlikTheme} qlikTheme Тема
-		 * @returns {QlikDataPalette[]} Список палитр
+		 * @returns {QlikPalette[]} Список палитр
 		 */
 		function getThemePalettes(qlikTheme) {
 			return qlikTheme.properties.palettes.data;
@@ -487,7 +505,7 @@ define(
 
 		/**
 		 * Возвращает цветовую шкалу палитры типа Пирамида
-		 * @param {QlikDataPalette} qlikPyramidPalette Палитра
+		 * @param {QlikPalette} qlikPyramidPalette Палитра
 		 * @param {Number} colorCount Количество цветов
 		 * @returns {String[]} Массив цветов палитры
 		 */
@@ -505,7 +523,7 @@ define(
 
 		/**
 		 * Возвращает цветовую шкалу палитры типа Пирамида
-		 * @param {QlikDataPalette} qlikPyramidPalette Палитра
+		 * @param {QlikPalette} qlikPyramidPalette Палитра
 		 * @param {Number} scaleSize Размер шкалы
 		 * @returns {String[]} Массив цветов палитры
 		 */
@@ -529,7 +547,7 @@ define(
 
 		/**
 		 * Возвращает цветовую шкалу палитры типа Ряд
-		 * @param {QlikDataPalette} qlikRowPalette Палитра
+		 * @param {QlikPalette} qlikRowPalette Палитра
 		 * @returns {Color[]} Массив цветов палитры
 		 */
 		function getRowPaletteScale(qlikRowPalette) {
@@ -537,104 +555,3 @@ define(
 		}
 	}
 );
-
-/**
- * JSDoc-определения для кастомных свойств расширения
- */
-
-/**
- * Данные расширения Qlik
- * @typedef {Object} ExtensionProperties
- * @property {AxisXProperties} axisX Настройки оси X
- * @property {AxisYProperties} axisY Настройки оси Y
- * @property {LegendProperties} Настройки легенды
- * @property {PaletteProperties} palette Настройки палитры
- */
-
- /**
-  * Настройки палитры
-  * @typedef {Object} PaletteProperties
-  * @property {String} id Идентификатор палитры
-  */
-
-/**
- * Измерение гиперкуба
- * @typedef {Object} DimensionProperties
- * @property {ScaleType} scaleType Тип шкалы
- * @property {Number} tickLabelAngle Угол поворота подписи засечки
- */
-
-/**
- * Мера гиперкуба
- * @typedef {Object} MeasureProperties
- * @property {ChartType} chartType Тип графика
- * @property {LineChart} lineChart Настройки линейного графика
- * @property {String} groupKey Идентификатор группы
- */
-
-/**
- * Настройки линейного графика
- * @typedef {Object} LineChart
- * @property {Boolean} pointsShown Признак отображения точек
- * @property {Boolean} lineShown Признак отображения линии
- * @property {Boolean} areaShown Признак отображения области
- */
-
-/**
- * Свойства оси X
- * @typedef {Object} AxisXProperties
- * @property {AxisGrid} grid Сетка
- */
-
-/**
- * Свойства оси Y
- * @typedef {Object} AxisYProperties
- * @property {String} title Подпись оси
- * @property {AxisGridLine[]} lines Линии
- * @property {AxisGrid} grid Сетка
- */
-
- /**
- * Свойства сетки по оси
- * @typedef {Object} AxisGrid
- * @property {Boolean} shown Признак отображения
- */
-
-/**
- * Дополнительная линия по оси
- * @typedef {Object} AxisGridLine
- * @property {String} cId Идентификатор, назначаемый Qlik
- * @property {Number} value Значение
- * @property {Number} title Подпись
- * @property {String} color Цвет
- */
-
-/**
- * Настройки легенды
- * @typedef {Object} LegendProperties
- * @property {Boolean} shown Признак отображения легенды
- * @property {LegendPosition} position Расположение легенды
- */
- 
-/**
- * Позиция легенды
- * @typedef {'Bottom'|'Right'|'Inside'} LegendPosition
- * - 'Bottom' - Снизу
- * - 'Right' - Справа
- * - 'Inside' - Внутри
- */
-
-/**
- * Тип шкалы
- * @typedef {'CategoricalScale'|'NumericScale'|'TemporalScale'} ScaleType
- * - 'CategoricalScale' - Категориальная шкала
- * - 'NumericScale' - Числовая шкала
- * - 'TemporalScale' - Временная шкала
- */
-
-/**
- * Тип графика
- * @typedef {'LineChart'|'BarChart'} ChartType
- * - 'LineChart' - линейный график
- * - 'BarChart' - столбчатая диаграмма
- */
