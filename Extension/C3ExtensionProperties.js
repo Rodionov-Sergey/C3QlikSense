@@ -416,7 +416,7 @@ define(
 		
 		/**
 		 * Возвращает опредление опции выбора палитры
-		 * @param {QlikDataPalette} qlikPalette Палитра
+		 * @param {QlikPalette} qlikPalette Палитра
 		 * @returns {QlikColorScaleComponent} Опция выбора палитры
 		 */
 		function colorScaleComponent(qlikPalette) {
@@ -495,7 +495,7 @@ define(
 		/**
 		 * Возвращает список палитр темы
 		 * @param {QlikTheme} qlikTheme Тема
-		 * @returns {QlikDataPalette[]} Список палитр
+		 * @returns {QlikPalette[]} Список палитр
 		 */
 		function getThemePalettes(qlikTheme) {
 			return qlikTheme.properties.palettes.data;
@@ -503,7 +503,7 @@ define(
 
 		/**
 		 * Возвращает цветовую шкалу палитры типа Пирамида
-		 * @param {QlikDataPalette} qlikPyramidPalette Палитра
+		 * @param {QlikPalette} qlikPyramidPalette Палитра
 		 * @param {Number} colorCount Количество цветов
 		 * @returns {String[]} Массив цветов палитры
 		 */
@@ -521,7 +521,7 @@ define(
 
 		/**
 		 * Возвращает цветовую шкалу палитры типа Пирамида
-		 * @param {QlikDataPalette} qlikPyramidPalette Палитра
+		 * @param {QlikPalette} qlikPyramidPalette Палитра
 		 * @param {Number} scaleSize Размер шкалы
 		 * @returns {String[]} Массив цветов палитры
 		 */
@@ -545,7 +545,7 @@ define(
 
 		/**
 		 * Возвращает цветовую шкалу палитры типа Ряд
-		 * @param {QlikDataPalette} qlikRowPalette Палитра
+		 * @param {QlikPalette} qlikRowPalette Палитра
 		 * @returns {Color[]} Массив цветов палитры
 		 */
 		function getRowPaletteScale(qlikRowPalette) {

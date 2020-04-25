@@ -59,8 +59,8 @@
  * @property {String} fontSize Размер шрифта
  * @property {QlikObjectsThemeProperties} object Настройки объектов
  * @property {QlikDataColors} dataColors Цветовые настройки
- * @property {QlikPalettes} palettes Цветовые палитры
- * @property {QlikColorScale[]} scales Цветовые шкалы
+ * @property {QlikPalettes} palettes Цветовые палитры измерений и для интерфейса
+ * @property {QlikPalette[]} scales Цветовые палитры мер
  */
 
 /**
@@ -145,25 +145,32 @@
 /**
  * Настройки цветовых палитр
  * @typedef {Object} QlikPalettes
- * @property {QlikDataPalette[]} data Палитры для данных
- * @property {QlikUiPalette[]} ui Палитры для интерфейса
+ * @property {QlikPalette[]} data Палитры для измерений
+ * @property {QlikUiPalette[]} ui Палитры для выбора пользователем с интерфейса
  */
 
 /**
- * Настройки цветовой палитры для данных
- * @typedef {Object} QlikDataPalette
+ * Настройки цветовой палитры
+ * @typedef {Object} QlikPalette
  * @property {String} propertyValue Идентификатор палитры
  * @property {String=} name Название палитры
  * @property {String} translation Отображаемое название палитры
- * @property {QlikDataPaletteType} type Тип палитры
+ * @property {QlikDimensionPaletteType|QlikMeasurePaletteType} type Тип палитры
  * @property {Color[]|Color[][]} scale Цветовые шкалы в палитре
  */
 
 /**
- * Тип палитры
- * @typedef {'row'|'pyramid'} QlikDataPaletteType
+ * Тип палитры для измерения
+ * @typedef {'row'|'pyramid'} QlikDimensionPaletteType
  * - 'row' - Ряд цветов
- * - 'pyramid' - Пирамидальная - набор палитр разной длины
+ * - 'pyramid' - Пирамидальная палитра - набор палитр разной длины
+ */
+
+ /**
+ * Тип палитры для меры
+ * @typedef {'gradient'|'class-pyramid'} QlikMeasurePaletteType
+ * - 'gradient' - Градиентная палитра - плавный переход между рядом цветов согласно значению меры
+ * - 'class-pyramid' - Пирамидальная палитра - интервальное назначени цветов согласно значению меры
  */
 
 /**
@@ -173,11 +180,9 @@
  * @property {Color[]} colors Цвета в палитре
  */
 
-// TODO: QlikColorScale объединить с QlikDataPalette, добавить типы 'class' и 'gradient'
-
 /**
- * Настройки
- * @typedef {Object} QlikColorScale
+ * Цвет, представленный строкой с шестнадцатиричным RGB-кодом, начинающейся с '#'
+ * @typedef {String} Color 
  */
 
 /**
@@ -288,6 +293,6 @@
 /**
  * Цветовой объект
  * @typedef {Object} QlikColorObject
- * @property {String} color Цвет (строка с шестнадцатиричным RGB-кодом)
+ * @property {Color} color Цвет
  * @property {Number} index Индекс в палитре, начинающийся с единицы; -1, если используется цветовой код
  */

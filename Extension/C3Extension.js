@@ -79,6 +79,7 @@ define(
 						)
 						.catch(
 							function (error) {
+								// eslint-disable-next-line no-console
 								console.log(error);
 								throw error;
 							}
@@ -279,7 +280,7 @@ define(
 
 		/**
 		 * Возвращает цветовую шкалу палитры типа Пирамида
-		 * @param {QlikDataPalette} qlikPyramidPalette Палитра
+		 * @param {QlikPalette} qlikPyramidPalette Палитра
 		 * @param {Number} colorCount Количество цветов
 		 * @returns {String[]} Массив цветов палитры
 		 */
@@ -299,7 +300,7 @@ define(
 
 		/**
 		 * Возвращает цветовую шкалу палитры типа Пирамида
-		 * @param {QlikDataPalette} qlikPyramidPalette Палитра
+		 * @param {QlikPalette} qlikPyramidPalette Палитра
 		 * @param {Number} scaleSize Размер шкалы
 		 * @returns {String[]} Массив цветов палитры
 		 */
@@ -325,7 +326,7 @@ define(
 
 		/**
 		 * Возвращает цветовую шкалу палитры типа Ряд
-		 * @param {QlikDataPalette} qlikRowPalette Палитра
+		 * @param {QlikPalette} qlikRowPalette Палитра
 		 * @returns {Color[]} Массив цветов палитры
 		 */
 		function getRowPaletteScale(qlikRowPalette) {
