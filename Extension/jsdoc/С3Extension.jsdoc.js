@@ -7,7 +7,7 @@
  * @typedef {Object} ExtensionProperties
  * @property {AxisXProperties} axisX Настройки оси X
  * @property {AxisYProperties} axisY Настройки оси Y
- * @property {LegendProperties} Настройки легенды
+ * @property {LegendProperties} legend Настройки легенды
  * @property {PaletteProperties} palette Настройки палитры
  */
 
@@ -59,6 +59,8 @@
  * Свойства сетки по оси
  * @typedef {Object} AxisGrid
  * @property {Boolean} shown Признак отображения
+ * @property {'Solid'|'Dashed'} lineType Тип линии
+ * @property {Number} width Толщина линии
  */
 
 /**
