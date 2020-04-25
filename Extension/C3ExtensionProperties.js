@@ -185,24 +185,9 @@ define(
 						component: 'text',
 						label: 'Линейный график'
 					},
-					pointsShown: {
-						ref: path(basePath, 'pointsShown'),
-						type: 'boolean',
-						label: 'Отображение точек',
-						defaultValue: true
-					},
-					lineShown: {
-						ref: path(basePath, 'lineShown'),
-						type: 'boolean',
-						label: 'Отображение линии',
-						defaultValue: true
-					},
-					areaShown: {
-						ref: path(basePath, 'areaShown'),
-						type: 'boolean',
-						label: 'Отображение области',
-						defaultValue: true
-					}
+					pointsShown: checkBox(path(basePath, 'pointsShown'), 'Отображение точек', true),
+					lineShown: checkBox(path(basePath, 'lineShown'), 'Отображение линии', true),
+					areaShown: checkBox(path(basePath, 'areaShown'), 'Отображение области', true)
 				},
 				show: function (context) {
 					/** @type {MeasureProperties} */
@@ -252,10 +237,7 @@ define(
 				label: 'Ось X',
 				items: {
 					// Признак отображение сетки
-					gridShown: shownSwitch(
-						path(basePath, 'grid', 'shown'), 
-						'Отображение сетки'
-					)
+					gridShown: shownSwitcher(path(basePath, 'grid', 'shown'), 'Отображение сетки')
 				}
 			};
 		}
@@ -277,10 +259,7 @@ define(
 						label: 'Заголовок оси'
 					},
 					// Признак отображение сетки
-					gridShown: shownSwitch(
-						path(basePath, 'grid', 'shown'),
-						'Отображение сетки'
-					)
+					gridShown: shownSwitcher(path(basePath, 'grid', 'shown'), 'Отображение сетки')
 				}
 			};
 		}
@@ -348,11 +327,7 @@ define(
 				type: 'items',
 				label: 'Легенда',
 				items: {
-					shown: shownSwitch(
-						path(basePath, 'shown'),
-						'Отображение легенды',
-						true
-					),
+					shown: shownSwitcher(path(basePath, 'shown'), 'Отображение легенды', true),
 					position: {
 						ref: path(basePath, 'position'),
 						type: 'string',
@@ -446,20 +421,47 @@ define(
 		}
 
 		/**
-		 * Возвращает определение булева свойства в виде переключателя
+		 * Создаёт определение булева свойства, отображаемого в виде галочки
 		 * @param {*} propertyPath Путь к свойству целевого объекта
 		 * @param {*} title Заголовок свойства
-		 * @param {*} defaultValue значение по умолчанию
+		 * @param {*} defaultValue Значение по умолчанию
 		 */
-		function shownSwitch(propertyPath, title, defaultValue) {
+		function checkBox(propertyPath, title, defaultValue) {
+			return {
+				ref: propertyPath,
+				type: 'boolean',
+				label: title,
+				defaultValue: defaultValue
+			};
+		}
+
+		/**
+		 * Создаёт определение булева свойства видимости, отображаемого в виде переключателя
+		 * @param {String} propertyPath Путь к свойству целевого объекта
+		 * @param {String} title Заголовок свойства
+		 * @param {Boolean=} defaultValue Значение по умолчанию
+		 */
+		function shownSwitcher(propertyPath, title, defaultValue) {
+			return switcher(propertyPath, title, 'Отобразить', 'Скрыть', defaultValue);
+		}
+
+		/**
+		 * Создаёт определение булева свойства, отображаемого в виде переключателя
+		 * @param {String} propertyPath Путь к свойству целевого объекта
+		 * @param {String} title Заголовок свойства
+		 * @param {String} onTitle Заголовок включенноё опции
+		 * @param {String} offTitle Заголовок выключенноё опции
+		 * @param {Boolean=} defaultValue Значение по умолчанию
+		 */
+		function switcher(propertyPath, title, trueTitle, falseTitle, defaultValue) {
 			return {
 				ref: propertyPath,
 				type: 'boolean',
 				component: 'switch',
 				label: title,
 				options: [
-					option(true, 'Отобразить'),
-					option(false, 'Скрыть')
+					option(true, trueTitle),
+					option(false, falseTitle)
 				],
 				defaultValue: defaultValue
 			};
