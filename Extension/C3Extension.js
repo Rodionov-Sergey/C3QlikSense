@@ -19,14 +19,14 @@ define(
 	],
 
 	/**
-	 * Создаёт модуль расширения
+	 * Создаёт расширение
 	 * @param {QlikApi} qlik API Qlik Sense
 	 * @param {*} $ jQuery - библиотека для работы с HTML
 	 * @param {*} propertiesFactory - Определения настроек расширения
 	 * @param {*} d3 D3.js - библиотека для манипулирования документами на основе данных
 	 * @param {*} c3 C3.js - библиотека для построения графиков
 	 * @param {*} c3Css Содержимое стилей C3.js
-	 * @returns {*} Модуль
+	 * @returns {*} Расширение
 	 */
 	function(qlik, $, propertiesFactory, d3, c3, c3Css) {
 		'use strict';
@@ -41,46 +41,52 @@ define(
 		
 		// Модуль расширения Qlik Sense
 		return getThemePromise(qlik)
-			.then(
-				function (qlikTheme) {
+			.then(createExtension);
 
-					var properties = propertiesFactory.getProperties(qlikTheme);					
+		/**
+		 * Создаёт расширение
+		 * @param {QlikTheme} qlikTheme Тема
+		 * @returns {*} Расширение
+		 */
+		function createExtension(qlikTheme) {
 
-					// DEBUG: Отладка настроек расширения
-					//console.log('Определения настроек расширения', properties);
+			var properties = propertiesFactory.getProperties(qlikTheme);					
 
-					return {
-						// Определения свойств
-						definition: properties,
-						// Настройки первичной загрузки данных
-						initialProperties: propertiesFactory.getInitialProperties(),
-						// Настройки выгрузки
-						support: propertiesFactory.getSupportProperties(),
+			// DEBUG: Отладка настроек расширения
+			//console.log('Определения настроек расширения', properties);
 
-						/**
-						 * Создаёт и обновляет интерфейс расширения
-						 * @param {*} $parentElement Родительский jQuery-элемент
-						 * @param {QlikExtension} qlikExtension Данные расширения
-						 * @returns {Promise} Promise завершения отрисовки
-						 */
-						paint: function($parentElement, qlikExtension) {
-							return getThemePromise(qlik)
-								.then(
-									function (qlikTheme) {
-										// Отрисовка графика
-										paintChart($parentElement, qlikExtension, qlikTheme);
-									}
-								)
-								.catch(
-									function (error) {
-										console.log(error);
-										throw error;
-									}
-								);
-						}
-					};
+			return {
+				// Определения свойств
+				definition: properties,
+				// Настройки первичной загрузки данных
+				initialProperties: propertiesFactory.getInitialProperties(),
+				// Настройки выгрузки
+				support: propertiesFactory.getSupportProperties(),
+
+				/**
+				 * Создаёт и обновляет интерфейс расширения
+				 * @param {*} $parentElement Родительский jQuery-элемент
+				 * @param {QlikExtension} qlikExtension Данные расширения
+				 * @returns {Promise} Promise завершения отрисовки
+				 */
+				paint: function($parentElement, qlikExtension) {
+					return getThemePromise(qlik)
+						.then(
+							function (qlikTheme) {
+								// Отрисовка графика
+								paintChart($parentElement, qlikExtension, qlikTheme);
+							}
+						)
+						.catch(
+							function (error) {
+								// eslint-disable-next-line no-console
+								console.log(error);
+								throw error;
+							}
+						);
 				}
-			);
+			};
+		}
 		
 		/**
 		 * Возвращает Promise текущей темы
@@ -115,10 +121,13 @@ define(
 			//console.log('Данные графика C3', c3Settings);
 
 			// Отрисовка графика
-			var $chart = createChartUi($container, c3Settings, qlikExtension);
+			var $chart = createChart($container, c3Settings, qlikExtension);
 
-			// Настройка стилей графика
-			styleChartUi($chart, qlikTheme);
+			// Применяет тему к графику
+			themeChart($chart, qlikTheme);
+
+			// Применяет стили к графику
+			styleChart($chart, qlikExtension, qlikTheme);
 		}
 
 		/**
@@ -271,7 +280,7 @@ define(
 
 		/**
 		 * Возвращает цветовую шкалу палитры типа Пирамида
-		 * @param {QlikDataPalette} qlikPyramidPalette Палитра
+		 * @param {QlikPalette} qlikPyramidPalette Палитра
 		 * @param {Number} colorCount Количество цветов
 		 * @returns {String[]} Массив цветов палитры
 		 */
@@ -291,7 +300,7 @@ define(
 
 		/**
 		 * Возвращает цветовую шкалу палитры типа Пирамида
-		 * @param {QlikDataPalette} qlikPyramidPalette Палитра
+		 * @param {QlikPalette} qlikPyramidPalette Палитра
 		 * @param {Number} scaleSize Размер шкалы
 		 * @returns {String[]} Массив цветов палитры
 		 */
@@ -317,12 +326,14 @@ define(
 
 		/**
 		 * Возвращает цветовую шкалу палитры типа Ряд
-		 * @param {QlikDataPalette} qlikRowPalette Палитра
+		 * @param {QlikPalette} qlikRowPalette Палитра
 		 * @returns {Color[]} Массив цветов палитры
 		 */
 		function getRowPaletteScale(qlikRowPalette) {
 			return qlikRowPalette.scale;
 		}
+
+		// === Конфигурирование графика ===
 
 		/**
 		 * Возвращает данные графика
@@ -646,15 +657,16 @@ define(
 					throw new Error('Неизвестное положение легенды: ' + position);
 			}
 		}
+
+		// === Отрисовка графика ===
 		
 		/**
 		 * Создаёт интерфейс графика
 		 * @param {*} $container jQuery-объект контейнера для графика
 		 * @param {C3Settings} c3Settings Настройки графика C3
-		 * @param {QlikExtension} qlikExtension Расширение
 		 * @returns {*} jQuery-объект SVG-элемента графика
 		 */
-		function createChartUi($container, c3Settings, qlikExtension) {
+		function createChart($container, c3Settings) {
 
 			// Указание контейнера для графика
 			c3Settings.bindto = $container.get(0);
@@ -663,52 +675,120 @@ define(
 			c3.generate(c3Settings);
 
 			// Созданный элемент
-			var $chartElement = $container.children('svg');
+			var $chart = $container.children('svg');
 
-			// Исправление элементов графика
-			refineChartUi($chartElement, qlikExtension);
-
-			return $chartElement;
+			return $chart;
 		}
 
+		// === Применение темы ===
+
 		/**
-		 * Исправляет интерфейс графика
+		 * Темизует интерфейс графика
+		 * @param {*} $chart jQuery-объект SVG-элемента графика
+		 * @param {QlikTheme} qlikTheme Тема
+		 */
+		function themeChart($chart, qlikTheme) {
+
+			var getThemeValue = function (propertyPath, propertyName) {
+				return qlikTheme.getStyle('object.lineChart', propertyPath, propertyName);
+			};
+
+			// Легенда
+			// Подпись элемента легенды
+			$chart
+				.find('.c3-legend-item > text')
+				.css('fill', getThemeValue('legend.label', 'color'));
+
+			// Ось
+			// Цвет оси
+			$chart
+				.find('.c3-axis > path.domain ')
+				.css('stroke', getThemeValue('axis.line.major', 'color'));
+			// Подпись оси
+			$chart
+				.find('text.c3-axis-x-label, text.c3-axis-y-label')
+				.css('fill', getThemeValue('axis.title', 'color'))
+				.css('fontSize', getThemeValue('axis.title', 'fontSize'));
+
+			// Засечки оси
+			// Цвет засечек
+			$chart
+				.find('.c3-axis > .tick > line')
+				.css('stroke', getThemeValue('axis.line.minor', 'color'));
+			// Подписи засечек осей
+			$chart
+				.find('.c3-axis > .tick > text')
+				.css('fill', getThemeValue('axis.label.name', 'color'))
+				.css('fontSize', getThemeValue('axis.label.name', 'fontSize'));
+
+			// Сетка
+			$chart
+				.find('line.c3-xgrid, line.c3-ygrid')
+				.css('stroke', getThemeValue('grid.line.minor', 'color'));
+
+			// Дополнительные линии
+			var $gridLineContainer = $chart
+				.find('.c3-xgrid-line, .c3-ygrid-line');
+			$gridLineContainer
+				.children('line')
+				.css('stroke', getThemeValue('referenceLine.label.name', 'color'));
+			$gridLineContainer
+				.children('text')
+				.css('fill', getThemeValue('referenceLine.label.name', 'color'))
+				.css('font-size', getThemeValue('referenceLine.label.name', 'fontSize'));
+		}
+
+		// === Применение стилей ===
+
+		/**
+		 * Стилизует график
 		 * @param {*} $chart jQuery-объект графика
 		 * @param {QlikExtension} qlikExtension Расширение
-		 * @returns {*} jQuery-объект SVG-элемента графика
+		 * @param {QlikTheme} qlikTheme Тема
 		 */
-		function refineChartUi($chart, qlikExtension) {
+		function styleChart($chart, qlikExtension, qlikTheme) {
 
-			// Улучшения для серий
+			// Cерии
 			qlikExtension.qHyperCube.qMeasureInfo
 				.forEach(
 					function (qlikMeasure) {
-						refineSeriesUi($chart, qlikMeasure);
+						styleSeries($chart, qlikMeasure);
 					}
 				);
 
 			if (qlikExtension.properties != null) {
-				
-				// Дополнительные линии
-				if (qlikExtension.properties.axisY != null &&
-					qlikExtension.properties.axisY.lines != null)
-				{
-					qlikExtension.properties.axisY.lines
-						.forEach(
-							function (line) {
-								return refineLineUi($chart, line);
-							}
-						);
-				}
+				// Дополнительные линии по X
+				styleAxis($chart, qlikExtension.properties.axisX, qlikTheme);
+				// Дополнительные линии по Y
+				styleAxis($chart, qlikExtension.properties.axisY, qlikTheme);
 			}
 		}
 
 		/**
-		 * Исправляет интерфейс серии графика
+		 * Стилизует ось графика
+		 * @param {*} $chart jQuery-объект графика
+		 * @param {AxisXProperties|AxisYProperties} axis Настройки оси
+		 * @param {QlikTheme} qlikTheme Тема
+		 */
+		function styleAxis($chart, axis, qlikTheme) {
+			if (axis == null || axis.lines == null) {
+				return;
+			}
+
+			axis.lines
+				.forEach(
+					function (line) {
+						return styleAxisGridLine($chart, line, qlikTheme);
+					}
+				);
+		}
+
+		/**
+		 * Стилизует серию графика
 		 * @param {*} $chart jQuery-объект графика
 		 * @param {QlikMeasure} qlikMeasure Мера
 		 */
-		function refineSeriesUi($chart, qlikMeasure) {
+		function styleSeries($chart, qlikMeasure) {
 
 			// Для линейного графика
 			if (qlikMeasure.properties.chartType === "LineChart" && 
@@ -738,57 +818,95 @@ define(
 		}
 
 		/**
-		 * Исправляет интерфейс серии графика
+		 * Стилизует линию по оси
 		 * @param {*} $chart jQuery-объект графика
-		 * @param {AxisGridLine} axisGridLine Линия
+		 * @param {AxisGridLine} axisGridLine Линия по оси
+		 * @param {QlikTheme} qlikTheme Тема
 		 */
-		function refineLineUi($chart, axisGridLine) {
+		function styleAxisGridLine($chart, axisGridLine, qlikTheme) {
+			
 			// Контейнер с классом равным идентификатору
 			var $lineContainer = $chart.find('.c3-grid-lines g.' + axisGridLine.cId);
 			
-			if (axisGridLine.color != null && axisGridLine.color != '') {
+			// Цвет переднего плана
+			var foregroundColor = findColor(axisGridLine.foreground, qlikTheme);
+
+			if (foregroundColor != null) {
 				// Цвет линии
 				$lineContainer
 					.children('line')
-					.css('stroke', axisGridLine.color);
+					.css('stroke', foregroundColor);
 				// Цвет подписи
 				$lineContainer
 					.children('text')
-					.css('fill', axisGridLine.color);
+					.css('fill', foregroundColor);
 			}
 		}
 
 		/**
-		 * Настраивает стиль графика
-		 * @param {*} $chart jQuery-объект SVG-элемента графика
+		 * Возвращает цвет из цветового объекта
+		 * @param {QlikColorObject} colorObject Цветовой объект
 		 * @param {QlikTheme} qlikTheme Тема
+		 * @returns {String} Цвет; null, если цвет не определён
 		 */
-		function styleChartUi($chart, qlikTheme) {
-			// Легенда
-			// Подпись элемента легенды
-			$chart
-				.find('.c3-legend-item > text')
-				.css('fill', qlikTheme.getStyle('object', 'legend.label', 'color'));
+		function findColor(colorObject, qlikTheme) {
+			if (colorObject == null) {
+				return null;
+			}
+			
+			// Режим цвета из палитры
+			if (colorObject.index !== -1) {
+				var qlikPalette = findThemeUiPallete(qlikTheme);
+				var paletteColor = findPaletteColor(qlikPalette, colorObject.index);
+				if (paletteColor != null) {
+					return paletteColor;
+				}
+			}
 
-			// Ось
-			// Цвет оси
-			$chart
-				.find('.c3-axis > path.domain ')
-				.css('stroke', qlikTheme.getStyle('object', 'axis.line.major', 'color'));
-			// Подпись оси
-			$chart
-				.find('text.c3-axis-x-label, text.c3-axis-y-label')
-				.css('fill', qlikTheme.getStyle('object', 'axis.title', 'color'));
+			// Режим указания конкретного цвета
+			if (colorObject.color == null || colorObject.color == '') {
+				return null;
+			}
+			
+			return colorObject.color;
+		}
 
-			// Засечки оси
-			// Цвет засечек
-			$chart
-				.find('.c3-axis > .tick > line')
-				.css('stroke', qlikTheme.getStyle('object', 'axis.line.minor', 'color'));
-			// Подписи засечек осей
-			$chart
-				.find('.c3-axis > .tick > text')
-				.css('fill', qlikTheme.getStyle('object', 'axis.label.name', 'color'));
+		/**
+		 * Возвращает палитру для интерфейса из темы
+		 * @param {QlikTheme} qlikTheme Тема
+		 * @returns {QlikUiPalette} Палитра; null, если палитры нет
+		 */
+		function findThemeUiPallete(qlikTheme) {
+			if (qlikTheme.properties == null ||
+				qlikTheme.properties.palettes == null ||
+				qlikTheme.properties.palettes.ui == null ||
+				qlikTheme.properties.palettes.ui.length == 0) {
+					// Отсутствуют настройки палитр для интерфейса
+					return null;
+			}
+
+			// Первая палитра для интерфейса
+			return qlikTheme.properties.palettes.ui[0];
+		}
+
+		/**
+		 * Возвращает цвет из цветового объекта
+		 * @param {QlikUiPalette} qlikPalette Цветовая палитра
+		 * @param {Number} colorIndex Индекс цвета в палитре
+		 * @returns {String} Цвет
+		 */
+		function findPaletteColor(qlikPalette, colorIndex) {
+			if (qlikPalette == null || qlikPalette.colors == null) {
+				return null;
+			}
+
+			// Индексация с единицы
+			var arrayIndex = colorIndex - 1;
+			if (arrayIndex < 0 || arrayIndex >= qlikPalette.colors.length) {
+				return null;
+			}
+
+			return qlikPalette.colors[arrayIndex];
 		}
 	}
 );
