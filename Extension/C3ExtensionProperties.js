@@ -6,7 +6,7 @@ define(
 
 	/**
 	 * Создаёт модуль
-	 * @param {QlikApi} qlik Qlik API
+	 * @param {PropertyBuilderApi} propertiesBuilder Построитель определений свойств
 	 * @returns Модуль
 	 */
 	function (propertiesBuilder) {
@@ -90,6 +90,7 @@ define(
 		 * @returns Определения свойств измерений
 		 */
 		function getDimensionProperties(basePath) {
+
 			return {
 				uses: 'dimensions',
 				min: 1,
@@ -98,23 +99,26 @@ define(
 				items: {
 					// Тип шкалы
 					scaleType: propertiesBuilder
-						.property(path(basePath, 'scaleType'), 'Тип шкалы')
-						.asDropDown()
+						.comboBox()
 						.addOption('CategoricalScale', 'Категориальная шкала', true)
 						.addOption('NumericScale', 'Числовая шкала')
 						.addOption('TemporalScale', 'Временная шкала')
-						.build(),
-					// Угол наклона подписей - текстовое поле
-					tickLabelAngleText: propertiesBuilder
-						.property(path(basePath, 'tickLabelAngle'), 'Угол наклона подписей')
-						.asNumber(0, -90, 90)
-						.build(),
+						.titled('Тип шкалы')
+						.forProperty(path(basePath, 'scaleType')),
 					// Угол наклона подписей - слайдер
 					tickLabelAngle: propertiesBuilder
-						.property(path(basePath, 'tickLabelAngle'))
-						.asNumber(0, -90, 90)
-						.asSlider(10)
-						.build()
+						.numberSlider()
+						.range(-90, 90)
+						.step(10)
+						.defaulted(0)
+						.titled('Угол наклона подписей')
+						.forProperty(path(basePath, 'tickLabelAngle')),
+					// Угол наклона подписей - числовое поле
+					tickLabelAngleText: propertiesBuilder
+						.integerInput()
+						.range(-90, 90)
+						.defaulted(0)
+						.forProperty(path(basePath, 'tickLabelAngle'))
 				}
 			};
 		}
@@ -134,16 +138,17 @@ define(
 				items: {
 					// Тип графика
 					chartType: propertiesBuilder
-						.property(path(basePath, 'chartType'), 'Тип графика')
-						.asDropDown()
+						.comboBox()
 						.addOption('LineChart', 'Линейный график', true)
 						.addOption('BarChart', 'Столбчатая диаграмма')
-						.build(),
+						.titled('Тип графика')
+						.forProperty(path(basePath, 'chartType')),
 					// Настройка группировки
 					groupKey: propertiesBuilder
-						.property(path(basePath, 'groupKey'), 'Идентификатор группы')
-						.asString()
-						.build(),
+						.stringInput()
+						.useExpression()
+						.titled('Идентификатор группы')
+						.forProperty(path(basePath, 'groupKey')),
 					// Настройки линейного графика
 					lineChart: getLineChartProperties(path(basePath, 'lineChart'))
 				}
@@ -160,22 +165,22 @@ define(
 				type: 'items',
 				items: {
 					_header: propertiesBuilder
-						.property(null, 'Линейный график')
-						.asString()
-						.asLabel()
-						.build(),
+						.label('Линейный график'),
 					pointsShown: propertiesBuilder
-						.property(path(basePath, 'pointsShown'), 'Отображение точек')
-						.asCheckBox(true)
-						.build(),
+						.checkBox()
+						.defaulted(false)
+						.titled('Отображение точек')
+						.forProperty(path(basePath, 'pointsShown')),
 					lineShown: propertiesBuilder
-						.property(path(basePath, 'lineShown'), 'Отображение линии')
-						.asCheckBox(true)
-						.build(),
+						.checkBox()
+						.defaulted(true)
+						.titled('Отображение линии')
+						.forProperty(path(basePath, 'lineShown')),
 					areaShown: propertiesBuilder
-						.property(path(basePath, 'areaShown'), 'Отображение области')
-						.asCheckBox(true)
-						.build()
+						.checkBox()
+						.defaulted(false)
+						.titled('Отображение области')
+						.forProperty(path(basePath, 'areaShown')),
 				},
 				show: function (context) {
 					/** @type {MeasureProperties} */
@@ -209,7 +214,14 @@ define(
 					// Свойства легенды
 					legend: getLegendProperties(path(basePath, 'legend')),
 					// Палитра
-					palette: getPaletteProperties(path(basePath, 'palette'), qlikTheme)
+					palette: propertiesBuilder
+						.palettePicker(qlikTheme)
+						.titled('Палитра')
+						.visible(
+							function() {
+								return qlikTheme != null;
+							})
+						.forProperty(path(basePath, 'palette', 'id'))
 				}
 			};
 		}
@@ -226,9 +238,10 @@ define(
 				items: {
 					// Признак отображение сетки
 					gridShown: propertiesBuilder
-						.property(path(basePath, 'grid', 'shown'), 'Отображение сетки')
-						.asSwitch(true, 'Показать', 'Скрыть')
-						.build()
+						.toggle('Показать', 'Скрыть')
+						.defaulted(true)
+						.titled('Отображение сетки')
+						.forProperty(path(basePath, 'grid', 'shown'))
 				}
 			};
 		}
@@ -245,15 +258,17 @@ define(
 				items: {
 					// Подпись оси
 					title: propertiesBuilder
-						.property(path(basePath, 'title'), 'Заголовок оси')
-						.asString()
-						.build()
-					},
+						.stringInput()
+						.useExpression()
+						.titled('Заголовок оси')
+						.forProperty(path(basePath, 'title')),
 					// Признак отображение сетки
 					gridShown: propertiesBuilder
-						.property(path(basePath, 'grid', 'shown'), 'Отображение сетки')
-						.asSwitch(false, 'Показать', 'Скрыть')
-						.build()
+						.toggle('Показать', 'Скрыть')
+						.defaulted(false)
+						.titled('Отображение сетки')
+						.forProperty(path(basePath, 'grid', 'shown'))
+				}
 			};
 		}
 
@@ -275,21 +290,21 @@ define(
 				items: {
 					// Значение
 					value: propertiesBuilder
-						.property('value', 'Значение')
-						.asNumber()
-						.withExpression()
-						.build(),
+						.stringInput()
+						.useExpression()
+						.titled('Значение')
+						.forProperty('value'),
 					// Подпись
 					title: propertiesBuilder
-						.property('title', 'Подпись')
-						.asString()
-						.withExpression()
-						.build(),
+						.stringInput()
+						.useExpression()
+						.titled('Подпись')
+						.forProperty('title'),
 					// Цвет
 					color: propertiesBuilder
-						.property('foreground', 'Цвет')
-						.asColor()
-						.build()
+						.colorPicker(true)
+						.titled('Цвет')
+						.forProperty('foreground')
 				},
 				// Подпись элемента в боковой панели
 				itemTitleRef: function (item)
@@ -322,48 +337,25 @@ define(
 				label: 'Легенда',
 				items: {
 					shown: propertiesBuilder
-						.property(path(basePath, 'shown'), 'Отображение легенды')
-						.asSwitch(true, 'Показать', 'Скрыть')
-						.build(),
+						.toggle('Показать', 'Скрыть')
+						.defaulted(true)
+						.titled('Отображение легенды')
+						.forProperty(path(basePath, 'shown')),
 					position: propertiesBuilder
-						.property(path(basePath, 'position'), 'Расположение легенды')
-						.asDropDown()
+						.comboBox()
 						.addOption('Bottom', 'Снизу', true)
 						.addOption('Right', 'Справа')
 						.addOption('Inside', 'Внутри')
+						.titled('Расположение легенды')
 						.visible(
-							function(context) {
+							function (context) {
 								return context.properties.legend.shown;
 							})
-						.build()
+						.forProperty(path(basePath, 'position'))
 				}
 			};
 		}
-
-		/**
-		 * Возвращает определение свойства палитры
-		 * @param {String} basePath Базовый путь к свойству
-		 * @param {QlikTheme} qlikTheme Тема
-		 * @returns {*} Определение свойства
-		 */
-		function getPaletteProperties(basePath, qlikTheme) {
-			return {
-				type: 'items',
-				label: 'Палитра',
-				grouped: true,
-				items: {
-					// Элементы списка палитр
-					paletteItems: propertiesBuilder
-						.property(path(basePath, 'id'))
-						.asThemePaletteSelector(qlikTheme)
-						.build()
-				},
-				shown: function() {
-					return qlikTheme != null;
-				}
-			};
-		}
-
+		
 		// Вспомогательные функции определений свойств
 
 		/**

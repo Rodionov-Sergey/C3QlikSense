@@ -238,7 +238,7 @@ module.exports = {
         "prefer-destructuring": "off",
         "prefer-named-capture-group": "error",
         "prefer-numeric-literals": "error",
-        "prefer-object-spread": "error",
+        "prefer-object-spread": "off",
         "prefer-promise-reject-errors": "error",
         "prefer-reflect": "off",
         "prefer-rest-params": "off",

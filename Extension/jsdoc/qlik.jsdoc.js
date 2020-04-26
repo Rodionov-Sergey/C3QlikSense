@@ -274,6 +274,11 @@
 // Qlik настройки расширений
 
 /**
+ * Определение свойства
+ * @typedef {Object} QlikPropertyDefinition
+ */
+
+/**
  * Описание элемента выбора
  * @typedef {Object} QlikPropertyOption
  * @property {String|Number} value Выбираемое значение элемента
