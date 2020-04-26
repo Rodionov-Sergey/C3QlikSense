@@ -102,7 +102,12 @@ define(
 
 			var state = {
 				type: 'number',
-				component: 'slider'
+				component: 'slider',
+				// Значения по умолчанию:
+				min: 0,
+				max: 1,
+				step: 0.1,
+				defaultValue: 0
 			};
 
 			var builder = createBaseBuilder(state);
@@ -122,7 +127,12 @@ define(
 		function rangeSlider() {
 			var state = {
 				type: 'array',
-				component: 'slider'
+				component: 'slider',
+				// Значения по умолчанию:
+				min: 0,
+				max: 1,
+				step: 0.1,
+				defaultValue: [0, 1]
 			};
 
 			var builder = createBaseBuilder(state);

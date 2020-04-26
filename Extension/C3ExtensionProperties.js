@@ -105,20 +105,25 @@ define(
 						.addOption('TemporalScale', 'Временная шкала')
 						.titled('Тип шкалы')
 						.forProperty(path(basePath, 'scaleType')),
-					// Угол наклона подписей - слайдер
-					tickLabelAngle: propertiesBuilder
-						.numberSlider()
-						.range(-90, 90)
-						.step(10)
-						.defaulted(0)
-						.titled('Угол наклона подписей')
-						.forProperty(path(basePath, 'tickLabelAngle')),
-					// Угол наклона подписей - числовое поле
-					tickLabelAngleText: propertiesBuilder
-						.integerInput()
-						.range(-90, 90)
-						.defaulted(0)
-						.forProperty(path(basePath, 'tickLabelAngle'))
+					tickLabelAngle: {
+						type: 'items',
+						items: {
+							// Угол наклона подписей - слайдер
+							slider: propertiesBuilder
+								.numberSlider()
+								.range(-90, 90)
+								.step(10)
+								.defaulted(0)
+								.titled('Угол наклона подписей')
+								.forProperty(path(basePath, 'tickLabelAngle')),
+							// Угол наклона подписей - числовое поле
+							input: propertiesBuilder
+								.integerInput()
+								//.range(-90, 90)
+								.defaulted(0)
+								.forProperty(path(basePath, 'tickLabelAngle'))
+						}
+					}
 				}
 			};
 		}
