@@ -377,7 +377,7 @@ define(
 
 		/**
 		 * Создаёт базовый построитель свойства
-		 * @param {*} state Состояние
+		 * @param {QlikPropertyDefinition} state Состояние
 		 * @returns {PropertyBuilder} Базовый построитель свойства
 		 */
 		function baseItem(state) {
@@ -391,7 +391,7 @@ define(
 					return this;
 				},
 				visible: function (visibility) {
-					state.visibility = visibility;
+					state.show = visibility;
 					return this;
 				},
 				forProperty: function(property) {

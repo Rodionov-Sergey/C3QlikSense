@@ -57,7 +57,7 @@ define(
 		/**
 		 * Возвращает определения свойств, настраиваемых пользователем
 		 * @param {*} qlikTheme Тема
-		 * @returns {*} Определения свойств
+		 * @returns {QlikPropertyDefinition} Определения свойств
 		 */
 		function getProperties(qlikTheme) {
 			var columnPropertiesPath = path('qDef', 'properties');
@@ -66,20 +66,20 @@ define(
 				type: 'items',
 				component: 'accordion',
 				items: {
-					// Блок свойств Измерения
+					// Секция свойств Измерения
 					dimensions: getDimensionProperties(columnPropertiesPath),
-					// Блок свойств Меры
+					// Секция свойств Меры
 					measures: getMeasureProperties(columnPropertiesPath),
-					// Блок свойств Сортировка
+					// Секция свойств Сортировка
 					sorting: {
 						uses: 'sorting'
 					},
-					// Блок свойств Вид
+					// Секция свойств Вид
 					settings: {
 						uses: 'settings'
 					},
-					// Свойства графика
-					chart: getChartProperties(extensionPropertiesPath, qlikTheme)
+					// Секция свойства графика
+					chart: getChartProperties(extensionPropertiesPath, qlikTheme),
 				}
 			};
 		}
@@ -87,7 +87,7 @@ define(
 		/**
 		 * Возвращает определения свойств секции Измерения
 		 * @param {String} basePath Базовый путь к свойству
-		 * @returns Определения свойств измерений
+		 * @returns {QlikPropertyDefinition} Определения свойств измерений
 		 */
 		function getDimensionProperties(basePath) {
 
@@ -127,7 +127,7 @@ define(
 		 * Возвращает определение свойств секции Меры
 		 * @param {String} basePath Базовый путь к свойству
 		 * @param {QlikTheme} qlikTheme
-		 * @returns {*} Определение свойств меры
+		 * @returns {QlikPropertyDefinition} Определение свойств меры
 		 */
 		function getMeasureProperties(basePath) {
 			return {
@@ -158,7 +158,7 @@ define(
 		/**
 		 * Возвращает определения свойств линейного графика
 		 * @param {String} basePath Базовый путь к свойству
-		 * @returns {*} Определения свойств
+		 * @returns {QlikPropertyDefinition} Определения свойств
 		 */
 		function getLineChartProperties(basePath) {
 			return {
@@ -195,7 +195,7 @@ define(
 		 * Возвращает определения свойств графика
 		 * @param {String} basePath Базовый путь к свойству
 		 * @param {QlikTheme} qlikTheme Тема
-		 * @returns {*} Определения свойств графика
+		 * @returns {QlikPropertyDefinition} Определения свойств графика
 		 */
 		function getChartProperties(basePath, qlikTheme) {
 			return {
@@ -229,7 +229,7 @@ define(
 		/**
 		 * Возвращает определения свойств оси X
 		 * @param {String} basePath Базовый путь к свойству
-		 * @returns {*} Определения свойств оси
+		 * @returns {QlikPropertyDefinition} Определения свойств оси
 		 */
 		function getAxisXProperties(basePath) {
 			return {
@@ -249,7 +249,7 @@ define(
 		/**
 		 * Возвращает определения свойств оси Y
 		 * @param {String} basePath Базовый путь к свойству
-		 * @returns {*} Определения свойств оси
+		 * @returns {QlikPropertyDefinition} Определения свойств оси
 		 */
 		function getAxisYProperties(basePath) {
 			return {
@@ -276,7 +276,7 @@ define(
 		 * Возвращает определения свойств линий
 		 * @param {String} basePath Базовый путь к свойству
 		 * @param {String} title Заголовок секции
-		 * @returns {*} Определения свойств линий
+		 * @returns {QlikPropertyDefinition} Определения свойств линий
 		 */
 		function getLinesProperties(basePath, title) {
 			return {
@@ -329,7 +329,7 @@ define(
 		/**
 		 * Возвращает определения свойств легенды
 		 * @param {String} basePath Базовый путь к свойству
-		 * @returns {*} Определения свойств
+		 * @returns {QlikPropertyDefinition} Определения свойств
 		 */
 		function getLegendProperties(basePath) {
 			return {

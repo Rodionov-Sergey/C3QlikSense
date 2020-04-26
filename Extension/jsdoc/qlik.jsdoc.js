@@ -1,5 +1,5 @@
 /**
- * JSDoc-определения для Qlik API и кастомных свойств
+ * JSDoc-определения для Qlik API и определений свойств
  */
 
 // Qlik API
@@ -276,6 +276,77 @@
 /**
  * Определение свойства
  * @typedef {Object} QlikPropertyDefinition
+ * @property {QlikDefaultSectionType} uses Тип подключаемой стандартной секции
+ * @property {Number} min - Минимальное количество элементов (для секций измерений и мер)
+ * @property {Number} max - Максимальное количество элементов (для секций измерений и мер)
+ * @property {QlikPropertyDataType} type Тип данных
+ * @property {QlikPropertyComponentType} component Тип интерфейса
+ * @property {String} ref Путь к заполняемому свойству через "."
+ * @property {String} label Отображаемое название
+ * @property {*} defaultValue Значение по умолчанию
+ * @property {QlikPropertyOption} options Набор опций выбора (для свойств выбора опций)
+ * @property {Object.<string, QlikPropertyDefinition>} items Элементы
+ * @property {function(
+ *   Boolean
+ *   | (function(*): Boolean)
+ *   | (function(*): Promise<Boolean>)
+ * ): PropertyBuilder} show Устанавливает видимость элемента
+ * * arg0: Признак видимости или функция, возвращающая признак видимости
+ */
+
+/**
+ * Тип подключаемой стандартной секции
+ * @typedef {'dimensions'|'measures'|'sorting'|'settings'} QlikDefaultSectionType
+ * * 'dimensions' - Секция свойств Измерения
+ * * 'measures' - Секция свойств Меры
+ * * 'sorting' - Секция свойств Сортировка
+ * * 'settings' - Секция свойств Вид
+ */
+
+/**
+ * Типы данных свойств
+ * @typedef {
+ * 	'items'
+ *  | 'boolean'
+ *  | 'integer'
+ *  | 'number'
+ *  | 'string'
+ *  | 'object'
+ * 	| 'array'
+ * } QlikPropertyDataType
+ * * 'items' - Список элементов интерфейса
+ * * 'boolean' - Логическое значение
+ * * 'integer' - Целочисленное значение
+ * * 'number' - Числовое вещественное значени
+ * * 'string' - Строковое значение
+ * * 'object' - Объект
+ * * 'array' - Массив данных
+ */
+
+/**
+ * Типы данных свойств
+ * @typedef {
+ * 'accordion'
+ * | 'expandable-items'
+ * | 'switch'
+ * | 'slider'
+ * | 'dropdown'
+ * | 'buttongroup'
+ * | 'radiobuttons'
+ * | 'textarea'
+ * | 'text'
+ * | 'item-selection-list'
+ * } QlikPropertyComponentType
+ * * 'accordion' - Список секций, одна из которых открыта
+ * * 'expandable-items' - Раскрываемая секция
+ * * 'switch' - Переключатель
+ * * 'slider' - Ползунок
+ * * 'dropdown' - Выпадающий список
+ * * 'buttongroup' - Группа кнопок
+ * * 'radiobuttons' - Набор переключателей
+ * * 'textarea' - Многострочное текстовое поле
+ * * 'text' - Текстовая метка
+ * * 'item-selection-list' - Список выбора
  */
 
 /**
