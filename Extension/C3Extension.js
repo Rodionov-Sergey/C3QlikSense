@@ -41,7 +41,14 @@ define(
 		
 		// Модуль расширения Qlik Sense
 		return getThemePromise(qlik)
-			.then(createExtension);
+			.then(createExtension)
+			.catch(
+				function (error) {
+					// eslint-disable-next-line no-console
+					console.log('Ошибка инициализации', error);
+					throw error;
+				}
+			);
 
 		/**
 		 * Создаёт расширение
@@ -80,7 +87,7 @@ define(
 						.catch(
 							function (error) {
 								// eslint-disable-next-line no-console
-								console.log(error);
+								console.log('Ошибка обновления', error);
 								throw error;
 							}
 						);

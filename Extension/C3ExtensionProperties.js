@@ -2,15 +2,14 @@
  * Настройки расширения C3Extension
  */
 define(
-	// Зависимости
-	[],
+	['./QlikPropertiesBuilder'],
 
 	/**
 	 * Создаёт модуль
 	 * @param {QlikApi} qlik Qlik API
 	 * @returns Модуль
 	 */
-	function () {
+	function (propertiesBuilder) {
 		'use strict';
 
 		// Определения свойств
@@ -98,37 +97,24 @@ define(
 				// Cвойства измерений графика
 				items: {
 					// Тип шкалы
-					scaleType: {
-						ref: path(basePath, 'scaleType'),
-						type: 'string',
-						component: 'dropdown',
-						label: 'Тип шкалы',
-						options: [
-							option('CategoricalScale', 'Категориальная шкала'),
-							option('NumericScale', 'Числовая шкала'),
-							option('TemporalScale', 'Временная шкала')
-						],
-						defaultValue: 'CategoricalScale'
-					},
+					scaleType: propertiesBuilder
+						.property(path(basePath, 'scaleType'), 'Тип шкалы')
+						.asDropDown()
+						.addOption('CategoricalScale', 'Категориальная шкала', true)
+						.addOption('NumericScale', 'Числовая шкала')
+						.addOption('TemporalScale', 'Временная шкала')
+						.build(),
 					// Угол наклона подписей - текстовое поле
-					tickLabelAngleText: {
-						ref: path(basePath, 'tickLabelAngle'),
-						type: 'number',
-						label: 'Угол наклона подписей',
-						min: -90,
-						max: 90,
-						defaultValue: 0
-					},
+					tickLabelAngleText: propertiesBuilder
+						.property(path(basePath, 'tickLabelAngle'), 'Угол наклона подписей')
+						.asNumber(0, -90, 90)
+						.build(),
 					// Угол наклона подписей - слайдер
-					tickLabelAngle: {
-						ref: path(basePath, 'tickLabelAngle'),
-						type: 'number',
-						component: 'slider',
-						min: -90,
-						max: 90,
-						step: 10,
-						defaultValue: 0
-					}
+					tickLabelAngle: propertiesBuilder
+						.property(path(basePath, 'tickLabelAngle'))
+						.asNumber(0, -90, 90)
+						.asSlider(10)
+						.build()
 				}
 			};
 		}
@@ -147,26 +133,19 @@ define(
 				// Свойства мер графика
 				items: {
 					// Тип графика
-					chartType: {
-						ref: path(basePath, 'chartType'),
-						type: 'string',
-						component: 'dropdown',
-						label: 'Тип графика',
-						options: [
-							option('LineChart', 'Линейный график'),
-							option('BarChart', 'Столбчатая диаграмма')
-						],
-						defaultValue: 'LineChart'
-					},
+					chartType: propertiesBuilder
+						.property(path(basePath, 'chartType'), 'Тип графика')
+						.asDropDown()
+						.addOption('LineChart', 'Линейный график', true)
+						.addOption('BarChart', 'Столбчатая диаграмма')
+						.build(),
 					// Настройка группировки
-					groupKey: {
-						ref: path(basePath, 'groupKey'),
-						type: 'string',
-						label: 'Идентификатор группы',
-					},
+					groupKey: propertiesBuilder
+						.property(path(basePath, 'groupKey'), 'Идентификатор группы')
+						.asString()
+						.build(),
 					// Настройки линейного графика
-					lineChart: getLineChartProperties(
-						path(basePath, 'lineChart'))
+					lineChart: getLineChartProperties(path(basePath, 'lineChart'))
 				}
 			};
 		}
@@ -180,14 +159,23 @@ define(
 			return {
 				type: 'items',
 				items: {
-					_header: {
-						type: 'string',
-						component: 'text',
-						label: 'Линейный график'
-					},
-					pointsShown: checkBox(path(basePath, 'pointsShown'), 'Отображение точек', true),
-					lineShown: checkBox(path(basePath, 'lineShown'), 'Отображение линии', true),
-					areaShown: checkBox(path(basePath, 'areaShown'), 'Отображение области', true)
+					_header: propertiesBuilder
+						.property(null, 'Линейный график')
+						.asString()
+						.asLabel()
+						.build(),
+					pointsShown: propertiesBuilder
+						.property(path(basePath, 'pointsShown'), 'Отображение точек')
+						.asCheckBox(true)
+						.build(),
+					lineShown: propertiesBuilder
+						.property(path(basePath, 'lineShown'), 'Отображение линии')
+						.asCheckBox(true)
+						.build(),
+					areaShown: propertiesBuilder
+						.property(path(basePath, 'areaShown'), 'Отображение области')
+						.asCheckBox(true)
+						.build()
 				},
 				show: function (context) {
 					/** @type {MeasureProperties} */
@@ -237,7 +225,10 @@ define(
 				label: 'Ось X',
 				items: {
 					// Признак отображение сетки
-					gridShown: shownSwitcher(path(basePath, 'grid', 'shown'), 'Отображение сетки')
+					gridShown: propertiesBuilder
+						.property(path(basePath, 'grid', 'shown'), 'Отображение сетки')
+						.asSwitch(true, 'Показать', 'Скрыть')
+						.build()
 				}
 			};
 		}
@@ -253,14 +244,16 @@ define(
 				label: 'Ось Y',
 				items: {
 					// Подпись оси
-					title: {
-						ref: path(basePath, 'title'),
-						type: 'string',
-						label: 'Заголовок оси'
+					title: propertiesBuilder
+						.property(path(basePath, 'title'), 'Заголовок оси')
+						.asString()
+						.build()
 					},
 					// Признак отображение сетки
-					gridShown: shownSwitcher(path(basePath, 'grid', 'shown'), 'Отображение сетки')
-				}
+					gridShown: propertiesBuilder
+						.property(path(basePath, 'grid', 'shown'), 'Отображение сетки')
+						.asSwitch(false, 'Показать', 'Скрыть')
+						.build()
 			};
 		}
 
@@ -281,21 +274,22 @@ define(
 				// Свойства линии
 				items: {
 					// Значение
-					value: {
-						ref: 'value',
-						type: 'number',
-						label: 'Значение',
-						expression: 'optional'
-					},
+					value: propertiesBuilder
+						.property('value', 'Значение')
+						.asNumber()
+						.withExpression()
+						.build(),
 					// Подпись
-					title: {
-						ref: 'title',
-						type: 'string',
-						label: 'Подпись',
-						expression: 'optional'
-					},
+					title: propertiesBuilder
+						.property('title', 'Подпись')
+						.asString()
+						.withExpression()
+						.build(),
 					// Цвет
-					color: colorPicker('foreground', 'Цвет')
+					color: propertiesBuilder
+						.property('foreground', 'Цвет')
+						.asColor()
+						.build()
 				},
 				// Подпись элемента в боковой панели
 				itemTitleRef: function (item)
@@ -327,22 +321,21 @@ define(
 				type: 'items',
 				label: 'Легенда',
 				items: {
-					shown: shownSwitcher(path(basePath, 'shown'), 'Отображение легенды', true),
-					position: {
-						ref: path(basePath, 'position'),
-						type: 'string',
-						component: 'dropdown',
-						label: 'Расположение легенды',
-						options: [
-							option('Bottom', 'Снизу'),
-							option('Right', 'Справа'),
-							option('Inside', 'Внутри')
-						],
-						defaultValue: 'Bottom',
-						show: function(context) {
-							return context.properties.legend.shown;
-						}
-					}
+					shown: propertiesBuilder
+						.property(path(basePath, 'shown'), 'Отображение легенды')
+						.asSwitch(true, 'Показать', 'Скрыть')
+						.build(),
+					position: propertiesBuilder
+						.property(path(basePath, 'position'), 'Расположение легенды')
+						.asDropDown()
+						.addOption('Bottom', 'Снизу', true)
+						.addOption('Right', 'Справа')
+						.addOption('Inside', 'Внутри')
+						.visible(
+							function(context) {
+								return context.properties.legend.shown;
+							})
+						.build()
 				}
 			};
 		}
@@ -360,123 +353,14 @@ define(
 				grouped: true,
 				items: {
 					// Элементы списка палитр
-					paletteItems: {
-						ref: path(basePath, 'id'),
-						type: 'items',
-						component: 'item-selection-list', 
-						horizontal: false,
-						items: getPalettesOptions(qlikTheme)
-					}
+					paletteItems: propertiesBuilder
+						.property(path(basePath, 'id'))
+						.asThemePaletteSelector(qlikTheme)
+						.build()
 				},
 				shown: function() {
 					return qlikTheme != null;
 				}
-			};
-		}
-
-		/**
-		 * Возвращает определение списка выбора палитры
-		 * @param {QlikTheme} qlikTheme Тема
-		 * @return {QlikColorScaleComponent[]} Список выбора темы
-		 */
-		function getPalettesOptions(qlikTheme) {
-			if (qlikTheme == null) {
-				return null;
-			}
-			return getThemePalettes(qlikTheme)
-				.map(colorScaleComponent);
-		}
-
-		// Повторноиспользуемые компоненты
-		
-		/**
-		 * Возвращает опредление опции выбора палитры
-		 * @param {QlikPalette} qlikPalette Палитра
-		 * @returns {QlikColorScaleComponent} Опция выбора палитры
-		 */
-		function colorScaleComponent(qlikPalette) {
-			return {
-				component: 'color-scale',
-				value: qlikPalette.propertyValue,
-				label: qlikPalette.name,
-				icon: '',
-				type: 'sequential',
-				colors: getPaletteScale(qlikPalette),
-			};
-		}
-
-		/**
-		 * Создаёт определение свойства выбора цвета
-		 * @param {String} propertyPath Название свойства
-		 * @param {String} title Заголовок
-		 * @returns {*} Определение свойства
-		 */
-		function colorPicker(propertyPath, title) {
-			return {
-				ref: propertyPath,
-				component: 'color-picker',
-				type: 'object',
-				label: title
-			};
-		}
-
-		/**
-		 * Создаёт определение булева свойства, отображаемого в виде галочки
-		 * @param {*} propertyPath Путь к свойству целевого объекта
-		 * @param {*} title Заголовок свойства
-		 * @param {*} defaultValue Значение по умолчанию
-		 */
-		function checkBox(propertyPath, title, defaultValue) {
-			return {
-				ref: propertyPath,
-				type: 'boolean',
-				label: title,
-				defaultValue: defaultValue
-			};
-		}
-
-		/**
-		 * Создаёт определение булева свойства видимости, отображаемого в виде переключателя
-		 * @param {String} propertyPath Путь к свойству целевого объекта
-		 * @param {String} title Заголовок свойства
-		 * @param {Boolean=} defaultValue Значение по умолчанию
-		 */
-		function shownSwitcher(propertyPath, title, defaultValue) {
-			return switcher(propertyPath, title, 'Отобразить', 'Скрыть', defaultValue);
-		}
-
-		/**
-		 * Создаёт определение булева свойства, отображаемого в виде переключателя
-		 * @param {String} propertyPath Путь к свойству целевого объекта
-		 * @param {String} title Заголовок свойства
-		 * @param {String} onTitle Заголовок включенноё опции
-		 * @param {String} offTitle Заголовок выключенноё опции
-		 * @param {Boolean=} defaultValue Значение по умолчанию
-		 */
-		function switcher(propertyPath, title, trueTitle, falseTitle, defaultValue) {
-			return {
-				ref: propertyPath,
-				type: 'boolean',
-				component: 'switch',
-				label: title,
-				options: [
-					option(true, trueTitle),
-					option(false, falseTitle)
-				],
-				defaultValue: defaultValue
-			};
-		}
-
-		/**
-		 * Создаёт опцию выбора
-		 * @param {String|Number|Boolean} value Значение
-		 * @param {String} title Подпись
-		 * @returns {*} Опция выбора
-		 */
-		function option(value, title) {
-			return {
-				value: value,
-				label: title
 			};
 		}
 
@@ -490,68 +374,6 @@ define(
 		function path(args) {
 			args = Array.prototype.slice.call(arguments);
 			return args.join('.');
-		}
-
-		// Функции Qlik API
-				
-		/**
-		 * Возвращает список палитр темы
-		 * @param {QlikTheme} qlikTheme Тема
-		 * @returns {QlikPalette[]} Список палитр
-		 */
-		function getThemePalettes(qlikTheme) {
-			return qlikTheme.properties.palettes.data;
-		}
-
-		/**
-		 * Возвращает цветовую шкалу палитры типа Пирамида
-		 * @param {QlikPalette} qlikPyramidPalette Палитра
-		 * @param {Number} colorCount Количество цветов
-		 * @returns {String[]} Массив цветов палитры
-		 */
-		function getPaletteScale(qlikPalette, colorCount) {
-
-			if (qlikPalette.type === 'pyramid') {
-				return getPyramidPaletteScale(qlikPalette, colorCount);
-			}
-			else if (qlikPalette.type === 'row') {
-				return getRowPaletteScale(qlikPalette);
-			}
-			
-			return null;
-		}
-
-		/**
-		 * Возвращает цветовую шкалу палитры типа Пирамида
-		 * @param {QlikPalette} qlikPyramidPalette Палитра
-		 * @param {Number} scaleSize Размер шкалы
-		 * @returns {String[]} Массив цветов палитры
-		 */
-		function getPyramidPaletteScale(qlikPyramidPalette, scaleSize) {
-			if (scaleSize != null) {
-				/** @type {Color[][]} */
-				var qlikPaletteScales = qlikPyramidPalette.scale
-					.filter(
-						function (scale) {
-							return scale != null && scale.length === scaleSize;
-						}
-					);
-
-				if (qlikPaletteScales.length > 0) {
-					return qlikPaletteScales[0];
-				}
-			}
-
-			return qlikPyramidPalette.scale[qlikPyramidPalette.scale.length-1];
-		}
-
-		/**
-		 * Возвращает цветовую шкалу палитры типа Ряд
-		 * @param {QlikPalette} qlikRowPalette Палитра
-		 * @returns {Color[]} Массив цветов палитры
-		 */
-		function getRowPaletteScale(qlikRowPalette) {
-			return qlikRowPalette.scale;
 		}
 	}
 );
