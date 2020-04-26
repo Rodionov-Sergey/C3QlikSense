@@ -26,8 +26,6 @@ define(
 			colorPicker: colorPicker,
 			palettePicker: palettePicker,
 			label: label,
-			// Прочие функции
-			option: option
 		};
 
 		// https://help.qlik.com/en-US/sense-developer/April2020/Subsystems/Extensions/Content/Sense_Extensions/Howtos/working-with-custom-properties.htm
@@ -41,16 +39,13 @@ define(
 				type: 'string'
 			};
 
-			var item = baseItem(state);
+			var builder = createBaseBuilder(state);
 
 			// Максимальная длина
-			item.limitLength = function (maxLength) {
-				state.maxLength = maxLength;
-				return item;
-			};
+			appendMaxLengthFunction(builder, state);
 
 			// Использование выражения
-			item.useExpression = function (use) {
+			builder.useExpression = function (use) {
 				if (use == null) {
 					state.expression = 'optional';
 				}
@@ -60,10 +55,10 @@ define(
 				else {
 					delete state.expression;
 				}
-				return item;
+				return builder;
 			};
 
-			return item;
+			return builder;
 		}
 
 		/**
@@ -75,16 +70,11 @@ define(
 				type: 'integer'
 			};
 
-			var item = baseItem(state);
-
+			var builder = createBaseBuilder(state);
 			// Диапазон
-			item.range = function (minValue, maxValue) {
-				state.min = minValue;
-				state.max = maxValue;
-				return item;
-			};
+			appendRangeFunction(builder, state);
 
-			return item;
+			return builder;
 		}
 
 		/**
@@ -96,16 +86,12 @@ define(
 				type: 'number'
 			};
 
-			var item = baseItem(state);
+			var builder = createBaseBuilder(state);
 
 			// Диапазон
-			item.range = function (minValue, maxValue) {
-				state.min = minValue;
-				state.max = maxValue;
-				return item;
-			};
+			appendRangeFunction(builder, state);
 
-			return item;
+			return builder;
 		}
 		
 		/**
@@ -119,22 +105,14 @@ define(
 				component: 'slider'
 			};
 
-			var item = baseItem(state);
+			var builder = createBaseBuilder(state);
 
 			// Диапазон
-			item.range = function (minValue, maxValue) {
-				state.min = minValue;
-				state.max = maxValue;
-				return item;
-			};
-			
+			appendRangeFunction(builder, state);
 			// Шаг
-			item.step = function (stepValue) {
-				state.step = stepValue;
-				return item;
-			};
+			appendStepFunction(builder, state);
 
-			return item;
+			return builder;
 		}
 				
 		/**
@@ -147,22 +125,14 @@ define(
 				component: 'slider'
 			};
 
-			var item = baseItem(state);
+			var builder = createBaseBuilder(state);
 
 			// Диапазон
-			item.range = function (minValue, maxValue) {
-				state.min = minValue;
-				state.max = maxValue;
-				return item;
-			};
-
+			appendRangeFunction(builder, state);
 			// Шаг
-			item.step = function (stepValue) {
-				state.step = stepValue;
-				return item;
-			};
+			appendStepFunction(builder, state);
 
-			return item;
+			return builder;
 		}
 
 		/**
@@ -174,9 +144,7 @@ define(
 				type: 'boolean',
 			};
 
-			var item = baseItem(state);
-
-			return item;
+			return createBaseBuilder(state);
 		}
 
 		/**
@@ -201,9 +169,7 @@ define(
 				]
 			};
 
-			var item = baseItem(state);
-
-			return item;
+			return createBaseBuilder(state);
 		}
 
 		/**
@@ -217,21 +183,12 @@ define(
 				options: []
 			};
 
-			var item = baseItem(state);
+			var builder = createBaseBuilder(state);
+			
+			// Опции
+			appendAddOptionFunction(builder, state);
 
-			item.addOption = function (value, title, isDefault) {
-				var option = {
-					value: value,
-					label: title
-				};
-				state.options.push(option);
-				if (isDefault) {
-					state.defaultValue = value;
-				}
-				return item;
-			};
-
-			return item;
+			return builder;
 		}
 
 		/**
@@ -245,21 +202,12 @@ define(
 				options: []
 			};
 
-			var item = baseItem(state);
+			var builder = createBaseBuilder(state);
 
-			item.addOption = function (value, title, isDefault) {
-				var option = {
-					value: value,
-					label: title
-				};
-				state.options.push(option);
-				if (isDefault) {
-					state.defaulted = value;
-				}
-				return item;
-			};
+			// Опции
+			appendAddOptionFunction(builder, state);
 
-			return item;
+			return builder;
 		}
 
 		/**
@@ -273,21 +221,12 @@ define(
 				options: []
 			};
 
-			var item = baseItem(state);
+			var builder = createBaseBuilder(state);
 
-			item.addOption = function (value, title, isDefault) {
-				var option = {
-					value: value,
-					label: title
-				};
-				state.options.push(option);
-				if (isDefault) {
-					state.defaulted = value;
-				}
-				return item;
-			};
+			// Опции
+			appendAddOptionFunction(builder, state);
 
-			return item;
+			return builder;
 		}
 
 		/**
@@ -300,19 +239,18 @@ define(
 				component: 'textarea'
 			};
 
-			var item = baseItem(state);
+			var builder = createBaseBuilder(state);
 
-			item.rowCount = function (count) {
-				state.rowCount = count;
-				return item;
-			};
+			// Максимальная длина
+			appendMaxLengthFunction(builder, state);
 			
-			item.maxLength = function (length) {
-				state.maxLength = length;
-				return item;
+			// Число строк
+			builder.rowCount = function (count) {
+				state.rowCount = count;
+				return builder;
 			};
 
-			return item;
+			return builder;
 		}
 
 		/**
@@ -325,9 +263,7 @@ define(
 				component: 'color-picker',
 			};
 
-			var item = baseItem(state);
-
-			return item;
+			return createBaseBuilder(state);
 		}
 
 		/**
@@ -350,15 +286,15 @@ define(
 				}
 			};
 
-			var item = baseItem(state);
+			var builder = createBaseBuilder(state);
 			
 			// Подмена реализации, чтобы установить идентификатор на уровне элемента
-			item.forProperty = function(property) {
+			builder.forProperty = function(property) {
 				state.items.paletteItems.ref = property;
 				return state;
 			};
 
-			return item;
+			return builder;
 		}
 
 		/**
@@ -380,7 +316,7 @@ define(
 		 * @param {QlikPropertyDefinition} state Состояние
 		 * @returns {PropertyBuilder} Базовый построитель свойства
 		 */
-		function baseItem(state) {
+		function createBaseBuilder(state) {
 			return {
 				titled: function (title) {
 					state.label = title;
@@ -400,17 +336,61 @@ define(
 				}
 			};
 		}
-		
+
 		/**
-		 * Создаёт опцию выбора
-		 * @param {String|Number|Boolean} value Значение
-		 * @param {String} title Подпись
-		 * @returns {QlikPropertyOption} Опция выбора
+		 * Добавляет в построитель функцию для установки максимальной длины
+		 * @param {StringInputBuilder} builder Построитель
+		 * @param {QlikPropertyDefinition} state Состояние
 		 */
-		function option(value, title) {
-			return {
-				value: value,
-				label: title
+		function appendMaxLengthFunction(builder, state) {
+			builder.maxLength = function (maxLength) {
+				state.maxLength = maxLength;
+				return builder;
+			};
+		}
+
+		/**
+		 * Добавляет в построитель функцию для установки диапазона
+		 * @param {IntegerInputBuilder|NumberInputBuilder|NumberSliderBuilder|RangeSliderBuilder} builder Построитель
+		 * @param {QlikPropertyDefinition} state Состояние
+		 */
+		function appendRangeFunction(builder, state) {
+			builder.range = function (minValue, maxValue) {
+				state.min = minValue;
+				state.max = maxValue;
+				return builder;
+			};
+		}
+
+		/**
+		 * Добавляет в построитель функцию для установки шага
+		 * @param {NumberSliderBuilder|RangeSliderBuilder} builder Построитель
+		 * @param {QlikPropertyDefinition} state Состояние
+		 */
+		function appendStepFunction(builder, state) {
+			builder.step = function (stepValue) {
+				state.step = stepValue;
+				return builder;
+			};
+		}
+
+		/**
+		 * Добавляет в построитель функцию для добавления опции выбора
+		 * @param {NumberSliderBuilder|RangeSliderBuilder} builder Построитель
+		 * @param {QlikPropertyDefinition} state Состояние
+		 */
+		function appendAddOptionFunction(builder, state) {
+			builder.addOption = function (value, title, isDefault) {
+				var option = {
+					value: value,
+					label: title
+				};
+				state.options.push(option);
+
+				if (isDefault) {
+					builder.defaulted(value);
+				}
+				return builder;
 			};
 		}
 
@@ -550,7 +530,7 @@ define(
 /**
  * Построитель поля ввода строки
  * @typedef {Object} _StringInputBuilder
- * @property {function(Number): StringInputBuilder} limitLength Устанавливает максимальную длину
+ * @property {function(Number): StringInputBuilder} maxLength Устанавливает максимальную длину
  * * arg0: Максимальная длина
  * @property {function(Boolean=): StringInputBuilder} useExpression Настраивает использование выражения
  * * arg0: 
