@@ -296,7 +296,11 @@
 
 /**
  * Тип подключаемой стандартной секции
- * @typedef {'dimensions'|'measures'|'sorting'|'settings'} QlikDefaultSectionType
+ * @typedef {'dimensions'
+ * |'measures'
+ * |'sorting'
+ * |'settings'
+ * } QlikDefaultSectionType
  * * 'dimensions' - Секция свойств Измерения
  * * 'measures' - Секция свойств Меры
  * * 'sorting' - Секция свойств Сортировка
@@ -305,8 +309,7 @@
 
 /**
  * Типы данных свойств
- * @typedef {
- * 	'items'
+ * @typedef {'items'
  *  | 'boolean'
  *  | 'integer'
  *  | 'number'
@@ -325,8 +328,7 @@
 
 /**
  * Типы данных свойств
- * @typedef {
- * 'accordion'
+ * @typedef {'accordion'
  * | 'expandable-items'
  * | 'switch'
  * | 'slider'

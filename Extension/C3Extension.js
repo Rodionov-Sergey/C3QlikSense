@@ -60,7 +60,7 @@ define(
 			var properties = propertiesFactory.getProperties(qlikTheme);					
 
 			// DEBUG: Отладка настроек расширения
-			//console.log('Определения настроек расширения', properties);
+			console.log('Определения настроек расширения', properties);
 
 			return {
 				// Определения свойств

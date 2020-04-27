@@ -2,15 +2,21 @@
  * Настройки расширения C3Extension
  */
 define(
-	['./QlikPropertiesBuilder'],
+	[
+		'./QlikPropertyDefinitions',
+		'./QlikPropertiesBuilder'
+	],
 
 	/**
 	 * Создаёт модуль
+	 * @param {QlikPropertyFactory} propertyFactory
 	 * @param {PropertyBuilderApi} propertiesBuilder Построитель определений свойств
 	 * @returns Модуль
 	 */
-	function (propertiesBuilder) {
+	function (propertyFactory, propertiesBuilder) {
 		'use strict';
+
+		var pf = propertyFactory;
 
 		// Определения свойств
 		return {
@@ -62,26 +68,18 @@ define(
 		function getProperties(qlikTheme) {
 			var columnPropertiesPath = path('qDef', 'properties');
 			var extensionPropertiesPath = 'properties';
-			return {
-				type: 'items',
-				component: 'accordion',
-				items: {
-					// Секция свойств Измерения
-					dimensions: getDimensionProperties(columnPropertiesPath),
-					// Секция свойств Меры
-					measures: getMeasureProperties(columnPropertiesPath),
-					// Секция свойств Сортировка
-					sorting: {
-						uses: 'sorting'
-					},
-					// Секция свойств Вид
-					settings: {
-						uses: 'settings'
-					},
-					// Секция свойства графика
-					chart: getChartProperties(extensionPropertiesPath, qlikTheme),
-				}
-			};
+			return pf.sections()
+				// Секция свойств Измерения
+				.add(getDimensionProperties(columnPropertiesPath))
+				// Секция свойств Меры
+				.add(getMeasureProperties(columnPropertiesPath))
+				// Секция свойств Сортировка
+				.add(pf.sorting())
+				// Секция свойств Вид
+				.add(pf.settings())
+				// Секция свойства графика
+				.add(getChartProperties(extensionPropertiesPath, qlikTheme))
+				.build();
 		}
 
 		/**
@@ -90,42 +88,38 @@ define(
 		 * @returns {QlikPropertyDefinition} Определения свойств измерений
 		 */
 		function getDimensionProperties(basePath) {
-
-			return {
-				uses: 'dimensions',
-				min: 1,
-				max: 1,
-				// Cвойства измерений графика
-				items: {
-					// Тип шкалы
-					scaleType: propertiesBuilder
+			return pf.dimensions(1, 1)
+				// Тип шкалы
+				.add(
+					propertiesBuilder
 						.comboBox()
 						.addOption('CategoricalScale', 'Категориальная шкала', true)
 						.addOption('NumericScale', 'Числовая шкала')
 						.addOption('TemporalScale', 'Временная шкала')
 						.titled('Тип шкалы')
-						.forProperty(path(basePath, 'scaleType')),
-					tickLabelAngle: {
-						type: 'items',
-						items: {
-							// Угол наклона подписей - слайдер
-							slider: propertiesBuilder
+						.forProperty(path(basePath, 'scaleType'))
+				)
+				.add(
+					pf.items()
+						// Угол наклона подписей - слайдер
+						.add(
+							propertiesBuilder
 								.numberSlider()
 								.range(-90, 90)
 								.step(10)
 								.defaulted(0)
 								.titled('Угол наклона подписей')
-								.forProperty(path(basePath, 'tickLabelAngle')),
-							// Угол наклона подписей - числовое поле
-							input: propertiesBuilder
+								.forProperty(path(basePath, 'tickLabelAngle'))
+						)
+						// Угол наклона подписей - числовое поле
+						.add(
+							propertiesBuilder
 								.integerInput()
-								//.range(-90, 90)
+								.range(-90, 90)
 								.defaulted(0)
 								.forProperty(path(basePath, 'tickLabelAngle'))
-						}
-					}
-				}
-			};
+						)
+				);
 		}
 
 		/**
@@ -135,29 +129,28 @@ define(
 		 * @returns {QlikPropertyDefinition} Определение свойств меры
 		 */
 		function getMeasureProperties(basePath) {
-			return {
-				uses: 'measures',
-				min: 1,
-				max: 10,
-				// Свойства мер графика
-				items: {
-					// Тип графика
-					chartType: propertiesBuilder
+			return pf.measures(1, 10)
+				// Тип графика
+				.add(
+					propertiesBuilder
 						.comboBox()
 						.addOption('LineChart', 'Линейный график', true)
 						.addOption('BarChart', 'Столбчатая диаграмма')
 						.titled('Тип графика')
-						.forProperty(path(basePath, 'chartType')),
-					// Настройка группировки
-					groupKey: propertiesBuilder
+						.forProperty(path(basePath, 'chartType'))
+				)
+				// Настройка группировки
+				.add(
+					propertiesBuilder
 						.stringInput()
 						.useExpression()
 						.titled('Идентификатор группы')
-						.forProperty(path(basePath, 'groupKey')),
-					// Настройки линейного графика
-					lineChart: getLineChartProperties(path(basePath, 'lineChart'))
-				}
-			};
+						.forProperty(path(basePath, 'groupKey'))
+				)
+				// Настройки линейного графика
+				.add(
+					getLineChartProperties(path(basePath, 'lineChart'))
+				);
 		}
 
 		/**
@@ -166,34 +159,40 @@ define(
 		 * @returns {QlikPropertyDefinition} Определения свойств
 		 */
 		function getLineChartProperties(basePath) {
-			return {
-				type: 'items',
-				items: {
-					_header: propertiesBuilder
-						.label('Линейный график'),
-					pointsShown: propertiesBuilder
+			return pf.items()
+				.add(
+					propertiesBuilder
+						.label('Линейный график')
+				)
+				.add(
+					propertiesBuilder
 						.checkBox()
 						.defaulted(false)
 						.titled('Отображение точек')
-						.forProperty(path(basePath, 'pointsShown')),
-					lineShown: propertiesBuilder
+						.forProperty(path(basePath, 'pointsShown'))
+				)
+				.add(
+					propertiesBuilder
 						.checkBox()
 						.defaulted(true)
 						.titled('Отображение линии')
-						.forProperty(path(basePath, 'lineShown')),
-					areaShown: propertiesBuilder
+						.forProperty(path(basePath, 'lineShown'))
+				)
+				.add(
+					propertiesBuilder
 						.checkBox()
 						.defaulted(false)
 						.titled('Отображение области')
-						.forProperty(path(basePath, 'areaShown')),
-				},
-				show: function (context) {
-					/** @type {MeasureProperties} */
-					var properties = context.qDef.properties;
-					// Отображение только для линейного графика
-					return properties.chartType === 'LineChart';
-				}
-			};
+						.forProperty(path(basePath, 'areaShown'))
+				)
+				.visible(
+					function (context) {
+						/** @type {MeasureProperties} */
+						var properties = context.qDef.properties;
+						// Отображение только для линейного графика
+						return properties.chartType === 'LineChart';
+					}
+				);
 		}
 		
 		/**
@@ -203,23 +202,20 @@ define(
 		 * @returns {QlikPropertyDefinition} Определения свойств графика
 		 */
 		function getChartProperties(basePath, qlikTheme) {
-			return {
-				type: 'items',
-				component: 'expandable-items',
-				label: 'График',
-				items: {
-					// Свойства оси X
-					axisX: getAxisXProperties(path(basePath, 'axisX')),
-					// Линии оси X
-					axisXLines: getLinesProperties(path(basePath, 'axisX'), 'Ось X. Линии'),
-					// Свойства оси Y
-					axisY: getAxisYProperties(path(basePath, 'axisY')),
-					// Линии оси Y
-					axisYLines: getLinesProperties(path(basePath, 'axisY'), 'Ось Y. Линии'),
-					// Свойства легенды
-					legend: getLegendProperties(path(basePath, 'legend')),
-					// Палитра
-					palette: propertiesBuilder
+			return pf.expandableItems('График')
+				// Свойства оси X
+				.add(getAxisXProperties(path(basePath, 'axisX')))
+				// Линии оси X
+				.add(getLinesProperties(path(basePath, 'axisX'), 'Ось X. Линии'))
+				// Свойства оси Y
+				.add(getAxisYProperties(path(basePath, 'axisY')))
+				// Линии оси Y
+				.add(getLinesProperties(path(basePath, 'axisY'), 'Ось Y. Линии'))
+				// Свойства легенды
+				.add(getLegendProperties(path(basePath, 'legend')))
+				// Палитра
+				.add(
+					propertiesBuilder
 						.palettePicker(qlikTheme)
 						.titled('Палитра')
 						.visible(
@@ -227,8 +223,7 @@ define(
 								return qlikTheme != null;
 							})
 						.forProperty(path(basePath, 'palette', 'id'))
-				}
-			};
+				);
 		}
 
 		/**
@@ -237,18 +232,15 @@ define(
 		 * @returns {QlikPropertyDefinition} Определения свойств оси
 		 */
 		function getAxisXProperties(basePath) {
-			return {
-				type: 'items',
-				label: 'Ось X',
-				items: {
-					// Признак отображение сетки
-					gridShown: propertiesBuilder
+			return pf.items('Ось X')
+				// Признак отображение сетки
+				.add(
+					propertiesBuilder
 						.toggle('Показать', 'Скрыть')
 						.defaulted(true)
 						.titled('Отображение сетки')
 						.forProperty(path(basePath, 'grid', 'shown'))
-				}
-			};
+				);
 		}
 
 		/**
@@ -257,24 +249,23 @@ define(
 		 * @returns {QlikPropertyDefinition} Определения свойств оси
 		 */
 		function getAxisYProperties(basePath) {
-			return {
-				type: 'items',
-				label: 'Ось Y',
-				items: {
-					// Подпись оси
-					title: propertiesBuilder
+			return pf.items('Ось Y')
+				// Подпись оси
+				.add(
+					propertiesBuilder
 						.stringInput()
 						.useExpression()
 						.titled('Заголовок оси')
-						.forProperty(path(basePath, 'title')),
-					// Признак отображение сетки
-					gridShown: propertiesBuilder
+						.forProperty(path(basePath, 'title'))
+				)
+				// Признак отображение сетки
+				.add(
+					propertiesBuilder
 						.toggle('Показать', 'Скрыть')
 						.defaulted(false)
 						.titled('Отображение сетки')
 						.forProperty(path(basePath, 'grid', 'shown'))
-				}
-			};
+				);
 		}
 
 		/**
@@ -337,16 +328,16 @@ define(
 		 * @returns {QlikPropertyDefinition} Определения свойств
 		 */
 		function getLegendProperties(basePath) {
-			return {
-				type: 'items',
-				label: 'Легенда',
-				items: {
-					shown: propertiesBuilder
+			return pf.items('Легенда')
+				.add(
+					propertiesBuilder
 						.toggle('Показать', 'Скрыть')
 						.defaulted(true)
 						.titled('Отображение легенды')
-						.forProperty(path(basePath, 'shown')),
-					position: propertiesBuilder
+						.forProperty(path(basePath, 'shown'))
+				)
+				.add(
+					propertiesBuilder
 						.comboBox()
 						.addOption('Bottom', 'Снизу', true)
 						.addOption('Right', 'Справа')
@@ -357,8 +348,7 @@ define(
 								return context.properties.legend.shown;
 							})
 						.forProperty(path(basePath, 'position'))
-				}
-			};
+				);
 		}
 		
 		// Вспомогательные функции определений свойств
