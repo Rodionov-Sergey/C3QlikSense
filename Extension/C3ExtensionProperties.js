@@ -91,33 +91,32 @@ define(
 			return pf.dimensions(1, 1)
 				// Тип шкалы
 				.add(
-					propertiesBuilder
-						.comboBox()
-						.addOption('CategoricalScale', 'Категориальная шкала', true)
-						.addOption('NumericScale', 'Числовая шкала')
-						.addOption('TemporalScale', 'Временная шкала')
-						.titled('Тип шкалы')
-						.forProperty(path(basePath, 'scaleType'))
+					pf.property(path(basePath, 'scaleType'))
+						.title('Тип шкалы')
+						.ofEnum()
+						.add('CategoricalScale', 'Категориальная шкала', true)
+						.add('NumericScale', 'Числовая шкала')
+						.add('TemporalScale', 'Временная шкала')
+						.asComboBox()
 				)
 				.add(
 					pf.items()
 						// Угол наклона подписей - слайдер
 						.add(
-							propertiesBuilder
-								.numberSlider()
+							pf.property(path(basePath, 'tickLabelAngle'))
+								.title('Угол наклона подписей')
+								.default(0)
+								.ofInteger()
 								.range(-90, 90)
-								.step(10)
-								.defaulted(0)
-								.titled('Угол наклона подписей')
-								.forProperty(path(basePath, 'tickLabelAngle'))
+								.asSlider(10)
 						)
 						// Угол наклона подписей - числовое поле
 						.add(
-							propertiesBuilder
-								.integerInput()
+							pf.property(path(basePath, 'tickLabelAngle'))
+								.default(0)
+								.ofInteger()
 								.range(-90, 90)
-								.defaulted(0)
-								.forProperty(path(basePath, 'tickLabelAngle'))
+								.asInput()
 						)
 				);
 		}
@@ -132,20 +131,19 @@ define(
 			return pf.measures(1, 10)
 				// Тип графика
 				.add(
-					propertiesBuilder
-						.comboBox()
-						.addOption('LineChart', 'Линейный график', true)
-						.addOption('BarChart', 'Столбчатая диаграмма')
-						.titled('Тип графика')
-						.forProperty(path(basePath, 'chartType'))
+					pf.property(path(basePath, 'chartType'))
+						.title('Тип графика')
+						.ofEnum()
+						.add('LineChart', 'Линейный график', true)
+						.add('BarChart', 'Столбчатая диаграмма')
+						.asComboBox()
 				)
 				// Настройка группировки
 				.add(
-					propertiesBuilder
-						.stringInput()
-						.useExpression()
-						.titled('Идентификатор группы')
-						.forProperty(path(basePath, 'groupKey'))
+					pf.property(path(basePath, 'groupKey'))
+						.title('Идентификатор группы')
+						.ofString()
+						.asExpressionBox()
 				)
 				// Настройки линейного графика
 				.add(
@@ -161,29 +159,28 @@ define(
 		function getLineChartProperties(basePath) {
 			return pf.items()
 				.add(
-					propertiesBuilder
-						.label('Линейный график')
+					pf.label('Линейный график')
 				)
 				.add(
-					propertiesBuilder
-						.checkBox()
-						.defaulted(false)
-						.titled('Отображение точек')
-						.forProperty(path(basePath, 'pointsShown'))
+					pf.property(path(basePath, 'pointsShown'))
+						.title('Отображение точек')
+						.default(false)
+						.ofBoolean()
+						.asCheckBox()
 				)
 				.add(
-					propertiesBuilder
-						.checkBox()
-						.defaulted(true)
-						.titled('Отображение линии')
-						.forProperty(path(basePath, 'lineShown'))
+					pf.property(path(basePath, 'lineShown'))
+						.title('Отображение линии')
+						.default(true)
+						.ofBoolean()
+						.asCheckBox()
 				)
 				.add(
-					propertiesBuilder
-						.checkBox()
-						.defaulted(false)
-						.titled('Отображение области')
-						.forProperty(path(basePath, 'areaShown'))
+					pf.property(path(basePath, 'areaShown'))
+						.title('Отображение области')
+						.default(false)
+						.ofBoolean()
+						.asCheckBox()
 				)
 				.visible(
 					function (context) {
@@ -235,11 +232,11 @@ define(
 			return pf.items('Ось X')
 				// Признак отображение сетки
 				.add(
-					propertiesBuilder
-						.toggle('Показать', 'Скрыть')
-						.defaulted(true)
-						.titled('Отображение сетки')
-						.forProperty(path(basePath, 'grid', 'shown'))
+					pf.property(path(basePath, 'grid', 'shown'))
+						.title('Отображение сетки')
+						.default(true)
+						.ofBoolean()
+						.asSwitch('Показать', 'Скрыть')
 				);
 		}
 
@@ -252,19 +249,18 @@ define(
 			return pf.items('Ось Y')
 				// Подпись оси
 				.add(
-					propertiesBuilder
-						.stringInput()
-						.useExpression()
-						.titled('Заголовок оси')
-						.forProperty(path(basePath, 'title'))
+					pf.property(path(basePath, 'title'))
+						.title('Заголовок оси')
+						.ofString()
+						.asExpressionBox(true)
 				)
 				// Признак отображение сетки
 				.add(
-					propertiesBuilder
-						.toggle('Показать', 'Скрыть')
-						.defaulted(false)
-						.titled('Отображение сетки')
-						.forProperty(path(basePath, 'grid', 'shown'))
+					pf.property(path(basePath, 'grid', 'shown'))
+						.title('Отображение сетки')
+						.default(false)
+						.ofBoolean()
+						.asSwitch('Показать', 'Скрыть')
 				);
 		}
 
@@ -285,17 +281,15 @@ define(
 				// Свойства линии
 				items: {
 					// Значение
-					value: propertiesBuilder
-						.stringInput()
-						.useExpression()
-						.titled('Значение')
-						.forProperty('value'),
+					value: pf.property('value')
+						.title('Значение')
+						.ofString()
+						.asExpressionBox(true),
 					// Подпись
-					title: propertiesBuilder
-						.stringInput()
-						.useExpression()
-						.titled('Подпись')
-						.forProperty('title'),
+					title: pf.property('title')
+						.title('Подпись')
+						.ofString()
+						.asExpressionBox(true),
 					// Цвет
 					color: propertiesBuilder
 						.colorPicker(true)
@@ -330,24 +324,25 @@ define(
 		function getLegendProperties(basePath) {
 			return pf.items('Легенда')
 				.add(
-					propertiesBuilder
-						.toggle('Показать', 'Скрыть')
-						.defaulted(true)
-						.titled('Отображение легенды')
-						.forProperty(path(basePath, 'shown'))
+					pf.property(path(basePath, 'shown'))
+						.title('Отображение легенды')
+						.default(true)
+						.ofBoolean()
+						.asSwitch('Показать', 'Скрыть')
 				)
 				.add(
-					propertiesBuilder
-						.comboBox()
-						.addOption('Bottom', 'Снизу', true)
-						.addOption('Right', 'Справа')
-						.addOption('Inside', 'Внутри')
-						.titled('Расположение легенды')
+					pf
+						.property(path(basePath, 'position'))
+						.title('Расположение легенды')
+						.ofEnum()
+						.add('Bottom', 'Снизу', true)
+						.add('Right', 'Справа')
+						.add('Inside', 'Внутри')
+						.asComboBox()
 						.visible(
 							function (context) {
 								return context.properties.legend.shown;
 							})
-						.forProperty(path(basePath, 'position'))
 				);
 		}
 		

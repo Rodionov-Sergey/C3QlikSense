@@ -284,7 +284,7 @@
  * @property {String} ref Путь к заполняемому свойству через "."
  * @property {String} label Отображаемое название
  * @property {*} defaultValue Значение по умолчанию
- * @property {QlikPropertyOption} options Набор опций выбора (для свойств выбора опций)
+ * @property {QlikPropertyOption[]} options Набор опций выбора (для свойств выбора опций)
  * @property {Object.<string, QlikPropertyDefinition>} items Элементы
  * @property {function(
  *   Boolean
