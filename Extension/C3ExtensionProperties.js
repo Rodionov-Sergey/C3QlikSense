@@ -2,10 +2,7 @@
  * Настройки расширения C3Extension
  */
 define(
-	[
-		'./QlikPropertyDefinitions',
-		'./QlikPropertiesBuilder'
-	],
+	['./QlikPropertyDefinitions'],
 
 	/**
 	 * Создаёт модуль
@@ -13,7 +10,7 @@ define(
 	 * @param {PropertyBuilderApi} propertiesBuilder Построитель определений свойств
 	 * @returns Модуль
 	 */
-	function (propertyFactory, propertiesBuilder) {
+	function (propertyFactory) {
 		'use strict';
 
 		var pf = propertyFactory;
@@ -212,14 +209,13 @@ define(
 				.add(getLegendProperties(path(basePath, 'legend')))
 				// Палитра
 				.add(
-					propertiesBuilder
-						.palettePicker(qlikTheme)
-						.titled('Палитра')
+					pf.property(path(basePath, 'palette', 'id'))
+						.title('Палитра')
+						.ofPalette(qlikTheme)
 						.visible(
 							function() {
 								return qlikTheme != null;
 							})
-						.forProperty(path(basePath, 'palette', 'id'))
 				);
 		}
 
@@ -271,49 +267,53 @@ define(
 		 * @returns {QlikPropertyDefinition} Определения свойств линий
 		 */
 		function getLinesProperties(basePath, title) {
-			return {
-				ref: path(basePath, 'lines'),
-				type: 'array',
-				label: title,
-				allowAdd: true,
-				allowRemove: true,
-				addTranslation: 'Добавить',
-				// Свойства линии
-				items: {
-					// Значение
-					value: pf.property('value')
+			return pf.property(path(basePath, 'lines'))
+				.title(title)
+				.ofArray()
+				.modifiable(true, 'Добавить')
+				.orderable(false)
+				// Значение
+				.add(
+					pf.property('value')
 						.title('Значение')
 						.ofString()
-						.asExpressionBox(true),
-					// Подпись
-					title: pf.property('title')
+						.asExpressionBox(true)
+						.build()
+				)
+				// Подпись
+				.add(
+					pf.property('title')
 						.title('Подпись')
 						.ofString()
-						.asExpressionBox(true),
-					// Цвет
-					color: propertiesBuilder
-						.colorPicker(true)
-						.titled('Цвет')
-						.forProperty('foreground')
-				},
+						.asExpressionBox(true)
+						.build()
+				)
+				// Цвет
+				.add(
+					pf.property('foreground')
+						.title('Цвет')
+						.ofColor(true)
+						.build()
+				)
 				// Подпись элемента в боковой панели
-				itemTitleRef: function (item)
-				{
-					var valueString = '';
-					// Число
-					if (typeof(item.value) === 'number') {
-						valueString = item.value.toString();
-					}
-					// Выражение
-					else if (typeof(item.value) === 'object' && 
-						item.value.qValueExpression != null) {
-						valueString = item.value.qValueExpression.qExpr;
-					}
+				.itemTitle(
+					function (item)
+					{
+						var valueString = '';
+						// Число
+						if (typeof(item.value) === 'number') {
+							valueString = item.value.toString();
+						}
+						// Выражение
+						else if (typeof(item.value) === 'object' && 
+							item.value.qValueExpression != null) {
+							valueString = item.value.qValueExpression.qExpr;
+						}
 
-					var titleString = item.title != null && item.title != '' ? item.title + ': ' : '';
-					return titleString + valueString; 
-				}
-			};
+						var titleString = item.title != null && item.title != '' ? item.title + ': ' : '';
+						return titleString + valueString; 
+					}
+				);
 		}
 
 		/**

@@ -112,7 +112,7 @@ define(
 		 */
 		function paintChart($parentElement, qlikExtension, qlikTheme) {
 
-			// DEBUG: Отладка данных расширения
+			// DEBUG: Отладка темы
 			//console.log('Тема', qlikTheme);
 
 			// Контейнер для графика

@@ -214,6 +214,11 @@ define(
 			appendOfStringFunction(builder, state);
 			appendOfEnumFunction(builder, state);
 
+			appendOfArrayFunction(builder, state);
+
+			appendOfColorFunction(builder, state);
+			appendOfPaletteFunction(builder, state);
+
 			return builder;
 		}
 
@@ -500,6 +505,220 @@ define(
 				return builder;
 			};
 		}
+
+		/**
+		 * @param {Builder} builder 
+		 * @param {QlikPropertyDefinition} state 
+		 */
+		function appendOfArrayFunction(builder, state) {
+			builder.ofArray = function () {
+				state.type = 'array';
+				state.items = { };
+				appendAddFunction(builder, state);
+				appendItemTitleFunction(builder, state);
+				appendItemTitlePropertyNameFunction(builder, state);
+				appendModifiableFunction(builder, state);
+				appendOrderableFunction(builder, state);
+				appendMaxCountFunction(builder, state);
+				return builder;
+			};
+		}
+
+		/**
+		 * @param {Builder} builder 
+		 * @param {QlikPropertyDefinition} state 
+		 */
+		function appendItemTitleFunction(builder, state) {
+			builder.itemTitle = function (title) {
+				if (typeof(title) === 'function') {
+					// Установка функции вычисления заголовка
+					state.itemTitleRef = title;
+				}
+				else {
+					// Установка текста заголовка
+					state.itemTitleRef = function () {
+						return title;
+					};
+				}
+				return builder;
+			};
+		}
+		
+		/**
+		 * @param {Builder} builder 
+		 * @param {QlikPropertyDefinition} state 
+		 */
+		function appendItemTitlePropertyNameFunction(builder, state) {
+			builder.itemTitlePropertyName = function (itemPropertyName) {
+				state.itemTitleRef = itemPropertyName;
+				return builder;
+			};
+		}
+
+		/**
+		 * @param {Builder} builder 
+		 * @param {QlikPropertyDefinition} state 
+		 */
+		function appendModifiableFunction(builder, state) {
+			builder.modifiable = function (isModifiable, additionTitle) {
+				state.allowAdd = isModifiable;
+				state.allowRemove = isModifiable;
+				if (isModifiable) {
+					state.addTranslation = additionTitle;
+				}
+				return builder;
+			};
+		}
+		
+		/**
+		 * @param {Builder} builder 
+		 * @param {QlikPropertyDefinition} state 
+		 */
+		function appendOrderableFunction(builder, state) {
+			builder.orderable = function (isOrderable) {
+				state.allowMove = isOrderable;
+				return builder;
+			};
+		}
+
+		/**
+		 * @param {Builder} builder 
+		 * @param {QlikPropertyDefinition} state 
+		 */
+		function appendMaxCountFunction(builder, state) {
+			builder.maxCount = function (maxCount) {
+				state.max = maxCount;
+				return builder;
+			};
+		}
+
+
+		/**
+		 * @param {Builder} builder 
+		 * @param {QlikPropertyDefinition} state 
+		 */
+		function appendOfColorFunction(builder, state) {
+			builder.ofColor = function (allowCustomColor) {
+				// Идентификатор описывается на уровне шаблона элемента, а не списка
+				state.type = allowCustomColor ? 'object' : 'integer';
+				state.component = 'color-picker';
+				return builder;
+			};
+		}
+
+		/**
+		 * @param {Builder} builder 
+		 * @param {QlikPropertyDefinition} state 
+		 */
+		function appendOfPaletteFunction(builder, state) {
+			builder.ofPalette = function (qlikTheme) {
+				
+				state.type = 'items';
+				state.items = {
+					template: {
+						// Идентификатор добавляется в описание элемента
+						ref: state.ref,
+						type: 'items',
+						component: 'item-selection-list',
+						horizontal: false,
+						items: getPalettesOptions(qlikTheme)
+					}
+				};
+				// Идентификатор удаляется из описания списка
+				delete state.ref;
+
+				return builder;
+			};
+		}
+
+		/**
+		 * Возвращает определение списка выбора палитры
+		 * @param {QlikTheme} qlikTheme Тема
+		 * @return {QlikColorScaleComponent[]} Список выбора темы
+		 */
+		function getPalettesOptions(qlikTheme) {
+			if (qlikTheme == null) {
+				return [];
+			}
+			return getThemePalettes(qlikTheme)
+				.map(colorScaleComponent);
+		}
+
+		/**
+		 * Возвращает опредление опции выбора палитры
+		 * @param {QlikPalette} qlikPalette Палитра
+		 * @returns {QlikColorScaleComponent} Опция выбора палитры
+		 */
+		function colorScaleComponent(qlikPalette) {
+			return {
+				component: 'color-scale',
+				value: qlikPalette.propertyValue,
+				label: qlikPalette.name,
+				icon: '',
+				type: 'sequential',
+				colors: getPaletteScale(qlikPalette),
+			};
+		}
+		
+		/**
+		 * Возвращает список палитр темы
+		 * @param {QlikTheme} qlikTheme Тема
+		 * @returns {QlikPalette[]} Список палитр
+		 */
+		function getThemePalettes(qlikTheme) {
+			return qlikTheme.properties.palettes.data;
+		}
+
+		/**
+		 * Возвращает цветовую шкалу палитры типа Пирамида
+		 * @param {QlikPalette} qlikPyramidPalette Палитра
+		 * @param {Number} colorCount Количество цветов
+		 * @returns {String[]} Массив цветов палитры
+		 */
+		function getPaletteScale(qlikPalette, colorCount) {
+
+			if (qlikPalette.type === 'pyramid') {
+				return getPyramidPaletteScale(qlikPalette, colorCount);
+			}
+			else if (qlikPalette.type === 'row') {
+				return getRowPaletteScale(qlikPalette);
+			}
+			
+			return null;
+		}
+
+		/**
+		 * Возвращает цветовую шкалу палитры типа Пирамида
+		 * @param {QlikPalette} qlikPyramidPalette Палитра
+		 * @param {Number} scaleSize Размер шкалы
+		 * @returns {String[]} Массив цветов палитры
+		 */
+		function getPyramidPaletteScale(qlikPyramidPalette, scaleSize) {
+			if (scaleSize != null) {
+				/** @type {Color[][]} */
+				var qlikPaletteScales = qlikPyramidPalette.scale
+					.filter(
+						function (scale) {
+							return scale != null && scale.length === scaleSize;
+						}
+					);
+
+				if (qlikPaletteScales.length > 0) {
+					return qlikPaletteScales[0];
+				}
+			}
+
+			return qlikPyramidPalette.scale[qlikPyramidPalette.scale.length-1];
+		}
+
+		/**
+		 * Возвращает цветовую шкалу палитры типа Ряд
+		 * @param {QlikPalette} qlikRowPalette Палитра
+		 * @returns {Color[]} Массив цветов палитры
+		 */
+		function getRowPaletteScale(qlikRowPalette) {
+			return qlikRowPalette.scale;
+		}
 	}
 );
 
@@ -554,6 +773,8 @@ define(
  * @property {function(): NumberPropertyBuilder} ofNumber
  * @property {function(): StringPropertyBuilder} ofString
  * @property {function(): EnumPropertyBuilder} ofEnum
+ * @property {function(): ArrayPropertyBuilder} ofArray
+ * @property {PalettePropertyFunction} ofPalette
  */
 /**
  * @typedef {_PropertyBuilder & Builder} PropertyBuilder
@@ -662,12 +883,80 @@ define(
  * @typedef {_EnumPropertyBuilder & PropertyBuilder} EnumPropertyBuilder
  */
 
- /**
+/**
  * @callback AddOptionFunction
  * @param {*} value
  * @param {String} title
  * @param {Boolean=} isDefault
  * @returns {EnumPropertyBuilder}
+ */
+
+/**
+ * @typedef {Object} _ArrayPropertyBuilder
+ * @property {ArrayAddPropertyFunction} add
+ * @property {ArrayItemTitleSetterFunction} itemTitle
+ * @property {ArrayItemTitlePropertyNameSetterFunction} itemTitlePropertyName
+ * @property {ArrayModifiableSetterFunction} modifiable
+ * @property {ArrayOrderableSetterFunction} orderable
+ * @property {ArrayMaxCountSetterFunction} maxCount
+ */
+/**
+ * @typedef {_ArrayPropertyBuilder & PropertyBuilder} ArrayPropertyBuilder
+ */
+
+/**
+ * @callback ArrayAddPropertyFunction
+ * @param {QlikPropertyDefinition|PropertyBuilder} item
+ * @returns {ArrayPropertyBuilder}
+ */
+ 
+/**
+ * @callback ArrayItemTitleSetterFunction
+ * @param {String | GetArrayItemTitleFunction} title
+ * @returns {ArrayPropertyBuilder}
+ */
+
+/**
+ * @callback GetArrayItemTitleFunction
+ * @param {*} item
+ * @param {Number} index
+ * @param {*} context
+ * @returns {String}
+ */
+
+/**
+ * @callback ArrayItemTitlePropertyNameSetterFunction
+ * @param {String} itemPropertyName
+ * @returns {ArrayPropertyBuilder}
+ */
+
+/**
+ * @callback ArrayModifiableSetterFunction
+ * @param {Boolean} isModifiable
+ * @param {String} additionTitle
+ * @returns {ArrayPropertyBuilder}
+ */
+
+/**
+ * @callback ArrayOrderableSetterFunction
+ * @param {Boolean} isOrderable
+ * @returns {ArrayPropertyBuilder}
+ */
+
+/**
+ * @callback ArrayMaxCountSetterFunction
+ * @param {Number} maxCount
+ * @returns {ArrayPropertyBuilder}
+ */
+
+/**
+ * @callback PalettePropertyFunction
+ * @param {QlikTheme} qlikTheme
+ * @returns {PalettePropertyBuilder}
+ */
+
+/**
+ * @typedef {PropertyBuilder} PalettePropertyBuilder
  */
 
 /**
