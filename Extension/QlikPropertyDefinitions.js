@@ -23,7 +23,9 @@ define(
 			items: items,
 
 			label: label,
-			property: property
+			property: property,
+
+			utils: utils
 		};
 
 		/**
@@ -174,6 +176,7 @@ define(
 			builder.add = function (property) {
 				// Автогенерация названия для свойства 
 				var key = 0;
+				// eslint-disable-next-line no-unused-vars
 				for (var _ in state.items) {
 					key += 1;
 				}
@@ -192,13 +195,15 @@ define(
 		}
 
 		/**
-		 * @param {String} title
+		 * @param {String} pathParts
 		 * @returns {PropertyBuilder}
 		 */
-		function property(propertyPath) {
+		function property(pathParts) {
+			pathParts = Array.prototype.slice.call(arguments);
+
 			/** @type {QlikPropertyDefinition} */
 			var state = {
-				ref: propertyPath
+				ref: combinePath(pathParts)
 			};
 
 			var builder = { };
@@ -719,6 +724,35 @@ define(
 		function getRowPaletteScale(qlikRowPalette) {
 			return qlikRowPalette.scale;
 		}
+
+		/**
+		 * @returns {PropertyUtils}
+		 */
+		function utils() {
+			return {
+				path: path
+			};
+		}
+
+		
+		/**
+		 * Соединяет части пути к свойству
+		 * @param {...String} args Части пути
+		 * @returns {String} Общий путь к свойству
+		 */
+		function path(args) {
+			args = Array.prototype.slice.call(arguments);
+			return combinePath(args);
+		}
+
+		/**
+		 * Соединяет части пути к свойству
+		 * @param {String[]} itemParts Части пути
+		 * @returns {String} Общий путь к свойству
+		 */
+		function combinePath(itemParts) {
+			return itemParts.join('.');
+		}
 	}
 );
 
@@ -733,6 +767,7 @@ define(
  * @property {TitledItemsBuilderFunction} items
  * @property {PropertyBuilderFunction} property
  * @property {LabelBuilderFunction} label
+ * @property {function(): PropertyUtils} utils
  */
 
 /**
@@ -759,7 +794,7 @@ define(
 
 /**
  * @callback PropertyBuilderFunction
- * @param {String} propertyPath
+ * @param {...String[]} pathParts
  * @returns {PropertyBuilder}
  */
 
@@ -968,4 +1003,9 @@ define(
 /**
  * @typedef {Object} Builder
  * @property {function(): QlikPropertyDefinition} build
+ */
+
+/**
+ * @typedef {Object} PropertyUtils
+ * @property {function(...String): String} path
  */

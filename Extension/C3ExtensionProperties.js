@@ -88,7 +88,7 @@ define(
 			return pf.dimensions(1, 1)
 				// Тип шкалы
 				.add(
-					pf.property(path(basePath, 'scaleType'))
+					pf.property(basePath, 'scaleType')
 						.title('Тип шкалы')
 						.ofEnum()
 						.add('CategoricalScale', 'Категориальная шкала', true)
@@ -100,7 +100,7 @@ define(
 					pf.items()
 						// Угол наклона подписей - слайдер
 						.add(
-							pf.property(path(basePath, 'tickLabelAngle'))
+							pf.property(basePath, 'tickLabelAngle')
 								.title('Угол наклона подписей')
 								.default(0)
 								.ofInteger()
@@ -109,7 +109,7 @@ define(
 						)
 						// Угол наклона подписей - числовое поле
 						.add(
-							pf.property(path(basePath, 'tickLabelAngle'))
+							pf.property(basePath, 'tickLabelAngle')
 								.default(0)
 								.ofInteger()
 								.range(-90, 90)
@@ -128,7 +128,7 @@ define(
 			return pf.measures(1, 10)
 				// Тип графика
 				.add(
-					pf.property(path(basePath, 'chartType'))
+					pf.property(basePath, 'chartType')
 						.title('Тип графика')
 						.ofEnum()
 						.add('LineChart', 'Линейный график', true)
@@ -137,7 +137,7 @@ define(
 				)
 				// Настройка группировки
 				.add(
-					pf.property(path(basePath, 'groupKey'))
+					pf.property(basePath, 'groupKey')
 						.title('Идентификатор группы')
 						.ofString()
 						.asExpressionBox()
@@ -159,21 +159,21 @@ define(
 					pf.label('Линейный график')
 				)
 				.add(
-					pf.property(path(basePath, 'pointsShown'))
+					pf.property(basePath, 'pointsShown')
 						.title('Отображение точек')
 						.default(false)
 						.ofBoolean()
 						.asCheckBox()
 				)
 				.add(
-					pf.property(path(basePath, 'lineShown'))
+					pf.property(basePath, 'lineShown')
 						.title('Отображение линии')
 						.default(true)
 						.ofBoolean()
 						.asCheckBox()
 				)
 				.add(
-					pf.property(path(basePath, 'areaShown'))
+					pf.property(basePath, 'areaShown')
 						.title('Отображение области')
 						.default(false)
 						.ofBoolean()
@@ -209,7 +209,7 @@ define(
 				.add(getLegendProperties(path(basePath, 'legend')))
 				// Палитра
 				.add(
-					pf.property(path(basePath, 'palette', 'id'))
+					pf.property(basePath, 'palette', 'id')
 						.title('Палитра')
 						.ofPalette(qlikTheme)
 						.visible(
@@ -228,7 +228,7 @@ define(
 			return pf.items('Ось X')
 				// Признак отображение сетки
 				.add(
-					pf.property(path(basePath, 'grid', 'shown'))
+					pf.property(basePath, 'grid', 'shown')
 						.title('Отображение сетки')
 						.default(true)
 						.ofBoolean()
@@ -245,14 +245,14 @@ define(
 			return pf.items('Ось Y')
 				// Подпись оси
 				.add(
-					pf.property(path(basePath, 'title'))
+					pf.property(basePath, 'title')
 						.title('Заголовок оси')
 						.ofString()
 						.asExpressionBox(true)
 				)
 				// Признак отображение сетки
 				.add(
-					pf.property(path(basePath, 'grid', 'shown'))
+					pf.property(basePath, 'grid', 'shown')
 						.title('Отображение сетки')
 						.default(false)
 						.ofBoolean()
@@ -267,7 +267,7 @@ define(
 		 * @returns {QlikPropertyDefinition} Определения свойств линий
 		 */
 		function getLinesProperties(basePath, title) {
-			return pf.property(path(basePath, 'lines'))
+			return pf.property(basePath, 'lines')
 				.title(title)
 				.ofArray()
 				.modifiable(true, 'Добавить')
@@ -324,7 +324,7 @@ define(
 		function getLegendProperties(basePath) {
 			return pf.items('Легенда')
 				.add(
-					pf.property(path(basePath, 'shown'))
+					pf.property(basePath, 'shown')
 						.title('Отображение легенды')
 						.default(true)
 						.ofBoolean()
@@ -332,7 +332,7 @@ define(
 				)
 				.add(
 					pf
-						.property(path(basePath, 'position'))
+						.property(basePath, 'position')
 						.title('Расположение легенды')
 						.ofEnum()
 						.add('Bottom', 'Снизу', true)
