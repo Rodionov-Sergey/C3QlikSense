@@ -7,7 +7,6 @@ define(
 	/**
 	 * Создаёт модуль
 	 * @param {PropertyFactory} f
-	 * @param {PropertyBuilderApi} propertiesBuilder Построитель определений свойств
 	 * @returns Модуль
 	 */
 	function (f) {
@@ -206,7 +205,7 @@ define(
 					f.palette(basePath, 'palette', 'id')
 						.title('Палитра')
 						.picker()
-						.fillFromTheme(qlikTheme)
+						.addFromTheme(qlikTheme)
 						.visible(
 							function() {
 								return qlikTheme != null;
@@ -321,7 +320,7 @@ define(
 		function getLegendProperties(basePath) {
 			return f.panel('Легенда')
 				.add(
-					f.boolean(basePath, 'grid', 'shown')
+					f.boolean(basePath, 'shown')
 						.title('Отображение легенды')
 						.default(false)
 						.switch()
@@ -336,6 +335,7 @@ define(
 						.comboBox()
 						.visible(
 							function (context) {
+								// TODO: Использовать context[basePath + '.shown'] для доступа
 								return context.properties.legend.shown;
 							})
 				);

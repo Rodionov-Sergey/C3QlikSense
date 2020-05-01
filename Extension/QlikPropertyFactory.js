@@ -32,8 +32,9 @@ define(
 		};
 
 		/**
-		 * @param {...String} propertyPath
-		 * @returns {BooleanBuilder}
+		 * Создаёт логическое свойство
+		 * @param {...String} propertyPath Путь к свойству
+		 * @returns {BooleanBuilder} Построитель свойства
 		 */
 		function boolean(propertyPath) {
 			propertyPath = Array.prototype.slice.call(arguments);
@@ -44,49 +45,52 @@ define(
 				type: 'boolean'
 			};
 
-			var builder = {};
-			fillBuilder(builder, definition);
-			fillPropertyBuilder(builder, definition);
-			addBooleanCheckBox(builder, definition);
-			addBooleanSwitch(builder, definition);
-			return builder;
+			return {
+				build: builderBuild(definition),
+				default: setPropertyDefault(definition),
+				title: setPropertyTitle(definition),
+				visible: setPropertyVisible(definition),
+				checkBox: toBooleanCheckBox(definition),
+				switch: toBooleanSwitch(definition)
+			};
 		}
-		
+
 		/**
-		 * @param {BooleanBuilder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addBooleanCheckBox(builder, definition) {
-			builder.checkBox = function () {
+		function toBooleanCheckBox(definition) {
+			return function () {
 				delete definition.component;
-				var builder = {};
-				fillBuilder(builder, definition);
-				fillPropertyBuilder(builder, definition);
-				return builder;
+				return {
+					build: builderBuild(definition),
+					default: setPropertyDefault(definition),
+					title: setPropertyTitle(definition),
+					visible: setPropertyVisible(definition)
+				};
 			};
 		}
 		
 		/**
-		 * @param {BooleanBuilder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addBooleanSwitch(builder, definition) {
-			builder.switch = function () {
+		function toBooleanSwitch(definition) {
+			return function () {
 				definition.component = 'switch';
-				var builder = {};
-				fillBuilder(builder, definition);
-				fillPropertyBuilder(builder, definition);
-				addBooleanSwitchOptionTitles(builder, definition);
-				return builder;
+				return {
+					build: builderBuild(definition),
+					default: setPropertyDefault(definition),
+					title: setPropertyTitle(definition),
+					visible: setPropertyVisible(definition),
+					optionTitles: setBooleanSwitchOptionTitles(definition)
+				};
 			};
 		}
-				
+
 		/**
-		 * @param {BooleanSwitchBuilder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addBooleanSwitchOptionTitles(builder, definition) {
-			builder.optionTitles = function (trueTitle, falseTitle) {
+		function setBooleanSwitchOptionTitles(definition) {
+			return function (trueTitle, falseTitle) {
 				definition.options = [
 					{
 						value: true,
@@ -97,13 +101,14 @@ define(
 						label: falseTitle
 					}
 				];
-				return builder;
+				return this;
 			};
 		}
-
+	
 		/**
-		 * @param {...String} propertyPath
-		 * @returns {IntegerBuilder}
+		 * Создаёт целочисленное свойство
+		 * @param {...String} propertyPath Путь к свойству
+		 * @returns {IntegerBuilder} Построитель свойства
 		 */
 		function integer(propertyPath) {
 			propertyPath = Array.prototype.slice.call(arguments);
@@ -114,68 +119,64 @@ define(
 				type: 'integer'
 			};
 
-			var builder = {};
-			fillBuilder(builder, definition);
-			fillPropertyBuilder(builder, definition);
-			fillIntegerBuilder(builder, definition);
-			addIntegerEditBox(builder, definition);
-			addIntegerSlider(builder, definition);
-			return builder;
-		}
-		
-		/**
-		 * @param {*} builder 
-		 * @param {QlikPropertyDefinition} definition 
-		 */
-		function fillIntegerBuilder(builder, definition) {
-			addRange(builder, definition);
+			return {
+				build: builderBuild(definition),
+				default: setPropertyDefault(definition),
+				title: setPropertyTitle(definition),
+				visible: setPropertyVisible(definition),
+				range: setRange(definition),
+				editBox: toIntegerEditBox(definition),
+				slider: toIntegerSlider(definition)
+			};
 		}
 
 		/**
-		 * @param {IntegerBuilder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addIntegerEditBox(builder, definition) {
-			builder.editBox = function() {
+		function toIntegerEditBox(definition) {
+			return function() {
 				delete definition.component;
-				var builder = {};
-				fillBuilder(builder, definition);
-				fillPropertyBuilder(builder, definition);
-				fillIntegerBuilder(builder, definition);
-				return builder;
+				return {
+					build: builderBuild(definition),
+					default: setPropertyDefault(definition),
+					title: setPropertyTitle(definition),
+					visible: setPropertyVisible(definition),
+					range: setRange(definition)
+				};
 			};
 		}
 
 		/**
-		 * @param {IntegerBuilder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addIntegerSlider(builder, definition) {
-			builder.slider = function() {
+		function toIntegerSlider(definition) {
+			return function() {
 				definition.component = 'slider';
-				var builder = {};
-				fillBuilder(builder, definition);
-				fillPropertyBuilder(builder, definition);
-				fillIntegerBuilder(builder, definition);
-				addIntegerSliderStep(builder, definition);
-				return builder;
+				return {
+					build: builderBuild(definition),
+					default: setPropertyDefault(definition),
+					title: setPropertyTitle(definition),
+					visible: setPropertyVisible(definition),
+					range: setRange(definition),
+					step: setIntegerSliderStep(definition)
+				};
 			};
 		}
 
 		/**
-		 * @param {Slider} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addIntegerSliderStep(builder, definition) {
-			builder.step = function (stepValue) {
+		function setIntegerSliderStep(definition) {
+			return function (stepValue) {
 				definition.step = Math.max(Math.round(stepValue), 1);
-				return builder;
+				return this;
 			};
 		}
 
 		/**
-		 * @param {...String} propertyPath
-		 * @returns {IntegerBuilder}
+		 * Создаёт вещественное числовое свойство
+		 * @param {...String} propertyPath Путь к свойству
+		 * @returns {NumberBuilder} Построитель свойства
 		 */
 		function number(propertyPath) {
 			propertyPath = Array.prototype.slice.call(arguments);
@@ -186,87 +187,83 @@ define(
 				type: 'number'
 			};
 
-			var builder = {};
-			fillBuilder(builder, definition);
-			fillPropertyBuilder(builder, definition);
-			fillNumberBuilder(builder, definition);
-			addNumberEditBox(builder, definition);
-			addNumberSlider(builder, definition);
-			addNumberExpressionBox(builder, definition);
-			return builder;
-		}
-
-		/**
-		 * @param {*} builder 
-		 * @param {QlikPropertyDefinition} definition 
-		 */
-		function fillNumberBuilder(builder, definition) {
-			addRange(builder, definition);
+			return {
+				build: builderBuild(definition),
+				default: setPropertyDefault(definition),
+				title: setPropertyTitle(definition),
+				visible: setPropertyVisible(definition),
+				range: setRange(definition),
+				editBox: toNumberEditBox(definition),
+				slider: toNumberSlider(definition),
+				expressionBox: setNumberExpressionBox(definition)
+			};
 		}
 		
 		/**
-		 * @param {NumberBuilder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addNumberEditBox(builder, definition) {
-			builder.editBox = function() {
+		function toNumberEditBox(definition) {
+			return function() {
 				delete definition.component;
-				var builder = {};
-				fillBuilder(builder, definition);
-				fillPropertyBuilder(builder, definition);
-				fillNumberBuilder(builder, definition);
-				return builder;
+				return {
+					build: builderBuild(definition),
+					default: setPropertyDefault(definition),
+					title: setPropertyTitle(definition),
+					visible: setPropertyVisible(definition),
+					range: setRange(definition)
+				};
 			};
 		}
 
 		/**
-		 * @param {NumberBuilder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addNumberSlider(builder, definition) {
-			builder.slider = function() {
+		function toNumberSlider(definition) {
+			return function() {
 				definition.component = 'slider';
 				definition.type = 'number';
-				var builder = {};
-				fillBuilder(builder, definition);
-				fillPropertyBuilder(builder, definition);
-				fillNumberBuilder(builder, definition);
-				addNumberSliderStep(builder, definition);
-				return builder;
+				return {
+					build: builderBuild(definition),
+					default: setPropertyDefault(definition),
+					title: setPropertyTitle(definition),
+					visible: setPropertyVisible(definition),
+					range: setRange(definition),
+					step: setNumberSliderStep(definition)
+				};
 			};
 		}
 
 		/**
-		 * @param {Slider} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addNumberSliderStep(builder, definition) {
-			builder.step = function (stepValue) {
+		function setNumberSliderStep(definition) {
+			return function (stepValue) {
 				definition.step = stepValue;
-				return builder;
+				return this;
 			};
 		}
 
 		/**
-		 * @param {IntegerExpressionBoxBuilder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addNumberExpressionBox(builder, definition) {
-			builder.expressionBox = function() {
+		function setNumberExpressionBox(definition) {
+			return function() {
 				delete definition.component;
 				definition.expression = 'always';
-				var builder = {};
-				fillBuilder(builder, definition);
-				fillPropertyBuilder(builder, definition);
-				fillNumberBuilder(builder, definition);
-				addExpressionBoxOptionalExpression(builder, definition);
-				return builder;
+				return {
+					build: builderBuild(definition),
+					default: setPropertyDefault(definition),
+					title: setPropertyTitle(definition),
+					visible: setPropertyVisible(definition),
+					optionalExpression: setExpressionBoxOptionalExpression(definition)
+				};
 			};
 		}
 
 		/**
-		 * @param {...String} propertyPath
-		 * @returns {IntegerBuilder}
+		 * Создаёт строковое свойство
+		 * @param {...String} propertyPath Путь к свойству
+		 * @returns {StringBuilder} Построитель свойства
 		 */
 		function string(propertyPath) {
 			propertyPath = Array.prototype.slice.call(arguments);
@@ -277,108 +274,102 @@ define(
 				type: 'string'
 			};
 
-			var builder = {};
-			fillBuilder(builder, definition);
-			fillPropertyBuilder(builder, definition);
-			fillStringBuilder(builder, definition);
-			addStringEditBox(builder, definition);
-			addStringTextArea(builder, definition);
-			addStringExpressionBox(builder, definition);
-			return builder;
+			return {
+				build: builderBuild(definition),
+				default: setPropertyDefault(definition),
+				title: setPropertyTitle(definition),
+				visible: setPropertyVisible(definition),
+				maxLength: setStringMaxLength(definition),
+				editBox: toStringEditBox(definition),
+				textArea: toStringTextArea(definition),
+				expressionBox: toStringExpressionBox(definition)
+			};
 		}
 
 		/**
-		 * @param {*} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function fillStringBuilder(builder, definition) {
-			addStringMaxLength(builder, definition);
-		}
-
-		/**
-		 * @param {StringBuilder} builder 
-		 * @param {QlikPropertyDefinition} definition 
-		 */
-		function addStringMaxLength(builder, definition) {
-			builder.maxLength = function (maxLength) {
+		function setStringMaxLength(definition) {
+			return function (maxLength) {
 				definition.maxLength = maxLength;
-				return builder;
+				return this;
 			};
 		}
 
 		/**
-		 * @param {StringBuilder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addStringEditBox(builder, definition) {
-			builder.editBox = function () {
+		function toStringEditBox(definition) {
+			return function () {
 				delete definition.component;
-				var builder = {};
-				fillBuilder(builder, definition);
-				fillPropertyBuilder(builder, definition);
-				fillStringBuilder(builder, definition);
-				return builder;
+				return {
+					build: builderBuild(definition),
+					default: setPropertyDefault(definition),
+					title: setPropertyTitle(definition),
+					visible: setPropertyVisible(definition),
+					maxLength: setStringMaxLength(definition)
+				};
 			};
 		}
 
 		/**
-		 * @param {StringBuilder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addStringTextArea(builder, definition) {
-			builder.textArea = function () {
+		function toStringTextArea(definition) {
+			return function () {
 				definition.component = 'textarea';
-				var builder = {};
-				fillBuilder(builder, definition);
-				fillPropertyBuilder(builder, definition);
-				fillStringBuilder(builder, definition);
-				addStringTextAreaRowCount(builder, definition);
-				return builder;
+				return {
+					build: builderBuild(definition),
+					default: setPropertyDefault(definition),
+					title: setPropertyTitle(definition),
+					visible: setPropertyVisible(definition),
+					maxLength: setStringMaxLength(definition),
+					rowCount: setStringTextAreaRowCount(definition)
+				};
 			};
 		}
 
 		/**
-		 * @param {StringTextAreaBuilder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addStringTextAreaRowCount(builder, definition) {
-			builder.rowCount = function (rowCount) {
+		function setStringTextAreaRowCount(definition) {
+			return function (rowCount) {
 				definition.rowCount = rowCount;
-				return builder;
+				return this;
 			};
 		}
 
 		/**
-		 * @param {IntegerExpressionBoxBuilder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addStringExpressionBox(builder, definition) {
-			builder.expressionBox = function() {
+		function toStringExpressionBox(definition) {
+			return function() {
 				delete definition.component;
 				definition.expression = 'always';
-				var builder = {};
-				fillBuilder(builder, definition);
-				fillPropertyBuilder(builder, definition);
-				fillStringBuilder(builder, definition);
-				addExpressionBoxOptionalExpression(builder, definition);
-				return builder;
+				return {
+					build: builderBuild(definition),
+					default: setPropertyDefault(definition),
+					title: setPropertyTitle(definition),
+					visible: setPropertyVisible(definition),
+					optionalExpression: setExpressionBoxOptionalExpression(definition)
+				};
 			};
 		}
 
 		/**
-		 * @param {IntegerExpressionBoxBuilder & NumberExpressionBox} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addExpressionBoxOptionalExpression(builder, definition) {
-			builder.optionalExpression = function(isOptional) {
+		function setExpressionBoxOptionalExpression(definition) {
+			return function(isOptional) {
 				definition.expression = isOptional ? 'optional' : 'always';
-				return builder;
+				return this;
 			};
 		}
 
 		/**
-		 * @param {...String} propertyPath
-		 * @returns {IntegerBuilder}
+		 * Создаёт перечислимое свойство
+		 * @param {...String} propertyPath Путь к свойству
+		 * @returns {EnumBuilder} Построитель свойства
 		 */
 		function enumeration(propertyPath) {
 			propertyPath = Array.prototype.slice.call(arguments);
@@ -392,30 +383,23 @@ define(
 				options: []
 			};
 
-			var builder = {};
-			fillBuilder(builder, definition);
-			fillPropertyBuilder(builder, definition);
-			fillEnumBuilder(builder, definition);
-			addEnumComboBox(builder, definition);
-			addEnumRadioButtons(builder, definition);
-			addEnumButtons(builder, definition);
-			return builder;
-		}
-
-		/**
-		 * @param {PropertyBuilder} builder 
-		 * @param {QlikPropertyDefinition} definition 
-		 */
-		function fillEnumBuilder(builder, definition) {
-			addEnumAddOption(builder, definition);
+			return {
+				build: builderBuild(definition),
+				default: setPropertyDefault(definition),
+				title: setPropertyTitle(definition),
+				visible: setPropertyVisible(definition),
+				add: enumAddOption(definition),
+				comboBox: toEnumComboBox(definition),
+				radioButtons: addEnumRadioButtons(definition),
+				buttons: addEnumButtons(definition)
+			};
 		}
 		
 		/**
-		 * @param {EnumBuilder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addEnumAddOption(builder, definition) {
-			builder.add = function (value, title, isDefault) {
+		function enumAddOption(definition) {
+			return function (value, title, isDefault) {
 				var option = {
 					value: value,
 					label: title
@@ -425,58 +409,62 @@ define(
 				if (isDefault) {
 					definition.defaultValue = value;
 				}
-				return builder;
+				return this;
 			};
 		}
 
 		/**
-		 * @param {EnumBuilder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addEnumComboBox(builder, definition) {
-			builder.comboBox = function () {
+		function toEnumComboBox(definition) {
+			return function () {
 				definition.component = 'dropdown';
-				var builder = {};
-				fillBuilder(builder, definition);
-				fillPropertyBuilder(builder, definition);
-				fillEnumBuilder(builder, definition);
-				return builder;
+				return {
+					build: builderBuild(definition),
+					default: setPropertyDefault(definition),
+					title: setPropertyTitle(definition),
+					visible: setPropertyVisible(definition),
+					add: enumAddOption(definition)
+				};
 			};
 		}
 
 		/**
-		 * @param {EnumBuilder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addEnumRadioButtons(builder, definition) {
-			builder.radioButtons = function () {
+		function addEnumRadioButtons(definition) {
+			return function () {
 				definition.component = 'radiobuttons';
-				var builder = {};
-				fillBuilder(builder, definition);
-				fillPropertyBuilder(builder, definition);
-				fillEnumBuilder(builder, definition);
-				return builder;
+				return {
+					build: builderBuild(definition),
+					default: setPropertyDefault(definition),
+					title: setPropertyTitle(definition),
+					visible: setPropertyVisible(definition),
+					add: enumAddOption(definition)
+				};
 			};
 		}
 
 		/**
-		 * @param {EnumBuilder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addEnumButtons(builder, definition) {
-			builder.buttons = function () {
+		function addEnumButtons(definition) {
+			return function () {
 				definition.component = 'dropdown';
-				var builder = {};
-				fillBuilder(builder, definition);
-				fillPropertyBuilder(builder, definition);
-				fillEnumBuilder(builder, definition);
-				return builder;
+				return {
+					build: builderBuild(definition),
+					default: setPropertyDefault(definition),
+					title: setPropertyTitle(definition),
+					visible: setPropertyVisible(definition),
+					add: enumAddOption(definition)
+				};
 			};
 		}
 
 		/**
-		 * @param {...String} propertyPath
-		 * @returns {IntegerBuilder}
+		 * Создаёт свойство-массив
+		 * @param {...String} propertyPath Путь к свойству
+		 * @returns {ArrayBuilder} Построитель свойства
 		 */
 		function array(propertyPath) {
 			propertyPath = Array.prototype.slice.call(arguments);
@@ -488,24 +476,25 @@ define(
 				items: { }
 			};
 
-			var builder = {};
-			fillBuilder(builder, definition);
-			fillPropertyBuilder(builder, definition);
-			addItemsAdd(builder, definition);
-			appendItemTitleFunction(builder, definition);
-			appendItemTitlePropertyNameFunction(builder, definition);
-			appendModifiableFunction(builder, definition);
-			appendOrderableFunction(builder, definition);
-			appendMaxCountFunction(builder, definition);
-			return builder;
+			return {
+				build: builderBuild(definition),
+				default: setPropertyDefault(definition),
+				title: setPropertyTitle(definition),
+				visible: setPropertyVisible(definition),
+				add: addItemsAdd(definition),
+				itemTitle: setArrayItemTitle(definition),
+				itemTitlePropertyName: setArrayItemTitlePropertyName(definition),
+				modifiable: setArrayModifiable(definition),
+				orderable: setArrayOrderable(definition),
+				maxCount: setArrayMaxCount(definition)
+			};
 		}
 
 		/**
-		 * @param {Builder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function appendItemTitleFunction(builder, definition) {
-			builder.itemTitle = function (title) {
+		function setArrayItemTitle(definition) {
+			return function (title) {
 				if (typeof(title) === 'function') {
 					// Установка функции вычисления заголовка
 					definition.itemTitleRef = title;
@@ -516,61 +505,58 @@ define(
 						return title;
 					};
 				}
-				return builder;
+				return this;
 			};
 		}
 		
 		/**
-		 * @param {Builder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function appendItemTitlePropertyNameFunction(builder, definition) {
-			builder.itemTitlePropertyName = function (itemPropertyName) {
+		function setArrayItemTitlePropertyName(definition) {
+			return function (itemPropertyName) {
 				definition.itemTitleRef = itemPropertyName;
-				return builder;
+				return this;
 			};
 		}
 
 		/**
-		 * @param {Builder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function appendModifiableFunction(builder, definition) {
-			builder.modifiable = function (isModifiable, additionTitle) {
+		function setArrayModifiable(definition) {
+			return function (isModifiable, additionTitle) {
 				definition.allowAdd = isModifiable;
 				definition.allowRemove = isModifiable;
 				if (isModifiable) {
 					definition.addTranslation = additionTitle;
 				}
-				return builder;
+				return this;
 			};
 		}
 		
 		/**
-		 * @param {Builder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function appendOrderableFunction(builder, definition) {
-			builder.orderable = function (isOrderable) {
+		function setArrayOrderable(definition) {
+			return function (isOrderable) {
 				definition.allowMove = isOrderable;
-				return builder;
+				return this;
 			};
 		}
 
 		/**
-		 * @param {Builder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function appendMaxCountFunction(builder, definition) {
-			builder.maxCount = function (maxCount) {
+		function setArrayMaxCount(definition) {
+			return function (maxCount) {
 				definition.max = maxCount;
-				return builder;
+				return this;
 			};
 		}
 
 		/**
-		 * @param {...String} propertyPath
-		 * @returns {ColorBuilder}
+		 * Создаёт свойство-цвет
+		 * @param {...String} propertyPath Путь к свойству
+		 * @returns {ColorBuilder} Построитель свойства
 		 */
 		function color(propertyPath) {
 			propertyPath = Array.prototype.slice.call(arguments);
@@ -580,21 +566,22 @@ define(
 				ref: combinePath(propertyPath)
 			};
 
-			var builder = {};
-			// NOTE: Свойство не готово к построению до выбора типа интерфейса
-			fillPropertyBuilder(builder, definition);
-			addColorPicker(builder, definition);
-			addColorEditBox(builder, definition);
-			addColorExpressionBox(builder, definition);
-			return builder;
+			return {
+				// NOTE: Свойство не готово к построению до выбора типа интерфейса
+				default: setPropertyDefault(definition),
+				title: setPropertyTitle(definition),
+				visible: setPropertyVisible(definition),
+				picker: addColorPicker(definition),
+				editBox: addColorEditBox(definition),
+				expressionBox: addColorExpressionBox(definition)
+			};
 		}
 
 		/**
-		 * @param {ColorBuilder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addColorPicker(builder, definition) {
-			builder.picker = function(allowCustomColor) {
+		function addColorPicker(definition) {
+			return function(allowCustomColor) {
 				definition.component = 'color-picker';
 				if (allowCustomColor) {
 					definition.type = 'object';
@@ -617,50 +604,55 @@ define(
 					definition.type = 'integer';
 				}
 
-				var builder = {};
-				fillBuilder(builder, definition);
-				fillPropertyBuilder(builder, definition);
-				return builder;
+				return {
+					build: builderBuild(definition),
+					default: setPropertyDefault(definition), // TODO: Проверить правильность работы
+					title: setPropertyTitle(definition),
+					visible: setPropertyVisible(definition)
+				};
 			};
 		}
 
 		/**
-		 * @param {ColorBuilder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addColorEditBox(builder, definition) {
-			builder.editBox = function() {
+		function addColorEditBox(definition) {
+			return function() {
 				definition.ref = combinePath([definition.ref, 'color']);
 				definition.type = 'string';
 
-				var builder = {};
-				fillBuilder(builder, definition);
-				fillPropertyBuilder(builder, definition);
-				return builder;
+				return {
+					build: builderBuild(definition),
+					default: setPropertyDefault(definition),
+					title: setPropertyTitle(definition),
+					visible: setPropertyVisible(definition)
+				};
 			};
 		}
 
 		/**
-		 * @param {ColorBuilder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addColorExpressionBox(builder, definition) {
-			builder.expressionBox = function() {
+		function addColorExpressionBox(definition) {
+			return function() {
 				definition.ref = combinePath([definition.ref, 'color']);
 				definition.type = 'string';
 				definition.expression = 'always';
 
-				var builder = {};
-				fillBuilder(builder, definition);
-				fillPropertyBuilder(builder, definition);
-				addExpressionBoxOptionalExpression(builder, definition);
-				return builder;
+				return {
+					build: builderBuild(definition),
+					default: setPropertyDefault(definition),
+					title: setPropertyTitle(definition),
+					visible: setPropertyVisible(definition),
+					optionalExpression: setExpressionBoxOptionalExpression(definition)
+				};
 			};
 		}
 
 		/**
-		 * @param {...String} propertyPath
-		 * @returns {ColorBuilder}
+		 * Создаёт свойство-палитру
+		 * @param {...String} propertyPath Путь к свойству
+		 * @returns {PaletteBuilder} Построитель свойства
 		 */
 		function palette(propertyPath) {
 			propertyPath = Array.prototype.slice.call(arguments);
@@ -671,56 +663,57 @@ define(
 				type: 'string'
 			};
 
-			var builder = {};
-			// NOTE: Свойство не готово к построению до выбора типа интерфейса
-			fillBuilder(builder, definition);
-			fillPropertyBuilder(builder, definition);
-			addPalettePicker(builder, definition);
-			addPaletteComboBox(builder, definition);
-			return builder;
+			return {
+				// NOTE: Свойство не готово к построению до выбора типа интерфейса
+				default: setPropertyDefault(definition),
+				title: setPropertyTitle(definition),
+				visible: setPropertyVisible(definition),
+				picker: addPalettePicker(definition),
+				comboBox: addPaletteComboBox(definition)
+			};
 		}
 
 		/**
-		 * @param {PaletteBuilder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addPalettePicker(builder, definition) {
-			builder.picker = function() {
+		function addPalettePicker(definition) {
+			return function() {
 				definition.type = 'items';
 				definition.component = 'item-selection-list';
 				definition.horizontal = false;
 				definition.items = [];
-				var builder = {};
-				fillBuilder(builder, definition);
-				fillPropertyBuilder(builder, definition);
-				addPalettePickerAddFromTheme(builder, definition);
-				addPaletteAdd(builder, definition);
-				return builder;
+				
+				return {
+					build: builderBuild(definition),
+					default: setPropertyDefault(definition),
+					title: setPropertyTitle(definition),
+					visible: setPropertyVisible(definition),
+					add: addPaletteAdd(definition),
+					addFromTheme: addPalettePickerAddFromTheme(definition)
+				};
 			};
 		}
 
 		/**
-		 * @param {PalettePickerBuilder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addPaletteAdd(builder, definition) {
-			builder.add = function (paletteOption) {
+		function addPaletteAdd(definition) {
+			return function (paletteOption) {
 				var palette = getPalettePickerDefinition(paletteOption);
 				definition.items = definition.items.concat([palette]);
-				return builder;
+				return this;
 			};
 		}
 
 		/**
-		 * @param {PalettePickerBuilder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addPalettePickerAddFromTheme(builder, definition) {
-			builder.fillFromTheme = function (qlikTheme) {
+		function addPalettePickerAddFromTheme(definition) {
+			return function (qlikTheme) {
 				var palettes = getPalettesOptions(qlikTheme)
 					.map(getPalettePickerDefinition);
 				definition.items = definition.items.concat(palettes);
-				return builder;
+				return this;
 			};
 		}
 
@@ -740,48 +733,48 @@ define(
 		}
 
 		/**
-		 * @param {PaletteBuilder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addPaletteComboBox(builder, definition) {
-			builder.comboBox = function() {
+		function addPaletteComboBox(definition) {
+			return function() {
 				definition.type = 'string';
 				definition.component = 'dropdown';
 				definition.options = [];
-				var builder = {};
-				fillBuilder(builder, definition);
-				fillPropertyBuilder(builder, definition);
-				addPaletteComboBoxAddFromTheme(builder, definition);
-				addPaletteComboBoxAdd(builder, definition);
-				return builder;
+
+				return {
+					build: builderBuild(definition),
+					default: setPropertyDefault(definition),
+					title: setPropertyTitle(definition),
+					visible: setPropertyVisible(definition),
+					add: addPaletteComboBoxAdd(definition),
+					addFromTheme: addPaletteComboBoxAddFromTheme(definition)
+				};
 			};
 		}
 		
 		/**
-		 * @param {PalettePickerBuilder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addPaletteComboBoxAddFromTheme(builder, definition) {
-			builder.fillFromTheme = function (qlikTheme) {
+		function addPaletteComboBoxAddFromTheme(definition) {
+			return function (qlikTheme) {
 				var palettes = getPalettesOptions(qlikTheme)
 					.map(getPaletteComboBoxOption);
 				definition.options = definition.options.concat(palettes);
-				return builder;
+				return this;
 			};
 		}
 		
 		/**
-		 * @param {PalettePickerBuilder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addPaletteComboBoxAdd(builder, definition) {
-			builder.add = function (id, title) {
+		function addPaletteComboBoxAdd(definition) {
+			return function (id, title) {
 				var option = {
 					value: id,
 					label: title
 				};
 				definition.options = definition.options.concat([option]);
-				return builder;
+				return this;
 			};
 		}
 
@@ -792,8 +785,7 @@ define(
 		function getPaletteComboBoxOption(paletteOption) {
 			return {
 				value: paletteOption.id,
-				label: paletteOption.title + 
-					' (' + paletteOption.colors.length + ' цветов)'
+				label: paletteOption.title
 			};
 		}
 
@@ -903,54 +895,40 @@ define(
 		}
 
 		/**
-		 * @param {*} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function fillPropertyBuilder(builder, definition) {
-			addDefault(builder, definition);
-			addTitle(builder, definition);
-			addVisible(builder, definition);
-		}
-
-		/**
-		 * @param {*} builder 
-		 * @param {QlikPropertyDefinition} definition 
-		 */
-		function addDefault(builder, definition) {
-			builder.default = function (defaultValue) {
+		function setPropertyDefault(definition) {
+			return function (defaultValue) {
 				definition.defaultValue = defaultValue;
-				return builder;
+				return this;
 			};
 		}
 
 		/**
-		 * @param {*} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addTitle(builder, definition) {
-			builder.title = function (title) {
+		function setPropertyTitle(definition) {
+			return function (title) {
 				definition.label = title;
-				return builder;
+				return this;
 			};
 		}
 
 		/**
-		 * @param {PropertyBuilder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addVisible(builder, definition) {
-			builder.visible = function (visibility) {
+		function setPropertyVisible(definition) {
+			return function (visibility) {
 				definition.show = visibility;
-				return builder;
+				return this;
 			};
 		}
 
 		/**
-		 * @param {IntegerBuilder & NumberBuilder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addRange(builder, definition) {
-			builder.range = function(minValue, maxValue) {
+		function setRange(definition) {
+			return function(minValue, maxValue) {
 				if (minValue != null) {
 					definition.min = minValue;
 				}
@@ -965,7 +943,7 @@ define(
 					delete definition.max;
 				}
 
-				return builder;
+				return this;
 			};
 		}
 
@@ -980,17 +958,16 @@ define(
 				label: title
 			};
 
-			var builder = {};
-			fillBuilder(builder, definition);
-			return builder;
+			return {
+				build: builderBuild(definition)
+			};
 		}
 
 		/**
-		 * @param {*} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function fillBuilder(builder, definition) {
-			builder.build = function () {
+		function builderBuild(definition) {
+			return function () {
 				return definition;
 			};
 		}
@@ -1021,16 +998,16 @@ define(
 		 */
 		function accordion() {
 			/** @type {QlikPropertyDefinition} */
-			var state = {
+			var definition = {
 				type: 'items',
 				component: 'accordion',
 				items: {}
 			};
 
-			var builder = { };
-			fillBuilder(builder, state);
-			addItemsAdd(builder, state);
-			return builder;
+			return {
+				build: builderBuild(definition),
+				add: addItemsAdd(definition)
+			};
 		}
 
 		/**
@@ -1038,17 +1015,17 @@ define(
 		 */
 		function dimensions(minCount, maxCount) {
 			/** @type {QlikPropertyDefinition} */
-			var state = {
+			var definition = {
 				uses: 'dimensions',
 				min: minCount,
 				max: maxCount,
 				items: {}
 			};
 
-			var builder = { };
-			fillBuilder(builder, state);
-			addItemsAdd(builder, state);
-			return builder;
+			return {
+				build: builderBuild(definition),
+				add: addItemsAdd(definition)
+			};
 		}
 
 		/**
@@ -1056,17 +1033,17 @@ define(
 		 */
 		function measures(minCount, maxCount) {
 			/** @type {QlikPropertyDefinition} */
-			var state = {
+			var definition = {
 				uses: 'measures',
 				min: minCount,
 				max: maxCount,
 				items: {}
 			};
 
-			var builder = { };
-			fillBuilder(builder, state);
-			addItemsAdd(builder, state);
-			return builder;
+			return {
+				build: builderBuild(definition),
+				add: addItemsAdd(definition)
+			};
 		}
 
 		/**
@@ -1074,15 +1051,15 @@ define(
 		 */
 		function sorting() {
 			/** @type {QlikPropertyDefinition} */
-			var state = {
+			var definition = {
 				uses: 'sorting',
 				items: {}
 			};
 
-			var builder = { };
-			fillBuilder(builder, state);
-			addItemsAdd(builder, state);
-			return builder;
+			return {
+				build: builderBuild(definition),
+				add: addItemsAdd(definition)
+			};
 		}
 
 		/**
@@ -1090,15 +1067,15 @@ define(
 		 */
 		function settings() {
 			/** @type {QlikPropertyDefinition} */
-			var state = {
+			var definition = {
 				uses: 'settings',
 				items: {}
 			};
 
-			var builder = { };
-			fillBuilder(builder, state);
-			addItemsAdd(builder, state);
-			return builder;
+			return {
+				build: builderBuild(definition),
+				add: addItemsAdd(definition)
+			};
 		}
 
 		/**
@@ -1107,18 +1084,18 @@ define(
 		 */
 		function section(title) {
 			/** @type {QlikPropertyDefinition} */
-			var state = {
+			var definition = {
 				type: 'items',
 				component: 'expandable-items',
 				label: title,
 				items: {}
 			};
 
-			var builder = { };
-			fillBuilder(builder, state);
-			addItemsAdd(builder, state);
-			addVisible(builder, state);
-			return builder;
+			return {
+				build: builderBuild(definition),
+				add: addItemsAdd(definition),
+				visible: setPropertyVisible(definition)
+			};
 		}
 
 		/**
@@ -1127,25 +1104,24 @@ define(
 		 */
 		function panel(title) {
 			/** @type {QlikPropertyDefinition} */
-			var state = {
+			var definition = {
 				type: 'items',
 				label: title,
 				items: {}
 			};
 
-			var builder = { };
-			fillBuilder(builder, state);
-			addItemsAdd(builder, state);
-			addVisible(builder, state);
-			return builder;
+			return {
+				build: builderBuild(definition),
+				add: addItemsAdd(definition),
+				visible: setPropertyVisible(definition)
+			};
 		}
 
 		/**
-		 * @param {Builder} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addItemsAdd(builder, definition) {
-			builder.add = function (property) {
+		function addItemsAdd(definition) {
+			return function (property) {
 				// Автогенерация названия для свойства 
 				var key = 0;
 				// eslint-disable-next-line no-unused-vars
@@ -1162,7 +1138,7 @@ define(
 
 				definition.items[key] = property;
 				
-				return builder;
+				return this;
 			};
 		}
 
@@ -1170,26 +1146,28 @@ define(
 );
 
 /**
+ * Фабрика свойств
  * @typedef {Object} PropertyFactory
- * @property {function(...String): BooleanBuilder} boolean
- * @property {function(...String): IntegerBuilder} integer
- * @property {function(...String): NumberBuilder} number
- * @property {function(...String): StringBuilder} string
- * @property {function(...String): EnumBuilder} enumeration
- * @property {function(...String): ArrayBuilder} array
- * @property {function(...String): ColorBuilder} color
- * @property {function(...String): PaletteBuilder} palette
- * @property {function(String): Builder} label
- * @property {function(): ItemsBuilder} accordion
- * @property {ColumnsBuilderFunction} dimensions
- * @property {ColumnsBuilderFunction} measures
- * @property {function(): ItemsBuilder} sorting
- * @property {function(): ItemsBuilder} settings
- * @property {TitledItemsBuilderFunction} section
- * @property {TitledItemsBuilderFunction} panel
+ * @property {function(...String): BooleanBuilder} boolean Логическое свойство
+ * @property {function(...String): IntegerBuilder} integer Целочисленое свойство
+ * @property {function(...String): NumberBuilder} number Вещественное числовое свойство
+ * @property {function(...String): StringBuilder} string Строковое свойство
+ * @property {function(...String): EnumBuilder} enumeration Перечислимое свойство
+ * @property {function(...String): ArrayBuilder} array Свойство-массив
+ * @property {function(...String): ColorBuilder} color Свойство-цвет
+ * @property {function(...String): PaletteBuilder} palette Свойство-палитра
+ * @property {function(String): Builder} label Текстовая метка
+ * @property {function(): ItemsBuilder} accordion Панель-аккордион
+ * @property {ColumnsBuilderFunction} dimensions Стандартная секция измерений
+ * @property {ColumnsBuilderFunction} measures Стандартная секция мер
+ * @property {function(): ItemsBuilder} sorting Стандартная секция сортировки
+ * @property {function(): ItemsBuilder} settings Стандартная секция представления
+ * @property {TitledItemsBuilderFunction} section Секция
+ * @property {TitledItemsBuilderFunction} panel Панель элементов
  */
 
 /**
+ * Логическое свойство
  * @typedef {Object} BooleanBuilder
  * @property {function(): QlikPropertyDefinition} build
  * @property {function(String): BooleanBuilder} title
@@ -1217,6 +1195,7 @@ define(
  */
 
 /**
+ * Целочисленое свойство
  * @typedef {Object} IntegerBuilder
  * @property {function(): QlikPropertyDefinition} build
  * @property {function(String): IntegerBuilder} title
@@ -1247,6 +1226,7 @@ define(
  */
 
 /**
+ * Вещественное числовое свойство
  * @typedef {Object} NumberBuilder
  * @property {function(): QlikPropertyDefinition} build
  * @property {function(String): NumberBuilder} title
@@ -1288,6 +1268,7 @@ define(
  */
 
 /**
+ * Строковое свойство
  * @typedef {Object} StringBuilder
  * @property {function(): QlikPropertyDefinition} build
  * @property {function(String): StringBuilder} title
@@ -1328,6 +1309,7 @@ define(
  */
 
 /**
+ * Перечислимое свойство
  * @typedef {Object} EnumBuilder
  * @property {function(): QlikPropertyDefinition} build
  * @property {function(String): EnumBuilder} title
@@ -1348,7 +1330,8 @@ define(
  * @property {function(*, String, Boolean): EnumUiBuilder} add
  */
 
- /**
+/**
+ * Свойство-массив
  * @typedef {Object} ArrayBuilder
  * @property {function(): QlikPropertyDefinition} build
  * @property {function(String): ArrayBuilder} title
@@ -1407,6 +1390,7 @@ define(
  */
 
 /**
+ * Свойство-цвет
  * @typedef {Object} ColorBuilder
  * @property {function(String): ColorBuilder} title
  * @property {function(Boolean|VisibleCallbackFunction): ColorBuilder} visible
@@ -1434,6 +1418,7 @@ define(
  */
 
 /**
+ * Свойство-палитра
  * @typedef {Object} PaletteBuilder
  * @property {function(String): PaletteBuilder} title
  * @property {function(Boolean|VisibleCallbackFunction): PaletteBuilder} visible
@@ -1447,7 +1432,7 @@ define(
  * @property {function(String): PalettePickerBuilder} title
  * @property {function(Boolean|VisibleCallbackFunction): PalettePickerBuilder} visible
  * @property {function(String): PalettePickerBuilder} default
- * @property {function(QlikTheme): PalettePickerBuilder} fillFromTheme
+ * @property {function(QlikTheme): PalettePickerBuilder} addFromTheme
  * @property {function(PaletteOption): PalettePickerBuilder} add
  */
 
@@ -1464,7 +1449,7 @@ define(
  * @property {function(String): PaletteComboBoxBuilder} title
  * @property {function(Boolean|VisibleCallbackFunction): PaletteComboBoxBuilder} visible
  * @property {function(String): PaletteComboBoxBuilder} default
- * @property {function(QlikTheme): PaletteComboBoxBuilder} fillFromTheme
+ * @property {function(QlikTheme): PaletteComboBoxBuilder} addFromTheme
  * @property {function(String, String): PaletteComboBoxBuilder} add
  */
 
@@ -1488,6 +1473,7 @@ define(
  */
 
 /**
+ * Набор элементов
  * @typedef {Object} ItemsBuilder
  * @property {function(): QlikPropertyDefinition} build
  * @property {function(QlikPropertyDefinition): ItemsBuilder} add
