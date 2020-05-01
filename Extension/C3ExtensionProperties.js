@@ -10,14 +10,12 @@ define(
 	/**
 	 * Создаёт модуль
 	 * @param {PropertyFactory} f
-	 * @param {QlikPropertyDefinitions} propertyFactory
+	 * @param {QlikPropertyDefinitions} pf
 	 * @param {PropertyBuilderApi} propertiesBuilder Построитель определений свойств
 	 * @returns Модуль
 	 */
-	function (f, propertyFactory) {
+	function (f, pf) {
 		'use strict';
-
-		var pf = propertyFactory;
 
 		// Определения свойств
 		return {
@@ -69,15 +67,15 @@ define(
 		function getProperties(qlikTheme) {
 			var columnPropertiesPath = path('qDef', 'properties');
 			var extensionPropertiesPath = 'properties';
-			return pf.sections()
+			return f.accordion()
 				// Секция свойств Измерения
 				.add(getDimensionProperties(columnPropertiesPath))
 				// Секция свойств Меры
 				.add(getMeasureProperties(columnPropertiesPath))
 				// Секция свойств Сортировка
-				.add(pf.sorting())
+				.add(f.sorting())
 				// Секция свойств Вид
-				.add(pf.settings())
+				.add(f.settings())
 				// Секция свойства графика
 				.add(getChartProperties(extensionPropertiesPath, qlikTheme))
 				.build();
@@ -89,7 +87,7 @@ define(
 		 * @returns {QlikPropertyDefinition} Определения свойств измерений
 		 */
 		function getDimensionProperties(basePath) {
-			return pf.dimensions(1, 1)
+			return f.dimensions(1, 1)
 				// Тип шкалы
 				.add(
 					f.enumeration(basePath, 'scaleType')
@@ -102,7 +100,7 @@ define(
 				)
 				.add(
 					// Угол наклона подписей
-					pf.items()
+					f.panel()
 						// Слайдер
 						.add(
 							f.integer(basePath, 'tickLabelAngle')
@@ -129,7 +127,7 @@ define(
 		 * @returns {QlikPropertyDefinition} Определение свойств меры
 		 */
 		function getMeasureProperties(basePath) {
-			return pf.measures(1, 10)
+			return f.measures(1, 10)
 				// Тип графика
 				.add(
 					f.enumeration(basePath, 'chartType')
@@ -157,7 +155,7 @@ define(
 		 * @returns {QlikPropertyDefinition} Определения свойств
 		 */
 		function getLineChartProperties(basePath) {
-			return pf.items()
+			return f.panel()
 				.add(
 					f.label('Линейный график')
 				)
@@ -196,7 +194,7 @@ define(
 		 * @returns {QlikPropertyDefinition} Определения свойств графика
 		 */
 		function getChartProperties(basePath, qlikTheme) {
-			return pf.expandableItems('График')
+			return f.section('График')
 				// Свойства оси X
 				.add(getAxisXProperties(path(basePath, 'axisX')))
 				// Линии оси X
@@ -209,9 +207,10 @@ define(
 				.add(getLegendProperties(path(basePath, 'legend')))
 				// Палитра
 				.add(
-					pf.property(basePath, 'palette', 'id')
+					f.palette(basePath, 'palette', 'id')
 						.title('Палитра')
-						.ofPalette(qlikTheme)
+						.picker()
+						.fillFromTheme(qlikTheme)
 						.visible(
 							function() {
 								return qlikTheme != null;
@@ -225,7 +224,7 @@ define(
 		 * @returns {QlikPropertyDefinition} Определения свойств оси
 		 */
 		function getAxisXProperties(basePath) {
-			return pf.items('Ось X')
+			return f.panel('Ось X')
 				// Признак отображение сетки
 				.add(
 					f.boolean(basePath, 'grid', 'shown')
@@ -242,7 +241,7 @@ define(
 		 * @returns {QlikPropertyDefinition} Определения свойств оси
 		 */
 		function getAxisYProperties(basePath) {
-			return pf.items('Ось Y')
+			return f.panel('Ось Y')
 				// Подпись оси
 				.add(
 					f.string(basePath, 'title')
@@ -326,7 +325,7 @@ define(
 		 * @returns {QlikPropertyDefinition} Определения свойств
 		 */
 		function getLegendProperties(basePath) {
-			return pf.items('Легенда')
+			return f.panel('Легенда')
 				.add(
 					f.boolean(basePath, 'grid', 'shown')
 						.title('Отображение легенды')

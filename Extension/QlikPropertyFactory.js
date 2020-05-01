@@ -18,7 +18,16 @@ define(
 			string: string,
 			enumeration: enumeration,
 			color: color,
-			label: label
+			palette: palette,
+			label: label,
+
+			accordion: accordion,
+			dimensions: dimensions,
+			measures: measures,
+			sorting: sorting,
+			settings: settings,
+			section: section,
+			panel: panel
 		};
 
 		/**
@@ -555,6 +564,250 @@ define(
 		}
 
 		/**
+		 * @param {...String} propertyPath
+		 * @returns {ColorBuilder}
+		 */
+		function palette(propertyPath) {
+			propertyPath = Array.prototype.slice.call(arguments);
+
+			/** @type {QlikPropertyDefinition} */
+			var definition = {
+				ref: combinePath(propertyPath),
+				type: 'string'
+			};
+
+			var builder = {};
+			// NOTE: Свойство не готово к построению до выбора типа интерфейса
+			fillBuilder(builder, definition);
+			fillPropertyBuilder(builder, definition);
+			addPalettePicker(builder, definition);
+			addPaletteComboBox(builder, definition);
+			return builder;
+		}
+
+		/**
+		 * @param {PaletteBuilder} builder 
+		 * @param {QlikPropertyDefinition} definition 
+		 */
+		function addPalettePicker(builder, definition) {
+			builder.picker = function() {
+				definition.type = 'items';
+				definition.component = 'item-selection-list';
+				definition.horizontal = false;
+				definition.items = [];
+				var builder = {};
+				fillBuilder(builder, definition);
+				fillPropertyBuilder(builder, definition);
+				addPalettePickerAddFromTheme(builder, definition);
+				addPaletteAdd(builder, definition);
+				return builder;
+			};
+		}
+
+		/**
+		 * @param {PalettePickerBuilder} builder 
+		 * @param {QlikPropertyDefinition} definition 
+		 */
+		function addPaletteAdd(builder, definition) {
+			builder.add = function (paletteOption) {
+				var palette = getPalettePickerDefinition(paletteOption);
+				definition.items = definition.items.concat([palette]);
+				return builder;
+			};
+		}
+
+		/**
+		 * @param {PalettePickerBuilder} builder 
+		 * @param {QlikPropertyDefinition} definition 
+		 */
+		function addPalettePickerAddFromTheme(builder, definition) {
+			builder.fillFromTheme = function (qlikTheme) {
+				var palettes = getPalettesOptions(qlikTheme)
+					.map(getPalettePickerDefinition);
+				definition.items = definition.items.concat(palettes);
+				return builder;
+			};
+		}
+
+		/**
+		 * @param {PaletteOption} paletteOption 
+		 * @returns {QlikPropertyDefinition}
+		 */
+		function getPalettePickerDefinition(paletteOption) {
+			return {
+				component: 'color-scale',
+				type: paletteOption.isContinuous ? 'gradient' : 'sequential',
+				value: paletteOption.id,
+				label: paletteOption.title,
+				colors: paletteOption.colors,
+				icon: ''
+			};
+		}
+
+		/**
+		 * @param {PaletteBuilder} builder 
+		 * @param {QlikPropertyDefinition} definition 
+		 */
+		function addPaletteComboBox(builder, definition) {
+			builder.comboBox = function() {
+				definition.type = 'string';
+				definition.component = 'dropdown';
+				definition.options = [];
+				var builder = {};
+				fillBuilder(builder, definition);
+				fillPropertyBuilder(builder, definition);
+				addPaletteComboBoxAddFromTheme(builder, definition);
+				addPaletteComboBoxAdd(builder, definition);
+				return builder;
+			};
+		}
+		
+		/**
+		 * @param {PalettePickerBuilder} builder 
+		 * @param {QlikPropertyDefinition} definition 
+		 */
+		function addPaletteComboBoxAddFromTheme(builder, definition) {
+			builder.fillFromTheme = function (qlikTheme) {
+				var palettes = getPalettesOptions(qlikTheme)
+					.map(getPaletteComboBoxOption);
+				definition.options = definition.options.concat(palettes);
+				return builder;
+			};
+		}
+		
+		/**
+		 * @param {PalettePickerBuilder} builder 
+		 * @param {QlikPropertyDefinition} definition 
+		 */
+		function addPaletteComboBoxAdd(builder, definition) {
+			builder.add = function (id, title) {
+				var option = {
+					value: id,
+					label: title
+				};
+				definition.options = definition.options.concat([option]);
+				return builder;
+			};
+		}
+
+		/**
+		 * @param {PaletteOption} paletteOption 
+		 * @returns {QlikPropertyOption}
+		 */
+		function getPaletteComboBoxOption(paletteOption) {
+			return {
+				value: paletteOption.id,
+				label: paletteOption.title + 
+					' (' + paletteOption.colors.length + ' цветов)'
+			};
+		}
+
+		/**
+		 * Возвращает список выбора палитры
+		 * @param {QlikTheme} qlikTheme Тема
+		 * @return {PaletteOption[]} Список палитр
+		 */
+		function getPalettesOptions(qlikTheme) {
+			if (qlikTheme == null) {
+				return [];
+			}
+			return getThemePalettes(qlikTheme)
+				.map(getPaletteOption);
+		}
+
+		/**
+		 * Возвращает опредление опции выбора палитры
+		 * @param {QlikPalette} qlikPalette Палитра
+		 * @returns {PaletteOption} Опция выбора палитры
+		 */
+		function getPaletteOption(qlikPalette) {
+			return {
+				id: qlikPalette.propertyValue,
+				title: qlikPalette.name,
+				colors: getPaletteScale(qlikPalette),
+				isContinuous: isPaletteContinuous(qlikPalette)
+			};
+		}
+		
+		/**
+		 * Возвращает список палитр темы
+		 * @param {QlikTheme} qlikTheme Тема
+		 * @returns {QlikPalette[]} Список палитр
+		 */
+		function getThemePalettes(qlikTheme) {
+			return qlikTheme.properties.palettes.data;
+		}
+
+		/**
+		 * Возвращает цветовую шкалу палитры типа Пирамида
+		 * @param {QlikPalette} qlikPalette Палитра
+		 * @param {Number} colorCount Количество цветов
+		 * @returns {String[]} Массив цветов палитры
+		 */
+		function getPaletteScale(qlikPalette, colorCount) {
+
+			if (qlikPalette.type === 'pyramid') {
+				return getPyramidPaletteScale(qlikPalette, colorCount);
+			}
+			else if (qlikPalette.type === 'row') {
+				return getRowPaletteScale(qlikPalette);
+			}
+			
+			return null;
+		}
+
+		/**
+		 * Возвращает цветовую шкалу палитры типа Пирамида
+		 * @param {QlikPalette} qlikPalette Палитра
+		 * @returns {Boolean} Признак непрерывной палитры
+		 */
+		function isPaletteContinuous(qlikPalette) {
+			switch (qlikPalette.type) {
+				case "gradient":
+					return true;
+				case 'row':
+				case 'pyramid':
+				case 'class-pyramid':
+					return false;
+				default:
+					return null;
+			}
+		}
+
+		/**
+		 * Возвращает цветовую шкалу палитры типа Пирамида
+		 * @param {QlikPalette} qlikPyramidPalette Палитра
+		 * @param {Number} scaleSize Размер шкалы
+		 * @returns {String[]} Массив цветов палитры
+		 */
+		function getPyramidPaletteScale(qlikPyramidPalette, scaleSize) {
+			if (scaleSize != null) {
+				/** @type {Color[][]} */
+				var qlikPaletteScales = qlikPyramidPalette.scale
+					.filter(
+						function (scale) {
+							return scale != null && scale.length === scaleSize;
+						}
+					);
+
+				if (qlikPaletteScales.length > 0) {
+					return qlikPaletteScales[0];
+				}
+			}
+
+			return qlikPyramidPalette.scale[qlikPyramidPalette.scale.length-1];
+		}
+
+		/**
+		 * Возвращает цветовую шкалу палитры типа Ряд
+		 * @param {QlikPalette} qlikRowPalette Палитра
+		 * @returns {Color[]} Массив цветов палитры
+		 */
+		function getRowPaletteScale(qlikRowPalette) {
+			return qlikRowPalette.scale;
+		}
+
+		/**
 		 * @param {*} builder 
 		 * @param {QlikPropertyDefinition} definition 
 		 */
@@ -665,6 +918,159 @@ define(
 		function combinePath(itemParts) {
 			return itemParts.join('.');
 		}
+
+		// --------------------------------------------------------------------
+
+		/**
+		 * @returns {ItemsBuilder}
+		 */
+		function accordion() {
+			/** @type {QlikPropertyDefinition} */
+			var state = {
+				type: 'items',
+				component: 'accordion',
+				items: {}
+			};
+
+			var builder = { };
+			fillBuilder(builder, state);
+			addItemsAdd(builder, state);
+			return builder;
+		}
+
+		/**
+		 * @returns {ItemsBuilder}
+		 */
+		function dimensions(minCount, maxCount) {
+			/** @type {QlikPropertyDefinition} */
+			var state = {
+				uses: 'dimensions',
+				min: minCount,
+				max: maxCount,
+				items: {}
+			};
+
+			var builder = { };
+			fillBuilder(builder, state);
+			addItemsAdd(builder, state);
+			return builder;
+		}
+
+		/**
+		 * @returns {ItemsBuilder}
+		 */
+		function measures(minCount, maxCount) {
+			/** @type {QlikPropertyDefinition} */
+			var state = {
+				uses: 'measures',
+				min: minCount,
+				max: maxCount,
+				items: {}
+			};
+
+			var builder = { };
+			fillBuilder(builder, state);
+			addItemsAdd(builder, state);
+			return builder;
+		}
+
+		/**
+		 * @returns {ItemsBuilder}
+		 */
+		function sorting() {
+			/** @type {QlikPropertyDefinition} */
+			var state = {
+				uses: 'sorting',
+				items: {}
+			};
+
+			var builder = { };
+			fillBuilder(builder, state);
+			addItemsAdd(builder, state);
+			return builder;
+		}
+
+		/**
+		 * @returns {ItemsBuilder}
+		 */
+		function settings() {
+			/** @type {QlikPropertyDefinition} */
+			var state = {
+				uses: 'settings',
+				items: {}
+			};
+
+			var builder = { };
+			fillBuilder(builder, state);
+			addItemsAdd(builder, state);
+			return builder;
+		}
+
+		/**
+		 * @param {String} title
+		 * @returns {ItemsBuilder}
+		 */
+		function section(title) {
+			/** @type {QlikPropertyDefinition} */
+			var state = {
+				type: 'items',
+				component: 'expandable-items',
+				label: title,
+				items: {}
+			};
+
+			var builder = { };
+			fillBuilder(builder, state);
+			addItemsAdd(builder, state);
+			addVisible(builder, state);
+			return builder;
+		}
+
+		/**
+		 * @param {String} title
+		 * @returns {ItemsBuilder}
+		 */
+		function panel(title) {
+			/** @type {QlikPropertyDefinition} */
+			var state = {
+				type: 'items',
+				label: title,
+				items: {}
+			};
+
+			var builder = { };
+			fillBuilder(builder, state);
+			addItemsAdd(builder, state);
+			addVisible(builder, state);
+			return builder;
+		}
+
+		/**
+		 * @param {Builder} builder 
+		 * @param {QlikPropertyDefinition} definition 
+		 */
+		function addItemsAdd(builder, definition) {
+			builder.add = function (property) {
+				// Автогенерация названия для свойства 
+				var key = 0;
+				// eslint-disable-next-line no-unused-vars
+				for (var _ in definition.items) {
+					key += 1;
+				}
+
+				// Для построителя
+				if (typeof(property) === 'object' &&
+					typeof(property.build) === 'function') {
+					// Построить определение свойства
+					property = property.build();
+				}
+
+				definition.items[key] = property;
+				
+				return builder;
+			};
+		}
+
 	}
 );
 
@@ -676,7 +1082,15 @@ define(
  * @property {function(...String): StringBuilder} string
  * @property {function(...String): EnumBuilder} enumeration
  * @property {function(...String): ColorBuilder} color
- * @property {function(String) label
+ * @property {function(...String): PaletteBuilder} palette
+ * @property {function(String): Builder} label
+ * @property {function(): ItemsBuilder} accordion
+ * @property {ColumnsBuilderFunction} dimensions
+ * @property {ColumnsBuilderFunction} measures
+ * @property {function(): ItemsBuilder} sorting
+ * @property {function(): ItemsBuilder} settings
+ * @property {TitledItemsBuilderFunction} section
+ * @property {TitledItemsBuilderFunction} panel
  */
 
 /**
@@ -865,11 +1279,66 @@ define(
  * @property {function(Boolean): ColorExpressionBoxBuilder} optionalExpression
  */
 
+/**
+ * @typedef {Object} PaletteBuilder
+ * @property {function(String): PaletteBuilder} title
+ * @property {function(Boolean|VisibleCallbackFunction): PaletteBuilder} visible
+ * @property {function(String): PaletteBuilder} default
+ * @property {function(): PalettePickerBuilder} picker
+ * @property {function(): PaletteComboBoxBuilder} comboBox
+ */
+
+/**
+ * @typedef {Object} PalettePickerBuilder
+ * @property {function(String): PalettePickerBuilder} title
+ * @property {function(Boolean|VisibleCallbackFunction): PalettePickerBuilder} visible
+ * @property {function(String): PalettePickerBuilder} default
+ * @property {function(QlikTheme): PalettePickerBuilder} fillFromTheme
+ * @property {function(PaletteOption): PalettePickerBuilder} add
+ */
+
+/**
+ * @typedef {Object} PaletteOption
+ * @property {String} title
+ * @property {String} id
+ * @property {Color[]} colors
+ * @property {Boolean} isContinuous
+ */
+
+/**
+ * @typedef {Object} PaletteComboBoxBuilder
+ * @property {function(String): PaletteComboBoxBuilder} title
+ * @property {function(Boolean|VisibleCallbackFunction): PaletteComboBoxBuilder} visible
+ * @property {function(String): PaletteComboBoxBuilder} default
+ * @property {function(QlikTheme): PaletteComboBoxBuilder} fillFromTheme
+ * @property {function(String, String): PaletteComboBoxBuilder} add
+ */
+
+/**
+ * @callback ColumnsBuilderFunction
+ * @param {Number} minCount Минимальное число измерений
+ * @param {Number} maxCount Максимальное число измерений
+ * @returns {ItemsBuilder} Построитель набора элементов
+ */
+
 /** 
  * @callback VisibleCallbackFunction
  * @param {*} context
  * @returns {Boolean | Promise<Boolean>}
 */
+
+/**
+ * @callback TitledItemsBuilderFunction
+ * @param {String} title
+ * @returns {ItemsBuilder}
+ */
+
+/**
+ * @typedef {Object} ItemsBuilder
+ * @property {function(): QlikPropertyDefinition} build
+ * @property {function(QlikPropertyDefinition): ItemsBuilder} add
+ * @property {function(Boolean|VisibleCallbackFunction): ItemsBuilder} visible
+ */
 
 /**
  * @typedef {Object} Builder
