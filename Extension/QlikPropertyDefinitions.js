@@ -757,7 +757,7 @@ define(
 );
 
 /**
- * @typedef {Object} QlikPropertyFactory
+ * @typedef {Object} QlikPropertyDefinitions
  * @property {function(): ItemsBuilder} sections
  * @property {ColumnsBuilderFunction} dimensions
  * @property {ColumnsBuilderFunction} measures
