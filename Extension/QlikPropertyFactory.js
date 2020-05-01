@@ -17,6 +17,7 @@ define(
 			number: number,
 			string: string,
 			enumeration: enumeration,
+			array: array,
 			color: color,
 			palette: palette,
 			label: label,
@@ -469,6 +470,100 @@ define(
 				fillBuilder(builder, definition);
 				fillPropertyBuilder(builder, definition);
 				fillEnumBuilder(builder, definition);
+				return builder;
+			};
+		}
+
+		/**
+		 * @param {...String} propertyPath
+		 * @returns {IntegerBuilder}
+		 */
+		function array(propertyPath) {
+			propertyPath = Array.prototype.slice.call(arguments);
+
+			/** @type {QlikPropertyDefinition} */
+			var definition = {
+				ref: combinePath(propertyPath),
+				type: 'array',
+				items: { }
+			};
+
+			var builder = {};
+			fillBuilder(builder, definition);
+			fillPropertyBuilder(builder, definition);
+			addItemsAdd(builder, definition);
+			appendItemTitleFunction(builder, definition);
+			appendItemTitlePropertyNameFunction(builder, definition);
+			appendModifiableFunction(builder, definition);
+			appendOrderableFunction(builder, definition);
+			appendMaxCountFunction(builder, definition);
+			return builder;
+		}
+
+		/**
+		 * @param {Builder} builder 
+		 * @param {QlikPropertyDefinition} definition 
+		 */
+		function appendItemTitleFunction(builder, definition) {
+			builder.itemTitle = function (title) {
+				if (typeof(title) === 'function') {
+					// Установка функции вычисления заголовка
+					definition.itemTitleRef = title;
+				}
+				else {
+					// Установка текста заголовка
+					definition.itemTitleRef = function () {
+						return title;
+					};
+				}
+				return builder;
+			};
+		}
+		
+		/**
+		 * @param {Builder} builder 
+		 * @param {QlikPropertyDefinition} definition 
+		 */
+		function appendItemTitlePropertyNameFunction(builder, definition) {
+			builder.itemTitlePropertyName = function (itemPropertyName) {
+				definition.itemTitleRef = itemPropertyName;
+				return builder;
+			};
+		}
+
+		/**
+		 * @param {Builder} builder 
+		 * @param {QlikPropertyDefinition} definition 
+		 */
+		function appendModifiableFunction(builder, definition) {
+			builder.modifiable = function (isModifiable, additionTitle) {
+				definition.allowAdd = isModifiable;
+				definition.allowRemove = isModifiable;
+				if (isModifiable) {
+					definition.addTranslation = additionTitle;
+				}
+				return builder;
+			};
+		}
+		
+		/**
+		 * @param {Builder} builder 
+		 * @param {QlikPropertyDefinition} definition 
+		 */
+		function appendOrderableFunction(builder, definition) {
+			builder.orderable = function (isOrderable) {
+				definition.allowMove = isOrderable;
+				return builder;
+			};
+		}
+
+		/**
+		 * @param {Builder} builder 
+		 * @param {QlikPropertyDefinition} definition 
+		 */
+		function appendMaxCountFunction(builder, definition) {
+			builder.maxCount = function (maxCount) {
+				definition.max = maxCount;
 				return builder;
 			};
 		}
@@ -1081,6 +1176,7 @@ define(
  * @property {function(...String): NumberBuilder} number
  * @property {function(...String): StringBuilder} string
  * @property {function(...String): EnumBuilder} enumeration
+ * @property {function(...String): ArrayBuilder} array
  * @property {function(...String): ColorBuilder} color
  * @property {function(...String): PaletteBuilder} palette
  * @property {function(String): Builder} label
@@ -1250,6 +1346,64 @@ define(
  * @property {function(Boolean|VisibleCallbackFunction): EnumUiBuilder} visible
  * @property {function(String): EnumUiBuilder} default
  * @property {function(*, String, Boolean): EnumUiBuilder} add
+ */
+
+ /**
+ * @typedef {Object} ArrayBuilder
+ * @property {function(): QlikPropertyDefinition} build
+ * @property {function(String): ArrayBuilder} title
+ * @property {function(Boolean|VisibleCallbackFunction): ArrayBuilder} visible
+ * @property {ArrayAddPropertyFunction} add
+ * @property {ArrayItemTitleSetterFunction} itemTitle
+ * @property {ArrayItemTitlePropertyNameSetterFunction} itemTitlePropertyName
+ * @property {ArrayModifiableSetterFunction} modifiable
+ * @property {ArrayOrderableSetterFunction} orderable
+ * @property {ArrayMaxCountSetterFunction} maxCount
+ */
+
+ /**
+ * @callback ArrayAddPropertyFunction
+ * @param {QlikPropertyDefinition|PropertyBuilder} item
+ * @returns {ArrayBuilder}
+ */
+ 
+/**
+ * @callback ArrayItemTitleSetterFunction
+ * @param {String | GetArrayItemTitleFunction} title
+ * @returns {ArrayBuilder}
+ */
+
+/**
+ * @callback GetArrayItemTitleFunction
+ * @param {*} item
+ * @param {Number} index
+ * @param {*} context
+ * @returns {String}
+ */
+
+/**
+ * @callback ArrayItemTitlePropertyNameSetterFunction
+ * @param {String} itemPropertyName
+ * @returns {ArrayBuilder}
+ */
+
+/**
+ * @callback ArrayModifiableSetterFunction
+ * @param {Boolean} isModifiable
+ * @param {String} additionTitle
+ * @returns {ArrayBuilder}
+ */
+
+/**
+ * @callback ArrayOrderableSetterFunction
+ * @param {Boolean} isOrderable
+ * @returns {ArrayBuilder}
+ */
+
+/**
+ * @callback ArrayMaxCountSetterFunction
+ * @param {Number} maxCount
+ * @returns {ArrayBuilder}
  */
 
 /**

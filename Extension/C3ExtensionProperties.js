@@ -2,19 +2,15 @@
  * Настройки расширения C3Extension
  */
 define(
-	[
-		'./QlikPropertyFactory',
-		'./QlikPropertyDefinitions'
-	],
+	['./QlikPropertyFactory'],
 
 	/**
 	 * Создаёт модуль
 	 * @param {PropertyFactory} f
-	 * @param {QlikPropertyDefinitions} pf
 	 * @param {PropertyBuilderApi} propertiesBuilder Построитель определений свойств
 	 * @returns Модуль
 	 */
-	function (f, pf) {
+	function (f) {
 		'use strict';
 
 		// Определения свойств
@@ -266,9 +262,8 @@ define(
 		 * @returns {QlikPropertyDefinition} Определения свойств линий
 		 */
 		function getLinesProperties(basePath, title) {
-			return pf.property(basePath, 'lines')
+			return f.array(basePath, 'lines')
 				.title(title)
-				.ofArray()
 				.modifiable(true, 'Добавить')
 				.orderable(false)
 				// Значение
@@ -289,7 +284,6 @@ define(
 				.add(
 					f.color('foreground')
 						.title('Цвет')
-						.default('#ffff00')
 						.picker(true)
 				)
 				// Подпись элемента в боковой панели
