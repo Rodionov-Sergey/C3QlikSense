@@ -277,14 +277,14 @@
  * Определение свойства
  * @typedef {Object} QlikPropertyDefinition
  * @property {QlikDefaultSectionType} uses Тип подключаемой стандартной секции
- * @property {Number} min - Минимальное количество элементов (для секций измерений и мер)
- * @property {Number} max - Максимальное количество элементов (для секций измерений и мер)
+ * @property {Number} min - Минимальное количество элементов в секции или минимальное значение свойства
+ * @property {Number} max - Максимальное количество элементов в секции или максимальное значение свойства
  * @property {QlikPropertyDataType} type Тип данных
  * @property {QlikPropertyComponentType} component Тип интерфейса
  * @property {String} ref Путь к заполняемому свойству через "."
  * @property {String} label Отображаемое название
  * @property {*} defaultValue Значение по умолчанию
- * @property {QlikPropertyOption[]} options Набор опций выбора (для свойств выбора опций)
+ * @property {QlikPropertyOption[]} options Набор опций выбора
  * @property {Object.<string, QlikPropertyDefinition>} items Элементы
  * @property {function(
  *   Boolean
@@ -292,6 +292,10 @@
  *   | (function(*): Promise<Boolean>)
  * ): PropertyBuilder} show Устанавливает видимость элемента
  * * arg0: Признак видимости или функция, возвращающая признак видимости
+ * @property {QlikExpressionMode} expression Режим использования выражений в свойстве
+ * @property {Number} step Шаг изменения значения
+ * @property {Number} maxLength Максимальная длина строкового значения
+ * @property {Number} rowCount Количество строк в поле
  */
 
 /**
@@ -353,6 +357,15 @@
  * * 'item-selection-list' - Список выбора
  * * 'color-picker' - Выбор цвета
  * * 'color-scale' - Палитра
+ */
+
+/**
+ * @typedef {'always'
+ * | 'optional'
+ * | ''} QlikExpressionMode
+ * * 'always' - Значение свойства интерпретируется как выражение
+ * * 'optional' - Значение свойства интерпретируется как выражение, если начинается c '='
+ * * '' - Значение свойства не интерпретируется как выражение
  */
 
 /**

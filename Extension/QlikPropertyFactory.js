@@ -13,6 +13,7 @@ define(
 
 		// API
 		return {
+			// Поля
 			boolean: boolean,
 			integer: integer,
 			number: number,
@@ -22,7 +23,7 @@ define(
 			color: color,
 			palette: palette,
 			label: label,
-
+			// Контейнеры
 			accordion: accordion,
 			dimensionsSection: dimensionsSection,
 			measuresSection: measures,
@@ -31,6 +32,8 @@ define(
 			section: section,
 			panel: panel
 		};
+
+		// Поля ---------------------------------------------------------------
 
 		/**
 		 * Создаёт логическое свойство
@@ -48,7 +51,7 @@ define(
 
 			return {
 				build: builderBuild(definition),
-				default: setPropertyDefault(definition),
+				default: setPropertyDefaultValue(definition),
 				title: setPropertyTitle(definition),
 				visible: setPropertyVisible(definition),
 				checkBox: toBooleanCheckBox(definition),
@@ -57,14 +60,16 @@ define(
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Создаёт логическое свойство c интерфейсом галочки
+		 * @param {QlikPropertyDefinition} definition Определение свойства
+		 * @returns {function(): CheckBoxBuilder} Построитель свойства
 		 */
 		function toBooleanCheckBox(definition) {
 			return function () {
 				delete definition.component;
 				return {
 					build: builderBuild(definition),
-					default: setPropertyDefault(definition),
+					default: setPropertyDefaultValue(definition),
 					title: setPropertyTitle(definition),
 					visible: setPropertyVisible(definition)
 				};
@@ -72,14 +77,16 @@ define(
 		}
 		
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Создаёт логическое свойство c интерфейсом переключателя
+		 * @param {QlikPropertyDefinition} definition Определение свойства
+		 * @returns {function(): BooleanSwitchBuilder} Построитель свойства
 		 */
 		function toBooleanSwitch(definition) {
 			return function () {
 				definition.component = 'switch';
 				return {
 					build: builderBuild(definition),
-					default: setPropertyDefault(definition),
+					default: setPropertyDefaultValue(definition),
 					title: setPropertyTitle(definition),
 					visible: setPropertyVisible(definition),
 					optionTitles: setBooleanSwitchOptionTitles(definition)
@@ -88,15 +95,19 @@ define(
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Устанавливает отображаемые названия состояний переключателя
+		 * @param {QlikPropertyDefinition} definition Изменяемое определение свойства
+		 * @return {function(String, String): *} Фунция установки
 		 */
 		function setBooleanSwitchOptionTitles(definition) {
 			return function (trueTitle, falseTitle) {
 				definition.options = [
+					// Включённый переключатель
 					{
 						value: true,
 						label: trueTitle
 					},
+					// Выключенный переключатель
 					{
 						value: false,
 						label: falseTitle
@@ -122,7 +133,7 @@ define(
 
 			return {
 				build: builderBuild(definition),
-				default: setPropertyDefault(definition),
+				default: setPropertyDefaultValue(definition),
 				title: setPropertyTitle(definition),
 				visible: setPropertyVisible(definition),
 				range: setRange(definition),
@@ -132,14 +143,16 @@ define(
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Создаёт целочисленное свойство c интерфейсом поля ввода
+		 * @param {QlikPropertyDefinition} definition Определение свойства
+		 * @returns {function(): IntegerEditBoxBuilder} Построитель свойства
 		 */
 		function toIntegerEditBox(definition) {
 			return function() {
 				delete definition.component;
 				return {
 					build: builderBuild(definition),
-					default: setPropertyDefault(definition),
+					default: setPropertyDefaultValue(definition),
 					title: setPropertyTitle(definition),
 					visible: setPropertyVisible(definition),
 					range: setRange(definition)
@@ -148,14 +161,16 @@ define(
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Создаёт целочисленное свойство c интерфейсом слайдера
+		 * @param {QlikPropertyDefinition} definition Определение свойства
+		 * @returns {function(): IntegerSliderBuilder} Построитель свойства
 		 */
 		function toIntegerSlider(definition) {
 			return function() {
 				definition.component = 'slider';
 				return {
 					build: builderBuild(definition),
-					default: setPropertyDefault(definition),
+					default: setPropertyDefaultValue(definition),
 					title: setPropertyTitle(definition),
 					visible: setPropertyVisible(definition),
 					range: setRange(definition),
@@ -165,7 +180,9 @@ define(
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Устанавливает шаг изменения значения свойства
+		 * @param {QlikPropertyDefinition} definition Изменяемое определение свойства
+		 * @return {function(Number): *} Фунция установки
 		 */
 		function setIntegerSliderStep(definition) {
 			return function (stepValue) {
@@ -190,7 +207,7 @@ define(
 
 			return {
 				build: builderBuild(definition),
-				default: setPropertyDefault(definition),
+				default: setPropertyDefaultValue(definition),
 				title: setPropertyTitle(definition),
 				visible: setPropertyVisible(definition),
 				range: setRange(definition),
@@ -200,14 +217,16 @@ define(
 		}
 		
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Создаёт вещественное числовое свойство c интерфейсом поля ввода
+		 * @param {QlikPropertyDefinition} definition Определение свойства
+		 * @returns {function(): NumberEditBoxBuilder} Построитель свойства
 		 */
 		function toNumberEditBox(definition) {
 			return function() {
 				delete definition.component;
 				return {
 					build: builderBuild(definition),
-					default: setPropertyDefault(definition),
+					default: setPropertyDefaultValue(definition),
 					title: setPropertyTitle(definition),
 					visible: setPropertyVisible(definition),
 					range: setRange(definition),
@@ -217,7 +236,9 @@ define(
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Создаёт вещественное числовое свойство c интерфейсом слайдера
+		 * @param {QlikPropertyDefinition} definition Определение свойства
+		 * @returns {function(): NumberSliderBuilder} Построитель свойства
 		 */
 		function toNumberSlider(definition) {
 			return function() {
@@ -225,7 +246,7 @@ define(
 				definition.type = 'number';
 				return {
 					build: builderBuild(definition),
-					default: setPropertyDefault(definition),
+					default: setPropertyDefaultValue(definition),
 					title: setPropertyTitle(definition),
 					visible: setPropertyVisible(definition),
 					range: setRange(definition),
@@ -235,7 +256,9 @@ define(
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Устанавливает шаг изменения значения свойства
+		 * @param {QlikPropertyDefinition} definition Изменяемое определение свойства
+		 * @return {function(Number): *} Фунция установки
 		 */
 		function setNumberSliderStep(definition) {
 			return function (stepValue) {
@@ -260,17 +283,19 @@ define(
 
 			return {
 				build: builderBuild(definition),
-				default: setPropertyDefault(definition),
+				default: setPropertyDefaultValue(definition),
 				title: setPropertyTitle(definition),
 				visible: setPropertyVisible(definition),
 				maxLength: setStringMaxLength(definition),
 				editBox: toStringEditBox(definition),
-				textArea: toStringTextArea(definition),
+				textArea: toStringTextArea(definition)
 			};
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Устанавливает максимальную длину значения свойства
+		 * @param {QlikPropertyDefinition} definition Изменяемое определение свойства
+		 * @return {function(Number): *} Фунция установки
 		 */
 		function setStringMaxLength(definition) {
 			return function (maxLength) {
@@ -280,14 +305,16 @@ define(
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Создаёт строковое свойство c интерфейсом поля ввода
+		 * @param {QlikPropertyDefinition} definition Определение свойства
+		 * @returns {function(): StringEditBoxBuilder} Построитель свойства
 		 */
 		function toStringEditBox(definition) {
 			return function () {
 				delete definition.component;
 				return {
 					build: builderBuild(definition),
-					default: setPropertyDefault(definition),
+					default: setPropertyDefaultValue(definition),
 					title: setPropertyTitle(definition),
 					visible: setPropertyVisible(definition),
 					maxLength: setStringMaxLength(definition),
@@ -297,14 +324,16 @@ define(
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Создаёт строковое свойство c интерфейсом многострочного поля ввода
+		 * @param {QlikPropertyDefinition} definition Определение свойства
+		 * @returns {function(): StringTextAreaBuilder} Построитель свойства
 		 */
 		function toStringTextArea(definition) {
 			return function () {
 				definition.component = 'textarea';
 				return {
 					build: builderBuild(definition),
-					default: setPropertyDefault(definition),
+					default: setPropertyDefaultValue(definition),
 					title: setPropertyTitle(definition),
 					visible: setPropertyVisible(definition),
 					maxLength: setStringMaxLength(definition),
@@ -314,7 +343,9 @@ define(
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Устанавливает количество строк в поле для свойства
+		 * @param {QlikPropertyDefinition} definition Изменяемое определение свойства
+		 * @return {function(Number): *} Фунция установки
 		 */
 		function setStringTextAreaRowCount(definition) {
 			return function (rowCount) {
@@ -342,20 +373,22 @@ define(
 
 			return {
 				build: builderBuild(definition),
-				default: setPropertyDefault(definition),
+				default: setPropertyDefaultValue(definition),
 				title: setPropertyTitle(definition),
 				visible: setPropertyVisible(definition),
-				add: enumAddOption(definition),
+				add: addEnumOption(definition),
 				comboBox: toEnumComboBox(definition),
-				radioButtons: addEnumRadioButtons(definition),
-				buttons: addEnumButtons(definition)
+				radioButtons: toEnumRadioButtons(definition),
+				buttons: toEnumButtons(definition)
 			};
 		}
 		
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Добавляет опцию выбора для перечислисого свойства
+		 * @param {QlikPropertyDefinition} definition Изменяемое определение свойства
+		 * @return {function(*, String, Boolean=): *} Фунция добавления
 		 */
-		function enumAddOption(definition) {
+		function addEnumOption(definition) {
 			return function (value, title, isDefault) {
 				var option = {
 					value: value,
@@ -371,49 +404,55 @@ define(
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Создаёт перечислимое свойство c интерфейсом выпадающего списка
+		 * @param {QlikPropertyDefinition} definition Определение свойства
+		 * @returns {function(): EnumUiBuilder} Построитель свойства
 		 */
 		function toEnumComboBox(definition) {
 			return function () {
 				definition.component = 'dropdown';
 				return {
 					build: builderBuild(definition),
-					default: setPropertyDefault(definition),
+					default: setPropertyDefaultValue(definition),
 					title: setPropertyTitle(definition),
 					visible: setPropertyVisible(definition),
-					add: enumAddOption(definition)
+					add: addEnumOption(definition)
 				};
 			};
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Создаёт перечислимое свойство c интерфейсом набора переключатей
+		 * @param {QlikPropertyDefinition} definition Определение свойства
+		 * @returns {function(): EnumUiBuilder} Построитель свойства
 		 */
-		function addEnumRadioButtons(definition) {
+		function toEnumRadioButtons(definition) {
 			return function () {
 				definition.component = 'radiobuttons';
 				return {
 					build: builderBuild(definition),
-					default: setPropertyDefault(definition),
+					default: setPropertyDefaultValue(definition),
 					title: setPropertyTitle(definition),
 					visible: setPropertyVisible(definition),
-					add: enumAddOption(definition)
+					add: addEnumOption(definition)
 				};
 			};
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Создаёт перечислимое свойство c интерфейсом набора кнопок
+		 * @param {QlikPropertyDefinition} definition Определение свойства
+		 * @returns {function(): EnumUiBuilder} Построитель свойства
 		 */
-		function addEnumButtons(definition) {
+		function toEnumButtons(definition) {
 			return function () {
 				definition.component = 'dropdown';
 				return {
 					build: builderBuild(definition),
-					default: setPropertyDefault(definition),
+					default: setPropertyDefaultValue(definition),
 					title: setPropertyTitle(definition),
 					visible: setPropertyVisible(definition),
-					add: enumAddOption(definition)
+					add: addEnumOption(definition)
 				};
 			};
 		}
@@ -435,10 +474,9 @@ define(
 
 			return {
 				build: builderBuild(definition),
-				default: setPropertyDefault(definition),
 				title: setPropertyTitle(definition),
 				visible: setPropertyVisible(definition),
-				add: addItemsAdd(definition),
+				add: addItem(definition),
 				itemTitle: setArrayItemTitle(definition),
 				itemTitlePropertyName: setArrayItemTitlePropertyName(definition),
 				modifiable: setArrayModifiable(definition),
@@ -448,7 +486,9 @@ define(
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Устанавливает название элемента массива
+		 * @param {QlikPropertyDefinition} definition Изменяемое определение свойства
+		 * @return {function(String | GetArrayItemTitleFunction): *} Фунция установки
 		 */
 		function setArrayItemTitle(definition) {
 			return function (title) {
@@ -467,7 +507,9 @@ define(
 		}
 		
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Устанавливает название элемента массива, используя название одного из свойств
+		 * @param {QlikPropertyDefinition} definition Изменяемое определение свойства
+		 * @return {function(String): *} Фунция установки
 		 */
 		function setArrayItemTitlePropertyName(definition) {
 			return function (itemPropertyName) {
@@ -477,13 +519,15 @@ define(
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Устанавливает признак изменяемости массива
+		 * @param {QlikPropertyDefinition} definition Изменяемое определение свойства
+		 * @return {function(Boolean): *} Фунция установки
 		 */
 		function setArrayModifiable(definition) {
 			return function (isModifiable, additionTitle) {
 				definition.allowAdd = isModifiable;
 				definition.allowRemove = isModifiable;
-				if (isModifiable) {
+				if (isModifiable && additionTitle != null && additionTitle != '') {
 					definition.addTranslation = additionTitle;
 				}
 				return this;
@@ -491,7 +535,9 @@ define(
 		}
 		
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Устанавливает признак упорядочиваемости массива
+		 * @param {QlikPropertyDefinition} definition Изменяемое определение свойства
+		 * @return {function(Boolean): *} Фунция установки
 		 */
 		function setArrayOrderable(definition) {
 			return function (isOrderable) {
@@ -501,7 +547,9 @@ define(
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Устанавливает ограничение размера массива
+		 * @param {QlikPropertyDefinition} definition Изменяемое определение свойства
+		 * @return {function(Number): *} Фунция установки
 		 */
 		function setArrayMaxCount(definition) {
 			return function (maxCount) {
@@ -511,7 +559,7 @@ define(
 		}
 
 		/**
-		 * Создаёт свойство-цвет
+		 * Создаёт цветовое свойство
 		 * @param {...String} propertyPath Путь к свойству
 		 * @returns {ColorBuilder} Построитель свойства
 		 */
@@ -528,7 +576,7 @@ define(
 
 			return {
 				build: builderBuild(definition),
-				default: setPropertyDefault(definition),
+				default: setPropertyDefaultValue(definition),
 				title: setPropertyTitle(definition),
 				visible: setPropertyVisible(definition),
 				picker: toColorPicker(definition, path),
@@ -537,19 +585,20 @@ define(
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Создаёт цветовое свойство c интерфейсом выбора из палитры
+		 * @param {QlikPropertyDefinition} definition Определение свойства
+		 * @returns {function(): ColorPickerBuilder} Построитель свойства
 		 */
 		function toColorPicker(definition, path) {
 			return function() {
-				definition.component = 'color-picker';
-				delete definition.type;
-				return toCustomColorPicker(definition, path);
+				return createCustomColorPicker(definition, path);
 			};
 		}
 
 		/**
-		 * 
-		 * @param {*} definition 
+		 * Устанавливает признак использования пользовательских цветов
+		 * @param {QlikPropertyDefinition} definition Изменяемое определение свойства
+		 * @return {function(Boolean): *} Фунция установки
 		 */
 		function setUseColorPickerCustomColor(definition, path) {
 			return function (useCustomColor) {
@@ -558,43 +607,25 @@ define(
 						return this;
 					}
 
-					return toCustomColorPicker(definition, path);
+					return createCustomColorPicker(definition, path);
 				}
 				else {
 					if (definition.type === 'integer') {
 						return this;
 					}
 					
-					return toStandardColorPicker(definition, path);
+					return createStandardColorPicker(definition, path);
 				}
 			};
 		}
 
 		/**
-		 * 
-		 * @param {*} definition 
+		 * Создаёт построитель цветового свойства c интерфейсом выбора из пользовательской палитры
+		 * @param {QlikPropertyDefinition} definition Определение свойства
+		 * @returns {ColorPickerBuilder} Построитель свойства
 		 */
-		function toCustomColorPicker(definition, path) {
-
-			// if (definition.type === 'integer') {
-			// 	console.log('toCustomColorPicker before', definition.ref);
-			// 	var pathParts = definition.ref.split('.');
-			// 	if (pathParts.length > 0 && pathParts[pathParts.length-1] === 'index') {
-			// 		pathParts.pop();
-			// 		definition.ref = pathParts.join('.');
-			// 	}
-			// 	console.log('toCustomColorPicker after', definition.ref);
-			// }
-			// else if (definition.type === 'string') {
-			// 	console.log('toCustomColorPicker before', definition.ref);
-			// 	var pathParts = definition.ref.split('.');
-			// 	if (pathParts.length > 0 && pathParts[pathParts.length-1] === 'color') {
-			// 		pathParts.pop();
-			// 		definition.ref = pathParts.join('.');
-			// 	}
-			// 	console.log('toCustomColorPicker after', definition.ref);
-			// }
-
+		function createCustomColorPicker(definition, path) {
+			definition.component = 'color-picker';
 			definition.type = 'object';
 			definition.ref = path;
 
@@ -611,8 +642,9 @@ define(
 		}
 
 		/**
-		 * 
-		 * @param {*} definition 
+		 * Устанавливает значение по умолчанию для выбора пользовательского цвета
+		 * @param {QlikPropertyDefinition} definition Изменяемое определение свойства
+		 * @return {function(String|Number): *} Фунция установки
 		 */
 		function setCustomColorPickerDefault(definition) {
 			return function (defaultValue) {
@@ -640,12 +672,13 @@ define(
 			};
 		}
 
-				/**
-		 * 
-		 * @param {*} definition 
+		/**
+		 * Создаёт построитель цветового свойства c интерфейсом выбора из стандартной палитры
+		 * @param {QlikPropertyDefinition} definition Определение свойства
+		 * @returns {ColorPickerBuilder} Построитель свойства
 		 */
-		function toStandardColorPicker(definition, path) {
-
+		function createStandardColorPicker(definition, path) {
+			definition.component = 'color-picker';
 			definition.type = 'integer';
 			definition.ref = combinePath([path, 'index']);
 
@@ -662,8 +695,9 @@ define(
 		}
 		
 		/**
-		 * 
-		 * @param {*} definition 
+		 * Устанавливает значение по умолчанию для выбора стандартного цвета
+		 * @param {QlikPropertyDefinition} definition Изменяемое определение свойства
+		 * @return {function(Number): *} Фунция установки
 		 */
 		function setStandardColorPickerDefault(definition) {
 			return function (defaultValue) {
@@ -692,7 +726,9 @@ define(
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Создаёт цветовое свойство c интерфейсом поля ввода
+		 * @param {QlikPropertyDefinition} definition Определение свойства
+		 * @returns {function(): ColorEditBoxBuilder} Построитель свойства
 		 */
 		function toColorEditBox(definition, path) {
 			return function() {
@@ -701,7 +737,7 @@ define(
 
 				return {
 					build: builderBuild(definition),
-					default: setPropertyDefault(definition),
+					default: setPropertyDefaultValue(definition),
 					title: setPropertyTitle(definition),
 					visible: setPropertyVisible(definition),
 					useExpression: setUseExpression(definition)
@@ -724,19 +760,21 @@ define(
 			};
 
 			return {
-				// NOTE: Свойство не готово к построению до выбора типа интерфейса
-				default: setPropertyDefault(definition),
+				// TODO: Сделать editBox по умолчанию, добавить build()
+				default: setPropertyDefaultValue(definition),
 				title: setPropertyTitle(definition),
 				visible: setPropertyVisible(definition),
-				picker: addPalettePicker(definition),
-				comboBox: addPaletteComboBox(definition)
+				picker: toPalettePicker(definition),
+				comboBox: toPaletteComboBox(definition)
 			};
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Создаёт свойство выбора палитры c интерфейсом списка
+		 * @param {QlikPropertyDefinition} definition Определение свойства
+		 * @returns {function(): PalettePickerBuilder} Построитель свойства
 		 */
-		function addPalettePicker(definition) {
+		function toPalettePicker(definition) {
 			return function() {
 				definition.type = 'items';
 				definition.component = 'item-selection-list';
@@ -745,57 +783,64 @@ define(
 				
 				return {
 					build: builderBuild(definition),
-					default: setPropertyDefault(definition),
+					default: setPropertyDefaultValue(definition),
 					title: setPropertyTitle(definition),
 					visible: setPropertyVisible(definition),
-					add: addPaletteAdd(definition),
-					addFromTheme: addPalettePickerAddFromTheme(definition)
+					add: addPalettePickerOption(definition),
+					addFromTheme: addPalettePickerOptionsFromTheme(definition)
 				};
 			};
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Добавляет опцию выбора в список палитр
+		 * @param {QlikPropertyDefinition} definition Изменяемое определение свойства
+		 * @return {function(PaletteInfo): *} Фунция добавления
 		 */
-		function addPaletteAdd(definition) {
-			return function (paletteOption) {
-				var palette = getPalettePickerDefinition(paletteOption);
+		function addPalettePickerOption(definition) {
+			return function (paletteInfo) {
+				var palette = getPalettePickerOption(paletteInfo);
 				definition.items = definition.items.concat([palette]);
 				return this;
 			};
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Добавляет опции выбора палитр из темы в список палитр
+		 * @param {QlikPropertyDefinition} definition Изменяемое определение свойства
+		 * @return {function(QlikTheme): *} Фунция добавления
 		 */
-		function addPalettePickerAddFromTheme(definition) {
+		function addPalettePickerOptionsFromTheme(definition) {
 			return function (qlikTheme) {
-				var palettes = getPalettesOptions(qlikTheme)
-					.map(getPalettePickerDefinition);
+				var palettes = getThemePalettesInfo(qlikTheme)
+					.map(getPalettePickerOption);
 				definition.items = definition.items.concat(palettes);
 				return this;
 			};
 		}
 
 		/**
-		 * @param {PaletteOption} paletteOption 
-		 * @returns {QlikPropertyDefinition}
+		 * Создаёт опцию выбора палитры для списка палитр
+		 * @param {PaletteInfo} paletteInfo Информация о палитре
+		 * @returns {QlikPropertyDefinition} Определение опции выбора
 		 */
-		function getPalettePickerDefinition(paletteOption) {
+		function getPalettePickerOption(paletteInfo) {
 			return {
 				component: 'color-scale',
-				type: paletteOption.isContinuous ? 'gradient' : 'sequential',
-				value: paletteOption.id,
-				label: paletteOption.title,
-				colors: paletteOption.colors,
+				type: paletteInfo.isContinuous ? 'gradient' : 'sequential',
+				value: paletteInfo.id,
+				label: paletteInfo.title,
+				colors: paletteInfo.colors,
 				icon: ''
 			};
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Создаёт свойство выбора палитры c интерфейсом выбора из выпадающего списка
+		 * @param {QlikPropertyDefinition} definition Определение свойства
+		 * @returns {function(): PalettePickerBuilder} Построитель свойства
 		 */
-		function addPaletteComboBox(definition) {
+		function toPaletteComboBox(definition) {
 			return function() {
 				definition.type = 'string';
 				definition.component = 'dropdown';
@@ -803,32 +848,23 @@ define(
 
 				return {
 					build: builderBuild(definition),
-					default: setPropertyDefault(definition),
+					default: setPropertyDefaultValue(definition),
 					title: setPropertyTitle(definition),
 					visible: setPropertyVisible(definition),
-					add: addPaletteComboBoxAdd(definition),
-					addFromTheme: addPaletteComboBoxAddFromTheme(definition)
+					add: addPaletteComboBoxOption(definition),
+					addFromTheme: addPaletteComboBoxOptionsFromTheme(definition)
 				};
 			};
 		}
 		
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Добавляет опцию выбора палитры в выпадающей список палитр
+		 * @param {QlikPropertyDefinition} definition Изменяемое определение свойства
+		 * @return {function(String, String): *} Фунция добавления
 		 */
-		function addPaletteComboBoxAddFromTheme(definition) {
-			return function (qlikTheme) {
-				var palettes = getPalettesOptions(qlikTheme)
-					.map(getPaletteComboBoxOption);
-				definition.options = definition.options.concat(palettes);
-				return this;
-			};
-		}
-		
-		/**
-		 * @param {QlikPropertyDefinition} definition 
-		 */
-		function addPaletteComboBoxAdd(definition) {
+		function addPaletteComboBoxOption(definition) {
 			return function (id, title) {
+				/** @type {QlikPropertyOption} */
 				var option = {
 					value: id,
 					label: title
@@ -837,37 +873,55 @@ define(
 				return this;
 			};
 		}
-
+		
 		/**
-		 * @param {PaletteOption} paletteOption 
-		 * @returns {QlikPropertyOption}
+		 * Добавляет опции палитр из темы в выпадающий список тем
+		 * @param {QlikPropertyDefinition} definition Изменяемое определение свойства
+		 * @return {function(QlikTheme): *} Фунция добавления
 		 */
-		function getPaletteComboBoxOption(paletteOption) {
-			return {
-				value: paletteOption.id,
-				label: paletteOption.title
+		function addPaletteComboBoxOptionsFromTheme(definition) {
+			return function (qlikTheme) {
+				var palettes = getThemePalettesInfo(qlikTheme)
+					.map(getPaletteComboBoxOption);
+				definition.options = definition.options.concat(palettes);
+				return this;
 			};
 		}
 
 		/**
-		 * Возвращает список выбора палитры
-		 * @param {QlikTheme} qlikTheme Тема
-		 * @return {PaletteOption[]} Список палитр
+		 * Создаёт определение опции для выпадающего списка
+		 * @param {PaletteInfo} paletteInfo Информация о палитре 
+		 * @returns {QlikPropertyOption} Определение опции выбора
 		 */
-		function getPalettesOptions(qlikTheme) {
-			if (qlikTheme == null) {
-				return [];
-			}
-			return getThemePalettes(qlikTheme)
-				.map(getPaletteOption);
+		function getPaletteComboBoxOption(paletteInfo) {
+			return {
+				value: paletteInfo.id,
+				label: paletteInfo.title
+			};
 		}
 
 		/**
-		 * Возвращает опредление опции выбора палитры
-		 * @param {QlikPalette} qlikPalette Палитра
-		 * @returns {PaletteOption} Опция выбора палитры
+		 * Возвращает список палитр темы
+		 * @param {QlikTheme} qlikTheme Тема
+		 * @return {PaletteInfo[]} Список палитр
 		 */
-		function getPaletteOption(qlikPalette) {
+		function getThemePalettesInfo(qlikTheme) {
+			if (qlikTheme == null ||
+				qlikTheme.properties == null ||
+				qlikTheme.properties.palettes == null ||
+				qlikTheme.properties.palettes.data == null) {
+				return [];
+			}
+			return qlikTheme.properties.palettes.data
+				.map(getPaletteInfo);
+		}
+
+		/**
+		 * Возвращает информацию о палитре
+		 * @param {QlikPalette} qlikPalette Палитра
+		 * @returns {PaletteInfo} Информация
+		 */
+		function getPaletteInfo(qlikPalette) {
 			return {
 				id: qlikPalette.propertyValue,
 				title: qlikPalette.name,
@@ -875,18 +929,9 @@ define(
 				isContinuous: isPaletteContinuous(qlikPalette)
 			};
 		}
-		
-		/**
-		 * Возвращает список палитр темы
-		 * @param {QlikTheme} qlikTheme Тема
-		 * @returns {QlikPalette[]} Список палитр
-		 */
-		function getThemePalettes(qlikTheme) {
-			return qlikTheme.properties.palettes.data;
-		}
 
 		/**
-		 * Возвращает цветовую шкалу палитры типа Пирамида
+		 * Возвращает цветовую шкалу палитры
 		 * @param {QlikPalette} qlikPalette Палитра
 		 * @param {Number} colorCount Количество цветов
 		 * @returns {String[]} Массив цветов палитры
@@ -904,7 +949,7 @@ define(
 		}
 
 		/**
-		 * Возвращает цветовую шкалу палитры типа Пирамида
+		 * Возвращает признак непрерывной цветовой шкалы
 		 * @param {QlikPalette} qlikPalette Палитра
 		 * @returns {Boolean} Признак непрерывной палитры
 		 */
@@ -955,9 +1000,11 @@ define(
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Возвращает фунцию установки значения по умолчанию для свойства
+		 * @param {QlikPropertyDefinition} definition Изменяемое определение свойства
+		 * @return {function(*): *} Фунция установки
 		 */
-		function setPropertyDefault(definition) {
+		function setPropertyDefaultValue(definition) {
 			return function (defaultValue) {
 				definition.defaultValue = defaultValue;
 				return this;
@@ -965,7 +1012,9 @@ define(
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Возвращает фунцию установки заголовка для свойства
+		 * @param {QlikPropertyDefinition} definition Изменяемое определение свойства
+		 * @return {function(String): *} Фунция установки
 		 */
 		function setPropertyTitle(definition) {
 			return function (title) {
@@ -975,7 +1024,9 @@ define(
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Возвращает фунцию установки видимости для свойства
+		 * @param {QlikPropertyDefinition} definition Изменяемое определение свойства
+		 * @return {function(Boolean|VisibleCallbackFunction): *} Фунция установки
 		 */
 		function setPropertyVisible(definition) {
 			return function (visibility) {
@@ -985,22 +1036,24 @@ define(
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Возвращает фунцию установки диапазона значений для свойства
+		 * @param {QlikPropertyDefinition} definition Изменяемое определение свойства
+		 * @return {function(Number, Number): *} Фунция установки
 		 */
 		function setRange(definition) {
 			return function(minValue, maxValue) {
-				if (minValue != null) {
-					definition.min = minValue;
-				}
-				else {
+				if (minValue === undefined) {
 					delete definition.min;
 				}
-
-				if (maxValue != null) {
-					definition.max = maxValue;
+				else if (minValue !== null) {
+					definition.min = minValue;
 				}
-				else {
+
+				if (maxValue === undefined) {
 					delete definition.max;
+				}
+				else if (maxValue !== null) {
+					definition.max = maxValue;
 				}
 
 				return this;
@@ -1008,14 +1061,16 @@ define(
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Возвращает фунцию установки признака использования выражения для свойства
+		 * @param {QlikPropertyDefinition} definition Изменяемое определение свойства
+		 * @return {function(Boolean=): *} Фунция установки
 		 */
 		function setUseExpression(definition) {
 			return function(usageFlag) {
 				if (usageFlag) {
 					definition.expression = 'always';
 				}
-				else if (usageFlag === null || usageFlag === undefined) {
+				else if (usageFlag === null) {
 					definition.expression = 'optional';
 				}
 				else {
@@ -1026,7 +1081,9 @@ define(
 		}
 
 		/**
-		 * @returns {BooleanBuilder}
+		 * Возвращает построитель текстовой метки
+		 * @param {String} title Текст метки
+		 * @returns {Builder} Построитель
 		 */
 		function label(title) {
 
@@ -1042,7 +1099,9 @@ define(
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
+		 * Создаёт функцию построения определения свойства
+		 * @param {QlikPropertyDefinition} definition Возвращаемое фукнцией определение свойства
+		 * @returns {functino(): QlikPropertyDefinition} Функция построения определения
 		 */
 		function builderBuild(definition) {
 			return function () {
@@ -1069,10 +1128,11 @@ define(
 			return itemParts.join('.');
 		}
 
-		// --------------------------------------------------------------------
+		// Контейнеры ---------------------------------------------------------
 
 		/**
-		 * @returns {ItemsBuilder}
+		 * Создаёт контейнер элементов верхнего уровня (аккордион)
+		 * @returns {ContainerBuilder} Построитель списка элементов
 		 */
 		function accordion() {
 			/** @type {QlikPropertyDefinition} */
@@ -1084,12 +1144,13 @@ define(
 
 			return {
 				build: builderBuild(definition),
-				add: addItemsAdd(definition)
+				add: addItem(definition)
 			};
 		}
 
 		/**
-		 * @returns {ItemsBuilder}
+		 * Создаёт контейнер стандартной секции Измерения
+		 * @returns {ContainerBuilder} Построитель списка элементов
 		 */
 		function dimensionsSection(minCount, maxCount) {
 			/** @type {QlikPropertyDefinition} */
@@ -1102,12 +1163,13 @@ define(
 
 			return {
 				build: builderBuild(definition),
-				add: addItemsAdd(definition)
+				add: addItem(definition)
 			};
 		}
 
 		/**
-		 * @returns {ItemsBuilder}
+		 * Создаёт контейнер стандартной секции Меры
+		 * @returns {ContainerBuilder} Построитель списка элементов
 		 */
 		function measures(minCount, maxCount) {
 			/** @type {QlikPropertyDefinition} */
@@ -1120,12 +1182,13 @@ define(
 
 			return {
 				build: builderBuild(definition),
-				add: addItemsAdd(definition)
+				add: addItem(definition)
 			};
 		}
 
 		/**
-		 * @returns {ItemsBuilder}
+		 * Создаёт контейнер стандартной секции Сортировка
+		 * @returns {ContainerBuilder} Построитель списка элементов
 		 */
 		function sorting() {
 			/** @type {QlikPropertyDefinition} */
@@ -1136,12 +1199,13 @@ define(
 
 			return {
 				build: builderBuild(definition),
-				add: addItemsAdd(definition)
+				add: addItem(definition)
 			};
 		}
 
 		/**
-		 * @returns {ItemsBuilder}
+		 * Создаёт контейнер стандартной секции Представление
+		 * @returns {ContainerBuilder} Построитель списка элементов
 		 */
 		function settings() {
 			/** @type {QlikPropertyDefinition} */
@@ -1152,53 +1216,55 @@ define(
 
 			return {
 				build: builderBuild(definition),
-				add: addItemsAdd(definition)
+				add: addItem(definition)
 			};
 		}
 
 		/**
-		 * @param {String} title
-		 * @returns {ItemsBuilder}
+		 * Создаёт контейнер секции
+		 * @returns {SectionBuilder} Построитель списка элементов
 		 */
-		function section(title) {
+		function section() {
 			/** @type {QlikPropertyDefinition} */
 			var definition = {
 				type: 'items',
 				component: 'expandable-items',
-				label: title,
 				items: {}
 			};
 
 			return {
 				build: builderBuild(definition),
-				add: addItemsAdd(definition),
+				add: addItem(definition),
+				title: setPropertyTitle(definition),
 				visible: setPropertyVisible(definition)
 			};
 		}
 
 		/**
-		 * @param {String} title
-		 * @returns {ItemsBuilder}
+		 * Создаёт контейнер-список элементов
+		 * @returns {PanelBuilder} Построитель списка элементов
 		 */
-		function panel(title) {
+		function panel() {
 			/** @type {QlikPropertyDefinition} */
 			var definition = {
 				type: 'items',
-				label: title,
 				items: {}
 			};
 
 			return {
 				build: builderBuild(definition),
-				add: addItemsAdd(definition),
+				add: addItem(definition),
+				title: setPropertyTitle(definition),
 				visible: setPropertyVisible(definition)
 			};
 		}
 
 		/**
+		 * Добавляет элемент в контейнер
 		 * @param {QlikPropertyDefinition} definition 
+		 * @returns {function(QlikPropertyDefinition|Builder): ContainerBuilder} Функция добавления
 		 */
-		function addItemsAdd(definition) {
+		function addItem(definition) {
 			return function (property) {
 				// Автогенерация названия для свойства 
 				var key = 0;
@@ -1235,311 +1301,342 @@ define(
  * @property {function(...String): ColorBuilder} color Свойство-цвет
  * @property {function(...String): PaletteBuilder} palette Свойство-палитра
  * @property {function(String): Builder} label Текстовая метка
- * @property {function(): ItemsBuilder} accordion Панель-аккордион
- * @property {ColumnsBuilderFunction} dimensionsSection Стандартная секция измерений
- * @property {ColumnsBuilderFunction} measuresSection Стандартная секция мер
- * @property {function(): ItemsBuilder} sortingSection Стандартная секция сортировки
- * @property {function(): ItemsBuilder} appearanceSection Стандартная секция представления
- * @property {TitledItemsBuilderFunction} section Секция
- * @property {TitledItemsBuilderFunction} panel Панель элементов
+ * @property {function(): ContainerBuilder} accordion Панель-аккордион
+ * @property {ColumnsContainerBuilderFunction} dimensionsSection Стандартная секция измерений
+ * @property {ColumnsContainerBuilderFunction} measuresSection Стандартная секция мер
+ * @property {function(): ContainerBuilder} sortingSection Стандартная секция сортировки
+ * @property {function(): ContainerBuilder} appearanceSection Стандартная секция представления
+ * @property {function(): SectionBuilder} section Секция
+ * @property {function(): PanelBuilder} panel Панель элементов
  */
 
 /**
  * Логическое свойство
  * @typedef {Object} BooleanBuilder
- * @property {function(): QlikPropertyDefinition} build
- * @property {function(String): BooleanBuilder} title
- * @property {function(Boolean|VisibleCallbackFunction): BooleanBuilder} visible
- * @property {function(Boolean): BooleanBuilder} default
- * @property {function(): CheckBoxBuilder} checkBox
- * @property {function(): BooleanSwitchBuilder} switch
+ * @property {BuildFunction} build Создаёт определение свойства
+ * @property {function(String): BooleanBuilder} title Устанавливает заголовок
+ * @property {function(Boolean|VisibleCallbackFunction): BooleanBuilder} visible Устанавливает видимость
+ * @property {function(Boolean): BooleanBuilder} default Устанавливает значение по умолчанию
+ * @property {function(): CheckBoxBuilder} checkBox Устанавливает интерфейс галочки
+ * @property {function(): BooleanSwitchBuilder} switch Устанавливает интерфейс переключателя
  */
 
 /**
+ * Галочка выбора логического свойства
  * @typedef {Object} CheckBoxBuilder
- * @property {function(): QlikPropertyDefinition} build
- * @property {function(String): CheckBoxBuilder} title
- * @property {function(Boolean|VisibleCallbackFunction): CheckBoxBuilder} visible
- * @property {function(Boolean): CheckBoxBuilder} default
+ * @property {BuildFunction} build Создаёт определение свойства
+ * @property {function(String): CheckBoxBuilder} title Устанавливает заголовок
+ * @property {function(Boolean|VisibleCallbackFunction): CheckBoxBuilder} visible Устанавливает видимость
+ * @property {function(Boolean): CheckBoxBuilder} default Устанавливает значение по умолчанию
  */
 
 /**
+ * Переключатель выбора логического значения
  * @typedef {Object} BooleanSwitchBuilder
- * @property {function(): QlikPropertyDefinition} build
- * @property {function(String): BooleanSwitchBuilder} title
- * @property {function(Boolean|VisibleCallbackFunction): BooleanSwitchBuilder} visible
- * @property {function(Boolean): BooleanSwitchBuilder} default
- * @property {function(String, String): BooleanSwitchBuilder} optionTitles
+ * @property {BuildFunction} build Создаёт определение свойства
+ * @property {function(String): BooleanSwitchBuilder} title Устанавливает заголовок
+ * @property {function(Boolean|VisibleCallbackFunction): BooleanSwitchBuilder} visible Устанавливает видимость
+ * @property {function(Boolean): BooleanSwitchBuilder} default Устанавливает значение по умолчанию
+ * @property {function(String, String): BooleanSwitchBuilder} optionTitles Устанавливает отображаемые названия опций
  */
 
 /**
  * Целочисленое свойство
  * @typedef {Object} IntegerBuilder
- * @property {function(): QlikPropertyDefinition} build
- * @property {function(String): IntegerBuilder} title
- * @property {function(Boolean|VisibleCallbackFunction): IntegerBuilder} visible
- * @property {function(Number): IntegerBuilder} default
- * @property {function(Number, Number): IntegerBuilder} range
- * @property {function(): IntegerEditBoxBuilder} editBox
+ * @property {BuildFunction} build Создаёт определение свойства
+ * @property {function(String): IntegerBuilder} title Устанавливает заголовок
+ * @property {function(Boolean|VisibleCallbackFunction): IntegerBuilder} visible Устанавливает видимость
+ * @property {function(Number): IntegerBuilder} default Устанавливает значение по умолчанию
+ * @property {function(Number, Number): IntegerBuilder} range Устанавливает диапазон изменения значения
+ * @property {function(): IntegerEditBoxBuilder} editBox 
  * @property {function(): IntegerSliderBuilder} slider
  */
 
 /**
+ * Поле ввода целочисленного свойства
  * @typedef {Object} IntegerEditBoxBuilder
- * @property {function(): QlikPropertyDefinition} build
- * @property {function(String): IntegerEditBoxBuilder} title
- * @property {function(Boolean|VisibleCallbackFunction): IntegerEditBoxBuilder} visible
- * @property {function(Number): IntegerEditBoxBuilder} default
- * @property {function(Number, Number): IntegerEditBoxBuilder} range
+ * @property {BuildFunction} build Создаёт определение свойства
+ * @property {function(String): IntegerEditBoxBuilder} title Устанавливает заголовок
+ * @property {function(Boolean|VisibleCallbackFunction): IntegerEditBoxBuilder} visible Устанавливает видимость
+ * @property {function(Number): IntegerEditBoxBuilder} default Устанавливает значение по умолчанию
+ * @property {function(Number, Number): IntegerEditBoxBuilder} range Устанавливает диапазон изменения значения
  */
 
 /**
+ * Слайдер целочисленного свойства
  * @typedef {Object} IntegerSliderBuilder
- * @property {function(): QlikPropertyDefinition} build
- * @property {function(String): IntegerSliderBuilder} title
- * @property {function(Boolean|VisibleCallbackFunction): IntegerSliderBuilder} visible
- * @property {function(Number): IntegerSliderBuilder} default
- * @property {function(Number, Number): IntegerSliderBuilder} range
- * @property {function(Number): IntegerSliderBuilder} step
+ * @property {BuildFunction} build Создаёт определение свойства
+ * @property {function(String): IntegerSliderBuilder} title Устанавливает заголовок
+ * @property {function(Boolean|VisibleCallbackFunction): IntegerSliderBuilder} visible Устанавливает видимость
+ * @property {function(Number): IntegerSliderBuilder} default Устанавливает значение по умолчанию
+ * @property {function(Number, Number): IntegerSliderBuilder} range Устанавливает диапазон изменения значения
+ * @property {function(Number): IntegerSliderBuilder} step Устанавливает шаг изменения значения
  */
 
 /**
  * Вещественное числовое свойство
  * @typedef {Object} NumberBuilder
- * @property {function(): QlikPropertyDefinition} build
- * @property {function(String): NumberBuilder} title
- * @property {function(Boolean|VisibleCallbackFunction): NumberBuilder} visible
- * @property {function(Number): NumberBuilder} default
- * @property {function(Number, Number): NumberBuilder} range
+ * @property {BuildFunction} build Создаёт определение свойства
+ * @property {function(String): NumberBuilder} title Устанавливает заголовок
+ * @property {function(Boolean|VisibleCallbackFunction): NumberBuilder} visible Устанавливает видимость
+ * @property {function(Number): NumberBuilder} default Устанавливает значение по умолчанию
+ * @property {function(Number, Number): NumberBuilder} range Устанавливает диапазон изменения значения
  * @property {function(): NumberEditBoxBuilder} editBox
  * @property {function(): NumberSliderBuilder} slider
  */
 
 /**
+ * Поле ввода вещественного числового свойства
  * @typedef {Object} NumberEditBoxBuilder
- * @property {function(): QlikPropertyDefinition} build
- * @property {function(String): NumberEditBoxBuilder} title
- * @property {function(Boolean|VisibleCallbackFunction): NumberEditBoxBuilder} visible
- * @property {function(Number): NumberEditBoxBuilder} default
- * @property {function(Number, Number): NumberEditBoxBuilder} range
- * @property {function(Boolean=): NumberEditBoxBuilder} useExpression
+ * @property {BuildFunction} build Создаёт определение свойства
+ * @property {function(String): NumberEditBoxBuilder} title Устанавливает заголовок
+ * @property {function(Boolean|VisibleCallbackFunction): NumberEditBoxBuilder} visible Устанавливает видимость
+ * @property {function(Number): NumberEditBoxBuilder} default Устанавливает значение по умолчанию
+ * @property {function(Number, Number): NumberEditBoxBuilder} range Устанавливает диапазон изменения значения
+ * @property {function(Boolean=): NumberEditBoxBuilder} useExpression Устанавливает признак использования выражения
  */
 
 /**
+ * Слайдер вещественного числового свойства
  * @typedef {Object} NumberSliderBuilder
- * @property {function(): QlikPropertyDefinition} build
- * @property {function(String): NumberSliderBuilder} title
- * @property {function(Boolean|VisibleCallbackFunction): NumberSliderBuilder} visible
- * @property {function(Number): NumberSliderBuilder} default
- * @property {function(Number, Number): NumberSliderBuilder} range
- * @property {function(Number): NumberSliderBuilder} step
+ * @property {BuildFunction} build Создаёт определение свойства
+ * @property {function(String): NumberSliderBuilder} title Устанавливает заголовок
+ * @property {function(Boolean|VisibleCallbackFunction): NumberSliderBuilder} visible Устанавливает видимость
+ * @property {function(Number): NumberSliderBuilder} default Устанавливает значение по умолчанию
+ * @property {function(Number, Number): NumberSliderBuilder} range Устанавливает диапазон изменения значения
+ * @property {function(Number): NumberSliderBuilder} step Устанавливает шаг изменения значения
  */
 
 /**
  * Строковое свойство
  * @typedef {Object} StringBuilder
- * @property {function(): QlikPropertyDefinition} build
- * @property {function(String): StringBuilder} title
- * @property {function(Boolean|VisibleCallbackFunction): StringBuilder} visible
- * @property {function(String): StringBuilder} default
- * @property {function(Number): StringBuilder} maxLength
- * @property {function(): StringEditBoxBuilder} editBox
- * @property {function(): StringTextAreaBuilder} textArea
+ * @property {BuildFunction} build Создаёт определение свойства
+ * @property {function(String): StringBuilder} title Устанавливает заголовок
+ * @property {function(Boolean|VisibleCallbackFunction): StringBuilder} visible Устанавливает видимость
+ * @property {function(String): StringBuilder} default Устанавливает значение по умолчанию
+ * @property {function(Number): StringBuilder} maxLength Устанавливает максимальную длину
+ * @property {function(): StringEditBoxBuilder} editBox Устанавливает интерфейс поля ввода
+ * @property {function(): StringTextAreaBuilder} textArea Устанавливает интерфейс многострочного поля ввода
  */
 
 /**
+ * Поле ввода строкового свойства
  * @typedef {Object} StringEditBoxBuilder
- * @property {function(): QlikPropertyDefinition} build
- * @property {function(String): StringEditBoxBuilder} title
- * @property {function(Boolean|VisibleCallbackFunction): StringEditBoxBuilder} visible
- * @property {function(String): StringEditBoxBuilder} default
- * @property {function(Number): StringEditBoxBuilder} maxLength
- * @property {function(Boolean=): StringEditBoxBuilder} useExpression
+ * @property {BuildFunction} build Создаёт определение свойства
+ * @property {function(String): StringEditBoxBuilder} title Устанавливает заголовок
+ * @property {function(Boolean|VisibleCallbackFunction): StringEditBoxBuilder} visible Устанавливает видимость
+ * @property {function(String): StringEditBoxBuilder} default Устанавливает значение по умолчанию
+ * @property {function(Number): StringEditBoxBuilder} maxLength Устанавливает максимальную длину
+ * @property {function(Boolean=): StringEditBoxBuilder} useExpression Устанавливает признак использования выражения
  */
 
 /**
+ * Многострочное поле ввода строкового свойства
  * @typedef {Object} StringTextAreaBuilder
- * @property {function(): QlikPropertyDefinition} build
- * @property {function(String): StringTextAreaBuilder} title
- * @property {function(Boolean|VisibleCallbackFunction): StringTextAreaBuilder} visible
- * @property {function(String): StringTextAreaBuilder} default
- * @property {function(Number): StringTextAreaBuilder} maxLength
- * @property {function(Number): StringTextAreaBuilder} rowCount
+ * @property {BuildFunction} build Создаёт определение свойства
+ * @property {function(String): StringTextAreaBuilder} title Устанавливает заголовок
+ * @property {function(Boolean|VisibleCallbackFunction): StringTextAreaBuilder} visible Устанавливает видимость
+ * @property {function(String): StringTextAreaBuilder} default Устанавливает значение по умолчанию
+ * @property {function(Number): StringTextAreaBuilder} maxLength Устанавливает максимальную длину
+ * @property {function(Number): StringTextAreaBuilder} rowCount Устанавливает количество строк поля
  */
 
 /**
  * Перечислимое свойство
  * @typedef {Object} EnumBuilder
- * @property {function(): QlikPropertyDefinition} build
- * @property {function(String): EnumBuilder} title
- * @property {function(Boolean|VisibleCallbackFunction): EnumBuilder} visible
- * @property {function(String): EnumBuilder} default
- * @property {function(*, String, Boolean): EnumBuilder} add
- * @property {function(): EnumUiBuilder} comboBox
- * @property {function(): EnumUiBuilder} radioButtons
- * @property {function(): EnumUiBuilder} buttons
+ * @property {BuildFunction} build Создаёт определение свойства
+ * @property {function(String): EnumBuilder} title Устанавливает заголовок
+ * @property {function(Boolean|VisibleCallbackFunction): EnumBuilder} visible Устанавливает видимость
+ * @property {function(String): EnumBuilder} default Устанавливает значение по умолчанию
+ * @property {function(*, String, Boolean): EnumBuilder} add Добавляет опцию выбора
+ * @property {function(): EnumUiBuilder} comboBox Устанавливает интерфейс выпадающего списка
+ * @property {function(): EnumUiBuilder} radioButtons Устанавливает интерфейс списка переключателей
+ * @property {function(): EnumUiBuilder} buttons Устанавливает интерфейс списка кнопок
  */
 
 /**
+ * Интерфейс перечислимого свойства
  * @typedef {Object} EnumUiBuilder
- * @property {function(): QlikPropertyDefinition} build
- * @property {function(String): EnumUiBuilder} title
- * @property {function(Boolean|VisibleCallbackFunction): EnumUiBuilder} visible
- * @property {function(String): EnumUiBuilder} default
- * @property {function(*, String, Boolean): EnumUiBuilder} add
+ * @property {BuildFunction} build Создаёт определение свойства
+ * @property {function(String): EnumUiBuilder} title Устанавливает заголовок
+ * @property {function(Boolean|VisibleCallbackFunction): EnumUiBuilder} visible Устанавливает видимость
+ * @property {function(String): EnumUiBuilder} default Устанавливает значение по умолчанию
+ * @property {function(*, String, Boolean): EnumUiBuilder} add Добавляет опицию выбора
  */
 
 /**
  * Свойство-массив
  * @typedef {Object} ArrayBuilder
- * @property {function(): QlikPropertyDefinition} build
- * @property {function(String): ArrayBuilder} title
- * @property {function(Boolean|VisibleCallbackFunction): ArrayBuilder} visible
- * @property {ArrayAddPropertyFunction} add
- * @property {ArrayItemTitleSetterFunction} itemTitle
- * @property {ArrayItemTitlePropertyNameSetterFunction} itemTitlePropertyName
- * @property {ArrayModifiableSetterFunction} modifiable
- * @property {ArrayOrderableSetterFunction} orderable
- * @property {ArrayMaxCountSetterFunction} maxCount
+ * @property {BuildFunction} build Создаёт определение свойства
+ * @property {function(String): ArrayBuilder} title Устанавливает заголовок
+ * @property {function(Boolean|VisibleCallbackFunction): ArrayBuilder} visible Устанавливает видимость
+ * @property {ArrayAddPropertyFunction} add Добавляет свойство элемента
+ * @property {ArrayItemTitleSetterFunction} itemTitle Устанавливате отображаемое название элемента
+ * @property {function(String): ArrayBuilder} itemTitlePropertyName Устанавливает отображаемое название элемента через название свойства
+ * @property {ArrayModifiableSetterFunction} modifiable Устанавливает признак редактируемости массива
+ * @property {function(Boolean): ArrayBuilder} orderable Устанавливает признак упорядочиваемости
+ * @property {function(Number): ArrayBuilder} maxCount Устанавливает максимальное число элементов массива
  */
 
- /**
+/**
+ * Функция добавления свойства элемента массива 
  * @callback ArrayAddPropertyFunction
- * @param {QlikPropertyDefinition|PropertyBuilder} item
- * @returns {ArrayBuilder}
+ * @param {QlikPropertyDefinition|PropertyBuilder} item Добавляемое свойство
+ * @returns {ArrayBuilder} Построитель массива
  */
  
 /**
+ * Функция установки отображаемого названия элемента массива
  * @callback ArrayItemTitleSetterFunction
- * @param {String | GetArrayItemTitleFunction} title
- * @returns {ArrayBuilder}
+ * @param {String | GetArrayItemTitleFunction} title Устанавливаемы заголовок или функция указывающая заголовок для элемента
+ * @returns {ArrayBuilder} Построитель массива
  */
 
 /**
+ * Функция указания отображаемого названия элемента массива
  * @callback GetArrayItemTitleFunction
- * @param {*} item
- * @param {Number} index
- * @param {*} context
- * @returns {String}
+ * @param {*} itemData Данные элемента массива
+ * @param {Number} index Индекс элемента
+ * @param {*} context Контектсные данные Qlik
+ * @returns {String} Отображаемое название элемента
  */
 
 /**
- * @callback ArrayItemTitlePropertyNameSetterFunction
- * @param {String} itemPropertyName
- * @returns {ArrayBuilder}
- */
-
-/**
+ * Функция установки признака редактируемости массива
  * @callback ArrayModifiableSetterFunction
- * @param {Boolean} isModifiable
- * @param {String} additionTitle
- * @returns {ArrayBuilder}
+ * @param {Boolean} isModifiable Признак редактируемости массива
+ * @param {String} additionTitle Заголовок действия добавления
+ * @returns {ArrayBuilder} Построитель массива
  */
 
 /**
- * @callback ArrayOrderableSetterFunction
- * @param {Boolean} isOrderable
- * @returns {ArrayBuilder}
- */
-
-/**
- * @callback ArrayMaxCountSetterFunction
- * @param {Number} maxCount
- * @returns {ArrayBuilder}
- */
-
-/**
- * Свойство-цвет
+ * Цветовое свойство
  * @typedef {Object} ColorBuilder
- * @property {function(String): ColorBuilder} title
- * @property {function(Boolean|VisibleCallbackFunction): ColorBuilder} visible
- * @property {function(*): ColorBuilder} default
- * @property {function(): ColorPickerBuilder} picker
- * @property {function(): ColorEditBoxBuilder} editBox
+ * @property {BuildFunction} build Создаёт определение свойства
+ * @property {function(String): ColorBuilder} title Устанавливает заголовок
+ * @property {function(Boolean|VisibleCallbackFunction): ColorBuilder} visible Устанавливает видимость
+ * @property {function(*): ColorBuilder} default Устанавливает значение по умолчанию
+ * @property {function(): ColorPickerBuilder} picker Устанавливает интерфейс выбора из палитры
+ * @property {function(): ColorEditBoxBuilder} editBox Устанавливает интерфейс поля ввода
  */
 
 /**
+ * Выпадающий список выбора цвета
  * @typedef {Object} ColorPickerBuilder
- * @property {function(): QlikPropertyDefinition} build
- * @property {function(String): ColorPickerBuilder} title
- * @property {function(Boolean|VisibleCallbackFunction): ColorPickerBuilder} visible
- * @property {function(*): ColorPickerBuilder} default
+ * @property {BuildFunction} build Создаёт определение свойства
+ * @property {function(String): ColorPickerBuilder} title Устанавливает заголовок
+ * @property {function(Boolean|VisibleCallbackFunction): ColorPickerBuilder} visible Устанавливает видимость
+ * @property {function(*): ColorPickerBuilder} default Устанавливает значение по умолчанию
  * @property {function(Boolean): ColorPickerBuilder} useCustomColor
  */
 
- /**
+/**
+ * Поле ввода цвета
  * @typedef {Object} ColorEditBoxBuilder
- * @property {function(): QlikPropertyDefinition} build
- * @property {function(String): ColorEditBoxBuilder} title
- * @property {function(Boolean|VisibleCallbackFunction): ColorEditBoxBuilder} visible
- * @property {function(*): ColorEditBoxBuilder} default
- * @property {function(Boolean=): ColorEditBoxBuilder} useExpression
+ * @property {BuildFunction} build Создаёт определение свойства
+ * @property {function(String): ColorEditBoxBuilder} title Устанавливает заголовок
+ * @property {function(Boolean|VisibleCallbackFunction): ColorEditBoxBuilder} visible Устанавливает видимость
+ * @property {function(*): ColorEditBoxBuilder} default Устанавливает значение по умолчанию
+ * @property {function(Boolean=): ColorEditBoxBuilder} useExpression Устанавливает признак использования выражения
  */
 
 /**
  * Свойство-палитра
  * @typedef {Object} PaletteBuilder
- * @property {function(String): PaletteBuilder} title
- * @property {function(Boolean|VisibleCallbackFunction): PaletteBuilder} visible
- * @property {function(String): PaletteBuilder} default
- * @property {function(): PalettePickerBuilder} picker
- * @property {function(): PaletteComboBoxBuilder} comboBox
+ * @property {function(String): PaletteBuilder} title Устанавливает заголовок
+ * @property {function(Boolean|VisibleCallbackFunction): PaletteBuilder} visible Устанавливает видимость
+ * @property {function(String): PaletteBuilder} default Устанавливает значение по умолчанию
+ * @property {function(): PalettePickerBuilder} picker Устанавливает интерфейс выбора из списка
+ * @property {function(): PaletteComboBoxBuilder} comboBox Устанавливает интерфейс выбора из выпадающего списка
  */
 
 /**
+ * Список выбора палитры
  * @typedef {Object} PalettePickerBuilder
- * @property {function(String): PalettePickerBuilder} title
- * @property {function(Boolean|VisibleCallbackFunction): PalettePickerBuilder} visible
- * @property {function(String): PalettePickerBuilder} default
- * @property {function(QlikTheme): PalettePickerBuilder} addFromTheme
- * @property {function(PaletteOption): PalettePickerBuilder} add
+ * @property {BuildFunction} build Создаёт определение свойства
+ * @property {function(String): PalettePickerBuilder} title Устанавливает заголовок
+ * @property {function(Boolean|VisibleCallbackFunction): PalettePickerBuilder} visible Устанавливает видимость
+ * @property {function(String): PalettePickerBuilder} default Устанавливает значение по умолчанию
+ * @property {function(PaletteInfo): PalettePickerBuilder} add Добавляет опцию выбора
+ * @property {function(QlikTheme): PalettePickerBuilder} addFromTheme Добавляет опции выбора из темы
  */
 
 /**
- * @typedef {Object} PaletteOption
- * @property {String} title
- * @property {String} id
- * @property {Color[]} colors
- * @property {Boolean} isContinuous
+ * Информация о палитре
+ * @typedef {Object} PaletteInfo
+ * @property {String} id Идентификатор
+ * @property {String} title Отображаемое название
+ * @property {Color[]} colors Список цветов
+ * @property {Boolean} isContinuous Признок непрерывной палитры
  */
 
 /**
+ * Выпадающий список выбора палитры
  * @typedef {Object} PaletteComboBoxBuilder
- * @property {function(String): PaletteComboBoxBuilder} title
- * @property {function(Boolean|VisibleCallbackFunction): PaletteComboBoxBuilder} visible
- * @property {function(String): PaletteComboBoxBuilder} default
- * @property {function(QlikTheme): PaletteComboBoxBuilder} addFromTheme
- * @property {function(String, String): PaletteComboBoxBuilder} add
+ * @property {BuildFunction} build Создаёт определение свойства
+ * @property {function(String): PaletteComboBoxBuilder} title Устанавливает заголовок
+ * @property {function(Boolean|VisibleCallbackFunction): PaletteComboBoxBuilder} visible Устанавливает видимость
+ * @property {function(String): PaletteComboBoxBuilder} default Устанавливает значение по умолчанию
+ * @property {AddPaletteComboBoxOptionFunction} add Добавляет опцию выбора
+ * @property {function(QlikTheme): PaletteComboBoxBuilder} addFromTheme Добавляет опции выбора из темы
  */
 
 /**
- * @callback ColumnsBuilderFunction
+ * Функция добавления опции выбора в выпадающий список палитр
+ * @callback AddPaletteComboBoxOptionFunction
+ * @param {String} id Идентификатор палитры
+ * @param {String} title Отображаемое название палитры
+ * @returns {PaletteComboBoxBuilder} Построитель выпадающего списка палитр
+ */
+
+/**
+ * Функция установки диапазона количества элементов измерений или мер
+ * @callback ColumnsContainerBuilderFunction
  * @param {Number} minCount Минимальное число измерений
  * @param {Number} maxCount Максимальное число измерений
- * @returns {ItemsBuilder} Построитель набора элементов
+ * @returns {ContainerBuilder} Построитель набора элементов
+ */
+
+/**
+ * Контейнер элементов
+ * @typedef {Object} ContainerBuilder
+ * @property {BuildFunction} build Создаёт определение свойства
+ * @property {function(QlikPropertyDefinition): ContainerBuilder} add
+ */
+
+/**
+ * Секция
+ * @typedef {Object} SectionBuilder
+ * @property {BuildFunction} build Создаёт определение свойства
+ * @property {function(QlikPropertyDefinition): SectionBuilder} add
+ * @property {function(String): SectionBuilder} title Устанавливает заголовок
+ * @property {function(Boolean|VisibleCallbackFunction): SectionBuilder} visible Устанавливает видимость
+ */
+
+/**
+ * Панель
+ * @typedef {Object} PanelBuilder
+ * @property {BuildFunction} build Создаёт определение свойства
+ * @property {function(QlikPropertyDefinition): PanelBuilder} add
+ * @property {function(String): PanelBuilder} title Устанавливает заголовок
+ * @property {function(Boolean|VisibleCallbackFunction): PanelBuilder} visible Устанавливает видимость
  */
 
 /** 
+ * Функция указания видимости свойства
  * @callback VisibleCallbackFunction
- * @param {*} context
- * @returns {Boolean | Promise<Boolean>}
+ * @param {*} context Контекст Qlik
+ * @returns {Boolean | Promise<Boolean>} Значение видимости или его Promise
 */
 
 /**
- * @callback TitledItemsBuilderFunction
- * @param {String} title
- * @returns {ItemsBuilder}
- */
-
-/**
- * Набор элементов
- * @typedef {Object} ItemsBuilder
- * @property {function(): QlikPropertyDefinition} build
- * @property {function(QlikPropertyDefinition): ItemsBuilder} add
- * @property {function(Boolean|VisibleCallbackFunction): ItemsBuilder} visible
- */
-
-/**
+ * Построитель определения свойства
  * @typedef {Object} Builder
- * @property {function(): QlikPropertyDefinition} build
+ * @property {BuildFunction} build Создаёт определение свойства
  */
+
+ /**
+  * Функция создания определения свойства
+  * @callback BuildFunction
+  * @returns {QlikPropertyDefinition} Определение свойства
+  */

@@ -200,7 +200,8 @@ define(
 		 * @returns {QlikPropertyDefinition} Определения свойств графика
 		 */
 		function getCustomSection(basePath, qlikTheme) {
-			return f.section('График')
+			return f.section()
+				.title('График')
 				// Свойства оси X
 				.add(getAxisXPanel(path(basePath, 'axisX')))
 				// Линии оси X
@@ -230,7 +231,8 @@ define(
 		 * @returns {QlikPropertyDefinition} Определения свойств оси
 		 */
 		function getAxisXPanel(basePath) {
-			return f.panel('Ось X')
+			return f.panel()
+				.title('Ось X')
 				// Признак отображение сетки
 				.add(
 					f.boolean(basePath, 'grid', 'shown')
@@ -247,7 +249,8 @@ define(
 		 * @returns {QlikPropertyDefinition} Определения свойств оси
 		 */
 		function getAxisYPanel(basePath) {
-			return f.panel('Ось Y')
+			return f.panel()
+				.title('Ось Y')
 				// Подпись оси
 				.add(
 					f.string(basePath, 'title')
@@ -330,7 +333,8 @@ define(
 		 * @returns {QlikPropertyDefinition} Определения свойств
 		 */
 		function getLegendPanel(basePath) {
-			return f.panel('Легенда')
+			return f.panel()
+				.title('Легенда')
 				.add(
 					f.boolean(basePath, 'shown')
 						.title('Отображение легенды')
