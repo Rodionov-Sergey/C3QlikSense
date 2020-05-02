@@ -194,8 +194,7 @@ define(
 				visible: setPropertyVisible(definition),
 				range: setRange(definition),
 				editBox: toNumberEditBox(definition),
-				slider: toNumberSlider(definition),
-				expressionBox: setNumberExpressionBox(definition)
+				slider: toNumberSlider(definition)
 			};
 		}
 		
@@ -210,7 +209,8 @@ define(
 					default: setPropertyDefault(definition),
 					title: setPropertyTitle(definition),
 					visible: setPropertyVisible(definition),
-					range: setRange(definition)
+					range: setRange(definition),
+					useExpression: setUseExpression(definition)
 				};
 			};
 		}
@@ -244,23 +244,6 @@ define(
 		}
 
 		/**
-		 * @param {QlikPropertyDefinition} definition 
-		 */
-		function setNumberExpressionBox(definition) {
-			return function() {
-				delete definition.component;
-				definition.expression = 'always';
-				return {
-					build: builderBuild(definition),
-					default: setPropertyDefault(definition),
-					title: setPropertyTitle(definition),
-					visible: setPropertyVisible(definition),
-					optionalExpression: setExpressionBoxOptionalExpression(definition)
-				};
-			};
-		}
-
-		/**
 		 * Создаёт строковое свойство
 		 * @param {...String} propertyPath Путь к свойству
 		 * @returns {StringBuilder} Построитель свойства
@@ -282,7 +265,6 @@ define(
 				maxLength: setStringMaxLength(definition),
 				editBox: toStringEditBox(definition),
 				textArea: toStringTextArea(definition),
-				expressionBox: toStringExpressionBox(definition)
 			};
 		}
 
@@ -307,7 +289,8 @@ define(
 					default: setPropertyDefault(definition),
 					title: setPropertyTitle(definition),
 					visible: setPropertyVisible(definition),
-					maxLength: setStringMaxLength(definition)
+					maxLength: setStringMaxLength(definition),
+					useExpression: setUseExpression(definition)
 				};
 			};
 		}
@@ -335,33 +318,6 @@ define(
 		function setStringTextAreaRowCount(definition) {
 			return function (rowCount) {
 				definition.rowCount = rowCount;
-				return this;
-			};
-		}
-
-		/**
-		 * @param {QlikPropertyDefinition} definition 
-		 */
-		function toStringExpressionBox(definition) {
-			return function() {
-				delete definition.component;
-				definition.expression = 'always';
-				return {
-					build: builderBuild(definition),
-					default: setPropertyDefault(definition),
-					title: setPropertyTitle(definition),
-					visible: setPropertyVisible(definition),
-					optionalExpression: setExpressionBoxOptionalExpression(definition)
-				};
-			};
-		}
-
-		/**
-		 * @param {QlikPropertyDefinition} definition 
-		 */
-		function setExpressionBoxOptionalExpression(definition) {
-			return function(isOptional) {
-				definition.expression = isOptional ? 'optional' : 'always';
 				return this;
 			};
 		}
@@ -572,8 +528,7 @@ define(
 				title: setPropertyTitle(definition),
 				visible: setPropertyVisible(definition),
 				picker: addColorPicker(definition),
-				editBox: addColorEditBox(definition),
-				expressionBox: addColorExpressionBox(definition)
+				editBox: addColorEditBox(definition)
 			};
 		}
 
@@ -625,26 +580,8 @@ define(
 					build: builderBuild(definition),
 					default: setPropertyDefault(definition),
 					title: setPropertyTitle(definition),
-					visible: setPropertyVisible(definition)
-				};
-			};
-		}
-
-		/**
-		 * @param {QlikPropertyDefinition} definition 
-		 */
-		function addColorExpressionBox(definition) {
-			return function() {
-				definition.ref = combinePath([definition.ref, 'color']);
-				definition.type = 'string';
-				definition.expression = 'always';
-
-				return {
-					build: builderBuild(definition),
-					default: setPropertyDefault(definition),
-					title: setPropertyTitle(definition),
 					visible: setPropertyVisible(definition),
-					optionalExpression: setExpressionBoxOptionalExpression(definition)
+					useExpression: setUseExpression(definition)
 				};
 			};
 		}
@@ -948,6 +885,24 @@ define(
 		}
 
 		/**
+		 * @param {QlikPropertyDefinition} definition 
+		 */
+		function setUseExpression(definition) {
+			return function(usageFlag) {
+				if (usageFlag) {
+					definition.expression = 'always';
+				}
+				else if (usageFlag === null || usageFlag === undefined) {
+					definition.expression = 'optional';
+				}
+				else {
+					delete definition.expression;
+				}
+				return this;
+			};
+		}
+
+		/**
 		 * @returns {BooleanBuilder}
 		 */
 		function label(title) {
@@ -1235,7 +1190,6 @@ define(
  * @property {function(Number, Number): NumberBuilder} range
  * @property {function(): NumberEditBoxBuilder} editBox
  * @property {function(): NumberSliderBuilder} slider
- * @property {function(): NumberExpressionBoxBuilder} expressionBox
  */
 
 /**
@@ -1245,6 +1199,7 @@ define(
  * @property {function(Boolean|VisibleCallbackFunction): NumberEditBoxBuilder} visible
  * @property {function(Number): NumberEditBoxBuilder} default
  * @property {function(Number, Number): NumberEditBoxBuilder} range
+ * @property {function(Boolean=): NumberEditBoxBuilder} useExpression
  */
 
 /**
@@ -1258,16 +1213,6 @@ define(
  */
 
 /**
- * @typedef {Object} NumberExpressionBoxBuilder
- * @property {function(): QlikPropertyDefinition} build
- * @property {function(String): NumberExpressionBoxBuilder} title
- * @property {function(Boolean|VisibleCallbackFunction): NumberExpressionBoxBuilder} visible
- * @property {function(Number): NumberExpressionBoxBuilder} default
- * @property {function(Number, Number): NumberExpressionBoxBuilder} range
- * @property {function(Boolean): NumberExpressionBoxBuilder} optionalExpression
- */
-
-/**
  * Строковое свойство
  * @typedef {Object} StringBuilder
  * @property {function(): QlikPropertyDefinition} build
@@ -1277,7 +1222,6 @@ define(
  * @property {function(Number): StringBuilder} maxLength
  * @property {function(): StringEditBoxBuilder} editBox
  * @property {function(): StringTextAreaBuilder} textArea
- * @property {function(): StringExpressionBoxBuilder} expressionBox
  */
 
 /**
@@ -1287,6 +1231,7 @@ define(
  * @property {function(Boolean|VisibleCallbackFunction): StringEditBoxBuilder} visible
  * @property {function(String): StringEditBoxBuilder} default
  * @property {function(Number): StringEditBoxBuilder} maxLength
+ * @property {function(Boolean=): StringEditBoxBuilder} useExpression
  */
 
 /**
@@ -1297,15 +1242,6 @@ define(
  * @property {function(String): StringTextAreaBuilder} default
  * @property {function(Number): StringTextAreaBuilder} maxLength
  * @property {function(Number): StringTextAreaBuilder} rowCount
- */
-
-/**
- * @typedef {Object} StringExpressionBoxBuilder
- * @property {function(): QlikPropertyDefinition} build
- * @property {function(String): StringExpressionBoxBuilder} title
- * @property {function(Boolean|VisibleCallbackFunction): StringExpressionBoxBuilder} visible
- * @property {function(String): StringExpressionBoxBuilder} default
- * @property {function(Boolean): StringExpressionBoxBuilder} optionalExpression
  */
 
 /**
@@ -1395,26 +1331,25 @@ define(
  * @property {function(String): ColorBuilder} title
  * @property {function(Boolean|VisibleCallbackFunction): ColorBuilder} visible
  * @property {function(*): ColorBuilder} default
- * @property {function(Boolean): ColorUiBuilder} picker
- * @property {function(Boolean): ColorUiBuilder} editBox
- * @property {function(Boolean): ColorExpressionBoxBuilder} expressionBox
+ * @property {function(Boolean): ColorPickerBuilder} picker
+ * @property {function(Boolean): ColorEditBoxBuilder} editBox
  */
 
 /**
- * @typedef {Object} ColorUiBuilder
+ * @typedef {Object} ColorPickerBuilder
  * @property {function(): QlikPropertyDefinition} build
- * @property {function(String): ColorUiBuilder} title
- * @property {function(Boolean|VisibleCallbackFunction): ColorUiBuilder} visible
- * @property {function(*): ColorUiBuilder} default
+ * @property {function(String): ColorPickerBuilder} title
+ * @property {function(Boolean|VisibleCallbackFunction): ColorPickerBuilder} visible
+ * @property {function(*): ColorPickerBuilder} default
  */
 
  /**
- * @typedef {Object} ColorExpressionBoxBuilder
+ * @typedef {Object} ColorEditBoxBuilder
  * @property {function(): QlikPropertyDefinition} build
- * @property {function(String): ColorExpressionBoxBuilder} title
- * @property {function(Boolean|VisibleCallbackFunction): ColorExpressionBoxBuilder} visible
- * @property {function(String): ColorExpressionBoxBuilder} default
- * @property {function(Boolean): ColorExpressionBoxBuilder} optionalExpression
+ * @property {function(String): ColorEditBoxBuilder} title
+ * @property {function(Boolean|VisibleCallbackFunction): ColorEditBoxBuilder} visible
+ * @property {function(*): ColorEditBoxBuilder} default
+ * @property {function(Boolean=): ColorEditBoxBuilder} useExpression
  */
 
 /**

@@ -146,8 +146,8 @@ define(
 				.add(
 					f.string(basePath, 'groupKey')
 						.title('Идентификатор группы')
-						.expressionBox()
-						.optionalExpression(true)
+						.editBox()
+						.useExpression()
 				)
 				// Настройки линейного графика
 				.add(
@@ -252,8 +252,8 @@ define(
 				.add(
 					f.string(basePath, 'title')
 						.title('Заголовок оси')
-						.expressionBox()
-						.optionalExpression(true)
+						.editBox()
+						.useExpression()
 				)
 				// Признак отображение сетки
 				.add(
@@ -280,15 +280,15 @@ define(
 				.add(
 					f.string('value')
 						.title('Значение')
-						.expressionBox(true)
-						.optionalExpression(true)
+						.editBox()
+						.useExpression()
 				)
 				// Подпись
 				.add(
 					f.string('title')
 						.title('Подпись')
-						.expressionBox(true)
-						.optionalExpression(true)
+						.editBox()
+						.useExpression()
 				)
 				// Цвет
 				.add(
