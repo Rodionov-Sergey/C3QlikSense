@@ -23,10 +23,10 @@ define(
 			label: label,
 
 			accordion: accordion,
-			dimensions: dimensions,
-			measures: measures,
-			sorting: sorting,
-			settings: settings,
+			dimensionsSection: dimensionsSection,
+			measuresSection: measures,
+			sortingSection: sorting,
+			appearanceSection: settings,
 			section: section,
 			panel: panel
 		};
@@ -1013,7 +1013,7 @@ define(
 		/**
 		 * @returns {ItemsBuilder}
 		 */
-		function dimensions(minCount, maxCount) {
+		function dimensionsSection(minCount, maxCount) {
 			/** @type {QlikPropertyDefinition} */
 			var definition = {
 				uses: 'dimensions',
@@ -1158,10 +1158,10 @@ define(
  * @property {function(...String): PaletteBuilder} palette Свойство-палитра
  * @property {function(String): Builder} label Текстовая метка
  * @property {function(): ItemsBuilder} accordion Панель-аккордион
- * @property {ColumnsBuilderFunction} dimensions Стандартная секция измерений
- * @property {ColumnsBuilderFunction} measures Стандартная секция мер
- * @property {function(): ItemsBuilder} sorting Стандартная секция сортировки
- * @property {function(): ItemsBuilder} settings Стандартная секция представления
+ * @property {ColumnsBuilderFunction} dimensionsSection Стандартная секция измерений
+ * @property {ColumnsBuilderFunction} measuresSection Стандартная секция мер
+ * @property {function(): ItemsBuilder} sortingSection Стандартная секция сортировки
+ * @property {function(): ItemsBuilder} appearanceSection Стандартная секция представления
  * @property {TitledItemsBuilderFunction} section Секция
  * @property {TitledItemsBuilderFunction} panel Панель элементов
  */

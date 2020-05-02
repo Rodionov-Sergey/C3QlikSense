@@ -6,11 +6,13 @@ define(
 
 	/**
 	 * Создаёт модуль
-	 * @param {PropertyFactory} f
+	 * @param {PropertyFactory} propertyFactory
 	 * @returns Модуль
 	 */
-	function (f) {
+	function (propertyFactory) {
 		'use strict';
+
+		var f = propertyFactory;
 
 		// Определения свойств
 		return {
@@ -60,20 +62,29 @@ define(
 		 * @returns {QlikPropertyDefinition} Определения свойств
 		 */
 		function getProperties(qlikTheme) {
+			return getAccordion(qlikTheme)
+				.build();
+		}
+
+		/**
+		 * Возвращает контейнер свойств, настраиваемых пользователем
+		 * @param {*} qlikTheme Тема
+		 * @returns {Builder} Построитель свойств
+		 */
+		function getAccordion(qlikTheme) {
 			var columnPropertiesPath = path('qDef', 'properties');
 			var extensionPropertiesPath = 'properties';
 			return f.accordion()
 				// Секция свойств Измерения
-				.add(getDimensionProperties(columnPropertiesPath))
+				.add(getDimensionsSection(columnPropertiesPath))
 				// Секция свойств Меры
-				.add(getMeasureProperties(columnPropertiesPath))
+				.add(getMeasuresSection(columnPropertiesPath))
 				// Секция свойств Сортировка
-				.add(f.sorting())
+				.add(f.sortingSection())
 				// Секция свойств Вид
-				.add(f.settings())
+				.add(f.appearanceSection())
 				// Секция свойства графика
-				.add(getChartProperties(extensionPropertiesPath, qlikTheme))
-				.build();
+				.add(getCustomSection(extensionPropertiesPath, qlikTheme));
 		}
 
 		/**
@@ -81,8 +92,8 @@ define(
 		 * @param {String} basePath Базовый путь к свойству
 		 * @returns {QlikPropertyDefinition} Определения свойств измерений
 		 */
-		function getDimensionProperties(basePath) {
-			return f.dimensions(1, 1)
+		function getDimensionsSection(basePath) {
+			return f.dimensionsSection(1, 1)
 				// Тип шкалы
 				.add(
 					f.enumeration(basePath, 'scaleType')
@@ -121,8 +132,8 @@ define(
 		 * @param {QlikTheme} qlikTheme
 		 * @returns {QlikPropertyDefinition} Определение свойств меры
 		 */
-		function getMeasureProperties(basePath) {
-			return f.measures(1, 10)
+		function getMeasuresSection(basePath) {
+			return f.measuresSection(1, 10)
 				// Тип графика
 				.add(
 					f.enumeration(basePath, 'chartType')
@@ -140,7 +151,7 @@ define(
 				)
 				// Настройки линейного графика
 				.add(
-					getLineChartProperties(path(basePath, 'lineChart'))
+					getLineChartPanel(path(basePath, 'lineChart'))
 				);
 		}
 
@@ -149,7 +160,7 @@ define(
 		 * @param {String} basePath Базовый путь к свойству
 		 * @returns {QlikPropertyDefinition} Определения свойств
 		 */
-		function getLineChartProperties(basePath) {
+		function getLineChartPanel(basePath) {
 			return f.panel()
 				.add(
 					f.label('Линейный график')
@@ -188,18 +199,18 @@ define(
 		 * @param {QlikTheme} qlikTheme Тема
 		 * @returns {QlikPropertyDefinition} Определения свойств графика
 		 */
-		function getChartProperties(basePath, qlikTheme) {
+		function getCustomSection(basePath, qlikTheme) {
 			return f.section('График')
 				// Свойства оси X
-				.add(getAxisXProperties(path(basePath, 'axisX')))
+				.add(getAxisXPanel(path(basePath, 'axisX')))
 				// Линии оси X
-				.add(getLinesProperties(path(basePath, 'axisX'), 'Ось X. Линии'))
+				.add(getLinesPanel(path(basePath, 'axisX'), 'Ось X. Линии'))
 				// Свойства оси Y
-				.add(getAxisYProperties(path(basePath, 'axisY')))
+				.add(getAxisYPanel(path(basePath, 'axisY')))
 				// Линии оси Y
-				.add(getLinesProperties(path(basePath, 'axisY'), 'Ось Y. Линии'))
+				.add(getLinesPanel(path(basePath, 'axisY'), 'Ось Y. Линии'))
 				// Свойства легенды
-				.add(getLegendProperties(path(basePath, 'legend')))
+				.add(getLegendPanel(path(basePath, 'legend')))
 				// Палитра
 				.add(
 					f.palette(basePath, 'palette', 'id')
@@ -218,7 +229,7 @@ define(
 		 * @param {String} basePath Базовый путь к свойству
 		 * @returns {QlikPropertyDefinition} Определения свойств оси
 		 */
-		function getAxisXProperties(basePath) {
+		function getAxisXPanel(basePath) {
 			return f.panel('Ось X')
 				// Признак отображение сетки
 				.add(
@@ -235,7 +246,7 @@ define(
 		 * @param {String} basePath Базовый путь к свойству
 		 * @returns {QlikPropertyDefinition} Определения свойств оси
 		 */
-		function getAxisYProperties(basePath) {
+		function getAxisYPanel(basePath) {
 			return f.panel('Ось Y')
 				// Подпись оси
 				.add(
@@ -260,7 +271,7 @@ define(
 		 * @param {String} title Заголовок секции
 		 * @returns {QlikPropertyDefinition} Определения свойств линий
 		 */
-		function getLinesProperties(basePath, title) {
+		function getLinesPanel(basePath, title) {
 			return f.array(basePath, 'lines')
 				.title(title)
 				.modifiable(true, 'Добавить')
@@ -317,7 +328,7 @@ define(
 		 * @param {String} basePath Базовый путь к свойству
 		 * @returns {QlikPropertyDefinition} Определения свойств
 		 */
-		function getLegendProperties(basePath) {
+		function getLegendPanel(basePath) {
 			return f.panel('Легенда')
 				.add(
 					f.boolean(basePath, 'shown')
