@@ -294,7 +294,8 @@ define(
 				.add(
 					f.color('foreground')
 						.title('Цвет')
-						.picker(true)
+						.picker()
+						.useCustomColor(true)
 				)
 				// Подпись элемента в боковой панели
 				.itemTitle(

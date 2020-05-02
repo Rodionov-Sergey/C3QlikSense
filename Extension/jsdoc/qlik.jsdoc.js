@@ -338,6 +338,7 @@
  * | 'textarea'
  * | 'text'
  * | 'item-selection-list'
+ * | 'color-picker'
  * | 'color-scale'
  * } QlikPropertyComponentType
  * * 'accordion' - Список секций, одна из которых открыта
@@ -350,6 +351,7 @@
  * * 'textarea' - Многострочное текстовое поле
  * * 'text' - Текстовая метка
  * * 'item-selection-list' - Список выбора
+ * * 'color-picker' - Выбор цвета
  * * 'color-scale' - Палитра
  */
 

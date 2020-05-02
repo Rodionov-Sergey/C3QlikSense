@@ -131,7 +131,7 @@ module.exports = {
         "no-div-regex": "error",
         "no-duplicate-imports": "error",
         "no-else-return": [
-            "error",
+            "off",
             {
                 "allowElseIf": true
             }

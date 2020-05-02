@@ -1,3 +1,4 @@
+/* eslint-disable no-invalid-this */
 /**
  * Фабрика определений свойств Qlik
  */
@@ -517,63 +518,185 @@ define(
 		function color(propertyPath) {
 			propertyPath = Array.prototype.slice.call(arguments);
 
+			var path = combinePath(propertyPath);
+
 			/** @type {QlikPropertyDefinition} */
 			var definition = {
-				ref: combinePath(propertyPath)
+				ref: combinePath([path, 'color']),
+				type: 'string'
 			};
 
 			return {
-				// NOTE: Свойство не готово к построению до выбора типа интерфейса
+				build: builderBuild(definition),
 				default: setPropertyDefault(definition),
 				title: setPropertyTitle(definition),
 				visible: setPropertyVisible(definition),
-				picker: addColorPicker(definition),
-				editBox: addColorEditBox(definition)
+				picker: toColorPicker(definition, path),
+				editBox: toColorEditBox(definition, path)
 			};
 		}
 
 		/**
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addColorPicker(definition) {
-			return function(allowCustomColor) {
+		function toColorPicker(definition, path) {
+			return function() {
 				definition.component = 'color-picker';
-				if (allowCustomColor) {
-					definition.type = 'object';
+				delete definition.type;
+				return toCustomColorPicker(definition, path);
+			};
+		}
 
-					var existingDefaultValue = definition.defaultValue;
-					if (typeof(existingDefaultValue) == 'string') {
-						definition.defaultValue = {
-							index: -1,
-							color: existingDefaultValue
-						};
-					} 
-					else if (typeof(existingDefaultValue) == 'number') {
-						definition.defaultValue = {
-							index: existingDefaultValue
-						};
+		/**
+		 * 
+		 * @param {*} definition 
+		 */
+		function setUseColorPickerCustomColor(definition, path) {
+			return function (useCustomColor) {
+				if (useCustomColor || useCustomColor == null || useCustomColor == undefined) {
+					if (definition.type === 'object') {
+						return this;
 					}
+
+					return toCustomColorPicker(definition, path);
 				}
 				else {
-					definition.ref = combinePath([definition.ref, 'index']);
-					definition.type = 'integer';
+					if (definition.type === 'integer') {
+						return this;
+					}
+					
+					return toStandardColorPicker(definition, path);
 				}
+			};
+		}
 
-				return {
-					build: builderBuild(definition),
-					default: setPropertyDefault(definition), // TODO: Проверить правильность работы
-					title: setPropertyTitle(definition),
-					visible: setPropertyVisible(definition)
-				};
+		/**
+		 * 
+		 * @param {*} definition 
+		 */
+		function toCustomColorPicker(definition, path) {
+
+			// if (definition.type === 'integer') {
+			// 	console.log('toCustomColorPicker before', definition.ref);
+			// 	var pathParts = definition.ref.split('.');
+			// 	if (pathParts.length > 0 && pathParts[pathParts.length-1] === 'index') {
+			// 		pathParts.pop();
+			// 		definition.ref = pathParts.join('.');
+			// 	}
+			// 	console.log('toCustomColorPicker after', definition.ref);
+			// }
+			// else if (definition.type === 'string') {
+			// 	console.log('toCustomColorPicker before', definition.ref);
+			// 	var pathParts = definition.ref.split('.');
+			// 	if (pathParts.length > 0 && pathParts[pathParts.length-1] === 'color') {
+			// 		pathParts.pop();
+			// 		definition.ref = pathParts.join('.');
+			// 	}
+			// 	console.log('toCustomColorPicker after', definition.ref);
+			// }
+
+			definition.type = 'object';
+			definition.ref = path;
+
+			var setDefault = setCustomColorPickerDefault(definition);
+			setDefault(definition.defaultValue);
+
+			return {
+				build: builderBuild(definition),
+				default: setDefault,
+				title: setPropertyTitle(definition),
+				visible: setPropertyVisible(definition),
+				useCustomColor: setUseColorPickerCustomColor(definition, path)
+			};
+		}
+
+		/**
+		 * 
+		 * @param {*} definition 
+		 */
+		function setCustomColorPickerDefault(definition) {
+			return function (defaultValue) {
+				switch (typeof(defaultValue)) {
+					case 'number': {
+						delete definition.defaultValue;
+						definition.defaultValue = {
+							index: defaultValue + 1
+						};
+						break;
+					}
+					case 'string': {
+						definition.defaultValue = {
+							index: -1,
+							color: defaultValue
+						};
+						break;
+					}
+					case 'null':
+					case 'undefined':
+					default:
+						delete definition.defaultValue;
+						break;
+				}
+			};
+		}
+
+				/**
+		 * 
+		 * @param {*} definition 
+		 */
+		function toStandardColorPicker(definition, path) {
+
+			definition.type = 'integer';
+			definition.ref = combinePath([path, 'index']);
+
+			var setDefault = setStandardColorPickerDefault(definition);
+			setDefault(definition.defaultValue);
+
+			return {
+				build: builderBuild(definition),
+				default: setDefault,
+				title: setPropertyTitle(definition),
+				visible: setPropertyVisible(definition),
+				useCustomColor: setUseColorPickerCustomColor(definition, path)
+			};
+		}
+		
+		/**
+		 * 
+		 * @param {*} definition 
+		 */
+		function setStandardColorPickerDefault(definition) {
+			return function (defaultValue) {
+				switch (typeof(defaultValue)) {
+					case 'number': {
+						break;
+					}
+					case 'object': {
+						if (defaultValue.index == null || defaultValue.index == -1) {
+							delete definition.defaultValue;
+							break;
+						}
+
+						definition.defaultValue = defaultValue.index - 1;
+						break;
+					}
+					case 'string':
+					case 'null':
+					case 'undefined':
+					default: {
+						delete definition.defaultValue;
+						break;
+					}
+				}
 			};
 		}
 
 		/**
 		 * @param {QlikPropertyDefinition} definition 
 		 */
-		function addColorEditBox(definition) {
+		function toColorEditBox(definition, path) {
 			return function() {
-				definition.ref = combinePath([definition.ref, 'color']);
+				definition.ref = combinePath([path, 'color']);
 				definition.type = 'string';
 
 				return {
@@ -1331,8 +1454,8 @@ define(
  * @property {function(String): ColorBuilder} title
  * @property {function(Boolean|VisibleCallbackFunction): ColorBuilder} visible
  * @property {function(*): ColorBuilder} default
- * @property {function(Boolean): ColorPickerBuilder} picker
- * @property {function(Boolean): ColorEditBoxBuilder} editBox
+ * @property {function(): ColorPickerBuilder} picker
+ * @property {function(): ColorEditBoxBuilder} editBox
  */
 
 /**
@@ -1341,6 +1464,7 @@ define(
  * @property {function(String): ColorPickerBuilder} title
  * @property {function(Boolean|VisibleCallbackFunction): ColorPickerBuilder} visible
  * @property {function(*): ColorPickerBuilder} default
+ * @property {function(Boolean): ColorPickerBuilder} useCustomColor
  */
 
  /**
