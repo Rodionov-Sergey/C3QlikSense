@@ -70,6 +70,14 @@
  * @property {Number} value Значение
  * @property {Number} title Подпись
  * @property {QlikColorObject} foreground Настройки переднего плана
+ * @property {LineType} lineType Тип линии
+ */
+
+/**
+ * Тип линии
+ * @typedef {'Dashed'|'Solid'} LineType
+ * - 'Dashed' - Пунктирная
+ * - 'Solid' - Сплошная
  */
 
 /**

@@ -786,7 +786,7 @@ define(
 			}
 			
 			if (axis.grid != null) {
-				var dashArray = axis.grid.lineType === "Solid" ? '0' : '4';
+				var dashArray = axis.grid.lineType === 'Solid' ? '0' : '4';
 				$chart
 					.find('line.'+ gridClass)
 					.css('stroke-dasharray', dashArray)
@@ -802,27 +802,27 @@ define(
 		function styleSeries($chart, qlikMeasure) {
 
 			// Для линейного графика
-			if (qlikMeasure.properties.chartType === "LineChart" && 
+			if (qlikMeasure.properties.chartType === 'LineChart' && 
 				qlikMeasure.properties.lineChart != null) {
 
 				// Управление видимостью точек
 				if (!qlikMeasure.properties.lineChart.pointsShown) {
 					$chart
-						.find(".c3-circles-" + qlikMeasure.cId)
+						.find('.c3-circles-' + qlikMeasure.cId)
 						.remove();
 				}
 				
 				// Управление видимостью линии
 				if (!qlikMeasure.properties.lineChart.lineShown) {
 					$chart
-						.find(".c3-lines-" + qlikMeasure.cId)
+						.find('.c3-lines-' + qlikMeasure.cId)
 						.remove();
 				}
 
 				// Управление видимостью области
 				if (!qlikMeasure.properties.lineChart.areaShown) {
 					$chart
-						.find(".c3-areas-" + qlikMeasure.cId)
+						.find('.c3-areas-' + qlikMeasure.cId)
 						.remove();
 				}
 			}
@@ -852,6 +852,12 @@ define(
 					.children('text')
 					.css('fill', foregroundColor);
 			}
+
+			// Тип линии
+			var dashArray = axisGridLine.lineType === 'Solid' ? '0' : '4';
+			$lineContainer
+				.children('line')
+				.css('stroke-dasharray', dashArray);
 		}
 
 		/**

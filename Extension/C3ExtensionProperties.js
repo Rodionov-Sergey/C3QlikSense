@@ -238,23 +238,7 @@ define(
 				items: {
 					// Признак отображение сетки
 					gridShown: shownSwitcher(path(basePath, 'grid', 'shown'), 'Отображение сетки'),
-					gridLineType: {
-						ref: path(basePath, 'grid', 'lineType'),
-						type: 'string',
-						component: 'buttongroup',
-						label: 'Тип линии',
-						options: [
-							{
-								value: "Solid",
-								label: "Сплошная"
-							}, 
-							{
-								value: "Dashed",
-								label: "Пунктирная"
-							}
-						],
-						defaultValue: "Solid"
-					},
+					gridLineType: getLineTypeProperty(path(basePath, 'grid', 'lineType')),
 					gridWidth: {
 						ref: path(basePath, 'grid', 'width'),
 						type: 'integer',
@@ -283,23 +267,7 @@ define(
 					},
 					// Признак отображение сетки
 					gridShown: shownSwitcher(path(basePath, 'grid', 'shown'), 'Отображение сетки'),
-					gridLineType: {
-						ref: path(basePath, 'grid', 'lineType'),
-						type: 'string',
-						component: 'buttongroup',
-						label: 'Тип линии',
-						options: [
-							{
-								value: "Solid",
-								label: "Сплошная"
-							}, 
-							{
-								value: "Dashed",
-								label: "Пунктирная"
-							}
-						],
-						defaultValue: "Solid"
-					},
+					gridLineType: getLineTypeProperty(path(basePath, 'grid', 'lineType')),
 					gridWidth: {
 						ref: path(basePath, 'grid', 'width'),
 						type: 'integer',
@@ -309,7 +277,31 @@ define(
 				}
 			};
 		}
-
+		
+		/**
+		 * Создает свойство типа линии
+		 * @param {String} propertyPath Путь к свойству
+		 * @returns {*} Определения свойства типа линии
+		 */
+		function getLineTypeProperty(propertyPath) {
+			return {
+				ref: propertyPath,
+				type: 'string',
+				component: 'buttongroup',
+				label: 'Тип линии',
+				options: [
+					{
+						value: 'Solid',
+						label: 'Сплошная'
+					}, 
+					{
+						value: 'Dashed',
+						label: 'Пунктирная'
+					}
+				],
+				defaultValue: 'Solid'
+			};
+		}
 		/**
 		 * Возвращает определения свойств линий
 		 * @param {String} basePath Базовый путь к свойству
@@ -341,7 +333,10 @@ define(
 						expression: 'optional'
 					},
 					// Цвет
-					color: colorPicker('foreground', 'Цвет')
+					color: colorPicker('foreground', 'Цвет'),
+					// Тип линии
+					lineType: getLineTypeProperty('lineType')
+
 				},
 				// Подпись элемента в боковой панели
 				itemTitleRef: function (item)
