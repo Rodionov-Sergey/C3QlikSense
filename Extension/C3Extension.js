@@ -857,7 +857,9 @@ define(
 			var dashArray = axisGridLine.lineType === 'Solid' ? '0' : '4';
 			$lineContainer
 				.children('line')
-				.css('stroke-dasharray', dashArray);
+				.css('stroke-dasharray', dashArray)
+				// Толщина линии
+				.css('stroke-width', axisGridLine.width);
 		}
 
 		/**

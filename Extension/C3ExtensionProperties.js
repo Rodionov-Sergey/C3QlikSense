@@ -239,15 +239,20 @@ define(
 					// Признак отображение сетки
 					gridShown: shownSwitcher(path(basePath, 'grid', 'shown'), 'Отображение сетки'),
 					gridLineType: getLineTypeProperty(path(basePath, 'grid', 'lineType')),
-					gridWidth: {
-						ref: path(basePath, 'grid', 'width'),
-						type: 'integer',
-						label: 'Толщина линии',
-						defaultValue: 1
-					}
+					gridWidth: getLineWidth(path(basePath, 'grid', 'width'))
 				}
 			};
 		}
+
+		function getLineWidth(propertyPath) {
+			return {
+				ref: propertyPath,
+				type: 'integer',
+				label: 'Толщина линии',
+				defaultValue: 1
+			};
+		}
+
 
 		/**
 		 * Возвращает определения свойств оси Y
@@ -268,16 +273,11 @@ define(
 					// Признак отображение сетки
 					gridShown: shownSwitcher(path(basePath, 'grid', 'shown'), 'Отображение сетки'),
 					gridLineType: getLineTypeProperty(path(basePath, 'grid', 'lineType')),
-					gridWidth: {
-						ref: path(basePath, 'grid', 'width'),
-						type: 'integer',
-						label: 'Толщина линии',
-						defaultValue: 1
-					}
+					gridWidth: getLineWidth(path(basePath, 'grid', 'width'))
 				}
 			};
 		}
-		
+
 		/**
 		 * Создает свойство типа линии
 		 * @param {String} propertyPath Путь к свойству
@@ -335,7 +335,8 @@ define(
 					// Цвет
 					color: colorPicker('foreground', 'Цвет'),
 					// Тип линии
-					lineType: getLineTypeProperty('lineType')
+					lineType: getLineTypeProperty('lineType'),
+					width: getLineWidth('width')
 
 				},
 				// Подпись элемента в боковой панели
