@@ -237,7 +237,30 @@ define(
 				label: 'Ось X',
 				items: {
 					// Признак отображение сетки
-					gridShown: shownSwitcher(path(basePath, 'grid', 'shown'), 'Отображение сетки')
+					gridShown: shownSwitcher(path(basePath, 'grid', 'shown'), 'Отображение сетки'),
+					gridLineType: {
+						ref: path(basePath, 'grid', 'lineType'),
+						type: 'string',
+						component: 'buttongroup',
+						label: 'Тип линии',
+						options: [
+							{
+								value: "Solid",
+								label: "Сплошная"
+							}, 
+							{
+								value: "Dashed",
+								label: "Пунктирная"
+							}
+						],
+						defaultValue: "Solid"
+					},
+					gridWidth: {
+						ref: path(basePath, 'grid', 'width'),
+						type: 'integer',
+						label: 'Толщина линии',
+						defaultValue: 1
+					}
 				}
 			};
 		}
@@ -259,7 +282,30 @@ define(
 						label: 'Заголовок оси'
 					},
 					// Признак отображение сетки
-					gridShown: shownSwitcher(path(basePath, 'grid', 'shown'), 'Отображение сетки')
+					gridShown: shownSwitcher(path(basePath, 'grid', 'shown'), 'Отображение сетки'),
+					gridLineType: {
+						ref: path(basePath, 'grid', 'lineType'),
+						type: 'string',
+						component: 'buttongroup',
+						label: 'Тип линии',
+						options: [
+							{
+								value: "Solid",
+								label: "Сплошная"
+							}, 
+							{
+								value: "Dashed",
+								label: "Пунктирная"
+							}
+						],
+						defaultValue: "Solid"
+					},
+					gridWidth: {
+						ref: path(basePath, 'grid', 'width'),
+						type: 'integer',
+						label: 'Толщина линии',
+						defaultValue: 1
+					}
 				}
 			};
 		}

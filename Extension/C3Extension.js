@@ -758,9 +758,9 @@ define(
 
 			if (qlikExtension.properties != null) {
 				// Дополнительные линии по X
-				styleAxis($chart, qlikExtension.properties.axisX, qlikTheme);
+				styleAxis($chart, qlikExtension.properties.axisX, qlikTheme, 'c3-xgrid');
 				// Дополнительные линии по Y
-				styleAxis($chart, qlikExtension.properties.axisY, qlikTheme);
+				styleAxis($chart, qlikExtension.properties.axisY, qlikTheme, 'c3-ygrid');
 			}
 		}
 
@@ -769,18 +769,29 @@ define(
 		 * @param {*} $chart jQuery-объект графика
 		 * @param {AxisXProperties|AxisYProperties} axis Настройки оси
 		 * @param {QlikTheme} qlikTheme Тема
+		 * @param {String} gridClass Класс элементов линии сетки
 		 */
-		function styleAxis($chart, axis, qlikTheme) {
-			if (axis == null || axis.lines == null) {
+		function styleAxis($chart, axis, qlikTheme, gridClass) {
+			if (axis == null) {
 				return;
 			}
 
-			axis.lines
+			if (axis.lines != null) {
+				axis.lines
 				.forEach(
 					function (line) {
 						return styleAxisGridLine($chart, line, qlikTheme);
 					}
 				);
+			}
+			
+			if (axis.grid != null) {
+				var dashArray = axis.grid.lineType === "Solid" ? '0' : '4';
+				$chart
+					.find('line.'+ gridClass)
+					.css('stroke-dasharray', dashArray)
+					.css('stroke-width', axis.grid.width);
+			}
 		}
 
 		/**
