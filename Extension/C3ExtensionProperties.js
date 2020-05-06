@@ -162,7 +162,7 @@ define(
 					groupKey: {
 						ref: path(basePath, 'groupKey'),
 						type: 'string',
-						label: 'Идентификатор группы',
+						label: 'Идентификатор группы'
 					},
 					// Настройки линейного графика
 					lineChart: getLineChartProperties(
@@ -214,10 +214,14 @@ define(
 					axisX: getAxisXProperties(path(basePath, 'axisX')),
 					// Линии оси X
 					axisXLines: getLinesProperties(path(basePath, 'axisX'), 'Ось X. Линии'),
+					// Регионы оси Х
+					axisXRanges: getRangesProperties(path(basePath, 'axisX'), 'Ось X. Регионы'),
 					// Свойства оси Y
 					axisY: getAxisYProperties(path(basePath, 'axisY')),
 					// Линии оси Y
 					axisYLines: getLinesProperties(path(basePath, 'axisY'), 'Ось Y. Линии'),
+					// Регионы оси Y
+					axisYRanges: getRangesProperties(path(basePath, 'axisY'), 'Ось Y. Регионы'),
 					// Свойства легенды
 					legend: getLegendProperties(path(basePath, 'legend')),
 					// Палитра
@@ -244,6 +248,11 @@ define(
 			};
 		}
 
+		/**
+		 * Возвращает определение свойства толщины линии
+		 * @param {String} propertyPath Путь к свойству
+		 * @returns {*} Оделение свойств
+		 */
 		function getLineWidth(propertyPath) {
 			return {
 				ref: propertyPath,
@@ -274,6 +283,66 @@ define(
 					gridShown: shownSwitcher(path(basePath, 'grid', 'shown'), 'Отображение сетки'),
 					gridLineType: getLineTypeProperty(path(basePath, 'grid', 'lineType')),
 					gridWidth: getLineWidth(path(basePath, 'grid', 'width'))
+				}
+			};
+		}
+
+		/**
+		 * Создает свойства регионов
+		 * @param {String} basePath Базовый путь к свойству
+		 * @param {String} title Заголовок секции
+		 * @returns {*} Определения свойств регионов
+		 */
+		function getRangesProperties(basePath, title) {
+			return {
+				ref: path(basePath, 'ranges'),
+				type: 'array',
+				label: title,
+				allowAdd: true,
+				allowRemove: true,
+				addTranslation: 'Добавить',
+				// Свойства регионов
+				items: {
+					// Начальное значение
+					startValue: {
+						ref: 'startValue',
+						type: 'number',
+						label: 'Начальное значение',
+						expression: 'optional'
+					},
+					// Конечное значение
+					finishValue: {
+						ref: 'finishValue',
+						type: 'number',
+						label: 'Конечное значение',
+						expression: 'optional'
+					},
+					// Подпись
+					title: {
+						ref: 'title',
+						type: 'string',
+						label: 'Подпись',
+						expression: 'optional'
+					},
+					// Цвет
+					background: colorPicker('background', 'Цвет')
+				},
+				// Подпись элемента в боковой панели
+				itemTitleRef: function (item)
+				{
+					var valueString = '';
+					// Число
+					if (typeof(item.value) === 'number') {
+						valueString = item.value.toString();
+					}
+					// Выражение
+					else if (typeof(item.value) === 'object' && 
+						item.value.qValueExpression != null) {
+						valueString = item.value.qValueExpression.qExpr;
+					}
+
+					var titleString = item.title != null && item.title != '' ? item.title + ': ' : '';
+					return titleString + valueString; 
 				}
 			};
 		}
@@ -333,7 +402,7 @@ define(
 						expression: 'optional'
 					},
 					// Цвет
-					color: colorPicker('foreground', 'Цвет'),
+					foreground: colorPicker('foreground', 'Цвет'),
 					// Тип линии
 					lineType: getLineTypeProperty('lineType'),
 					width: getLineWidth('width')
@@ -443,7 +512,7 @@ define(
 				label: qlikPalette.name,
 				icon: '',
 				type: 'sequential',
-				colors: getPaletteScale(qlikPalette),
+				colors: getPaletteScale(qlikPalette)
 			};
 		}
 

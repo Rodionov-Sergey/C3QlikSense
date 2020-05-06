@@ -45,6 +45,7 @@
  * @typedef {Object} AxisXProperties
  * @property {AxisGrid} grid Сетка
  * @property {AxisGridLine[]} lines Линии
+ * @property {AxisGridRegion[]} ranges Регионы
  */
 
 /**
@@ -53,6 +54,7 @@
  * @property {String} title Подпись оси
  * @property {AxisGrid} grid Сетка
  * @property {AxisGridLine[]} lines Линии
+ * @property {AxisGridRegion[]} ranges Регионы
  */
 
  /**
@@ -72,6 +74,16 @@
  * @property {QlikColorObject} foreground Настройки переднего плана
  * @property {LineType} lineType Тип линии
  * @property {Number} width Толщина линии
+ */
+
+ /**
+ * Регион
+ * @typedef {Object} AxisGridRegion
+ * @property {String} cId Идентификатор, назначаемый Qlik
+ * @property {Number} startValue Начальное значение
+ * @property {Number} finishValue Конечное значение
+ * @property {String} title Подпись
+ * @property {QlikColorObject} background Настройки заливки
  */
 
 /**

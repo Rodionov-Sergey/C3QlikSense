@@ -178,7 +178,44 @@ define(
 					pattern: getPalette(qlikExtension, qlikTheme)
 				},
 				// Сетка
-				grid: getGrid(qlikExtension)
+				grid: getGrid(qlikExtension),
+				// Регионы
+				regions: getRegions(qlikExtension)
+			};
+		}
+
+		/**
+		 * Возвращает настройки регионов
+		 * @param {QlikExtension} qlikExtension Данные расширения
+		 * @returns {C3Region[]} Настройки регионов
+		 */
+		function getRegions(qlikExtension) {
+			var xRanges = qlikExtension.properties.axisX.ranges.map(
+				function(range) {
+					return getRegion(range, 'x');
+				}
+			);
+			var yRanges = qlikExtension.properties.axisY.ranges.map(
+				function(range) {
+					return getRegion(range, 'y');
+				}
+			);
+			return xRanges.concat(yRanges);
+		}
+
+		/**
+		 * Возвращает настройки регионов
+		 * @param {AxisGridRegion} range Регион
+		 * @param {C3AxisType} axisType Тип оси
+		 * @returns {C3Region} Настройки региона
+		 */
+		function getRegion(range, axisType) {
+			return {
+				axis: axisType, 
+				label: range.title,
+				start: range.startValue,
+				end: range.finishValue,
+				class: range.cId
 			};
 		}
 
