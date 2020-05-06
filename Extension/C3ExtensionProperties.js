@@ -238,32 +238,21 @@ define(
 				items: {
 					// Признак отображение сетки
 					gridShown: shownSwitcher(path(basePath, 'grid', 'shown'), 'Отображение сетки'),
-					gridLineType: {
-						ref: path(basePath, 'grid', 'lineType'),
-						type: 'string',
-						component: 'buttongroup',
-						label: 'Тип линии',
-						options: [
-							{
-								value: "Solid",
-								label: "Сплошная"
-							}, 
-							{
-								value: "Dashed",
-								label: "Пунктирная"
-							}
-						],
-						defaultValue: "Solid"
-					},
-					gridWidth: {
-						ref: path(basePath, 'grid', 'width'),
-						type: 'integer',
-						label: 'Толщина линии',
-						defaultValue: 1
-					}
+					gridLineType: getLineTypeProperty(path(basePath, 'grid', 'lineType')),
+					gridWidth: getLineWidth(path(basePath, 'grid', 'width'))
 				}
 			};
 		}
+
+		function getLineWidth(propertyPath) {
+			return {
+				ref: propertyPath,
+				type: 'integer',
+				label: 'Толщина линии',
+				defaultValue: 1
+			};
+		}
+
 
 		/**
 		 * Возвращает определения свойств оси Y
@@ -283,33 +272,36 @@ define(
 					},
 					// Признак отображение сетки
 					gridShown: shownSwitcher(path(basePath, 'grid', 'shown'), 'Отображение сетки'),
-					gridLineType: {
-						ref: path(basePath, 'grid', 'lineType'),
-						type: 'string',
-						component: 'buttongroup',
-						label: 'Тип линии',
-						options: [
-							{
-								value: "Solid",
-								label: "Сплошная"
-							}, 
-							{
-								value: "Dashed",
-								label: "Пунктирная"
-							}
-						],
-						defaultValue: "Solid"
-					},
-					gridWidth: {
-						ref: path(basePath, 'grid', 'width'),
-						type: 'integer',
-						label: 'Толщина линии',
-						defaultValue: 1
-					}
+					gridLineType: getLineTypeProperty(path(basePath, 'grid', 'lineType')),
+					gridWidth: getLineWidth(path(basePath, 'grid', 'width'))
 				}
 			};
 		}
 
+		/**
+		 * Создает свойство типа линии
+		 * @param {String} propertyPath Путь к свойству
+		 * @returns {*} Определения свойства типа линии
+		 */
+		function getLineTypeProperty(propertyPath) {
+			return {
+				ref: propertyPath,
+				type: 'string',
+				component: 'buttongroup',
+				label: 'Тип линии',
+				options: [
+					{
+						value: 'Solid',
+						label: 'Сплошная'
+					}, 
+					{
+						value: 'Dashed',
+						label: 'Пунктирная'
+					}
+				],
+				defaultValue: 'Solid'
+			};
+		}
 		/**
 		 * Возвращает определения свойств линий
 		 * @param {String} basePath Базовый путь к свойству
@@ -341,7 +333,11 @@ define(
 						expression: 'optional'
 					},
 					// Цвет
-					color: colorPicker('foreground', 'Цвет')
+					color: colorPicker('foreground', 'Цвет'),
+					// Тип линии
+					lineType: getLineTypeProperty('lineType'),
+					width: getLineWidth('width')
+
 				},
 				// Подпись элемента в боковой панели
 				itemTitleRef: function (item)

@@ -68,8 +68,17 @@
  * @typedef {Object} AxisGridLine
  * @property {String} cId Идентификатор, назначаемый Qlik
  * @property {Number} value Значение
- * @property {Number} title Подпись
+ * @property {String} title Подпись
  * @property {QlikColorObject} foreground Настройки переднего плана
+ * @property {LineType} lineType Тип линии
+ * @property {Number} width Толщина линии
+ */
+
+/**
+ * Тип линии
+ * @typedef {'Dashed'|'Solid'} LineType
+ * - 'Dashed' - Пунктирная
+ * - 'Solid' - Сплошная
  */
 
 /**
