@@ -813,22 +813,41 @@ define(
 				return;
 			}
 
-			if (axis.lines != null) {
-				axis.lines
+			// Стилизация линий
+			axis.lines
 				.forEach(
 					function (line) {
-						return styleAxisGridLine($chart, line, qlikTheme);
+						styleAxisGridLine($chart, line, qlikTheme);
 					}
 				);
-			}
-			
-			if (axis.grid != null) {
-				var dashArray = axis.grid.lineType === 'Solid' ? '0' : '4';
-				$chart
-					.find('line.'+ gridClass)
-					.css('stroke-dasharray', dashArray)
-					.css('stroke-width', axis.grid.width);
-			}
+
+			// Стилизация сетки
+			var dashArray = axis.grid.lineType === 'Solid' ? '0' : '4';
+			$chart
+				.find('line.'+ gridClass)
+				.css('stroke-dasharray', dashArray)
+				.css('stroke-width', axis.grid.width);
+
+			// Стилизация региона
+			axis.ranges
+				.forEach(
+					function (range) {
+						styleRange($chart, range);
+					}
+				);	
+		}
+		/**
+		 * Стилизует регион
+		 * @param {*} $chart jQuery-объект графика
+		 * @param {AxisGridRegion} range Регион
+		 */
+		function styleRange($chart, range) {
+			var rangeColor = range.background.color;
+			var $rangeGroup = $chart.find('g.c3-region.' + range.cId);
+			$rangeGroup.children('rect')
+				.css('fill', rangeColor);
+			$rangeGroup.children('text')	
+				.css('fill', rangeColor);
 		}
 
 		/**

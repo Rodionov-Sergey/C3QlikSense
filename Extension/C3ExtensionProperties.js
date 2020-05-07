@@ -527,7 +527,8 @@ define(
 				ref: propertyPath,
 				component: 'color-picker',
 				type: 'object',
-				label: title
+				label: title, 
+				defaultValue: 1
 			};
 		}
 
