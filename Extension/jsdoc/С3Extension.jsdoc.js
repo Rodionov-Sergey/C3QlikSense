@@ -45,7 +45,7 @@
  * @typedef {Object} AxisXProperties
  * @property {AxisGrid} grid Сетка
  * @property {AxisGridLine[]} lines Линии
- * @property {AxisGridRegion[]} ranges Регионы
+ * @property {AxisGridRange[]} ranges Регионы
  */
 
 /**
@@ -54,7 +54,7 @@
  * @property {String} title Подпись оси
  * @property {AxisGrid} grid Сетка
  * @property {AxisGridLine[]} lines Линии
- * @property {AxisGridRegion[]} ranges Регионы
+ * @property {AxisGridRange[]} ranges Регионы
  */
 
  /**
@@ -78,7 +78,7 @@
 
  /**
  * Регион
- * @typedef {Object} AxisGridRegion
+ * @typedef {Object} AxisGridRange
  * @property {String} cId Идентификатор, назначаемый Qlik
  * @property {Number} startValue Начальное значение
  * @property {Number} finishValue Конечное значение
