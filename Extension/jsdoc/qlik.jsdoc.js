@@ -113,7 +113,7 @@
  */
 
  /**
- * Настройки темы легенды
+ * Настройки темы объекта с цветом переднего плана, цветом заднего плана и размером шрифта
  * @typedef {Object} QlikThemeForegroundFontSizeBackgoundProperties
  * @property {Color=} color Цвет
  * @property {String=} fontSize Размер шрифта
@@ -121,14 +121,14 @@
  */
 
  /**
- * Настройки темы легенды
+ * Настройки темы объекта с цветом переднего плана и размером шрифта
  * @typedef {Object} QlikThemeForegroundFontSizeProperties
  * @property {Color=} color Цвет
  * @property {String=} fontSize Размер шрифта
  */
 
  /**
- * Настройки темы легенды
+ * Настройки темы объекта с цветом переднего плана
  * @typedef {Object} QlikThemeForegroundProperties
  * @property {Color=} color Цвет
  */

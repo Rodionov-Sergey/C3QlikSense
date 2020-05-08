@@ -43,6 +43,21 @@
  */
 
 /**
+ * Настройка региона
+ * @typedef {Object} C3Region
+ * @property {C3AxisType} axis Ось
+ * @property {Number} start Стартовое значение
+ * @property {Number} end Конечное значение
+ * @property {String} label Заголовок
+ * @property {String} class CSS-класс
+ */
+
+/**
+ * Тип оси
+ * @typedef {'x'|'y'|'y2'} C3AxisType
+ */
+
+/**
  * Положение легенды
  * @typedef {'right'|'bottom'|'inset'} C3LegendPosition
  * - 'right' - Справа

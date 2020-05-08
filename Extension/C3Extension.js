@@ -105,7 +105,7 @@ define(
 		 */
 		function paintChart($parentElement, qlikExtension, qlikTheme) {
 
-			// DEBUG: Отладка данных расширения
+			// DEBUG: Отладка темы
 			//console.log('Тема', qlikTheme);
 
 			// Контейнер для графика
@@ -178,7 +178,44 @@ define(
 					pattern: getPalette(qlikExtension, qlikTheme)
 				},
 				// Сетка
-				grid: getGrid(qlikExtension)
+				grid: getGrid(qlikExtension),
+				// Регионы
+				regions: getRegions(qlikExtension)
+			};
+		}
+
+		/**
+		 * Возвращает настройки регионов
+		 * @param {QlikExtension} qlikExtension Данные расширения
+		 * @returns {C3Region[]} Настройки регионов
+		 */
+		function getRegions(qlikExtension) {
+			var xRanges = qlikExtension.properties.axisX.ranges.map(
+				function(range) {
+					return getRegion(range, 'x');
+				}
+			);
+			var yRanges = qlikExtension.properties.axisY.ranges.map(
+				function(range) {
+					return getRegion(range, 'y');
+				}
+			);
+			return xRanges.concat(yRanges);
+		}
+
+		/**
+		 * Возвращает настройки регионов
+		 * @param {AxisGridRange} range Регион
+		 * @param {C3AxisType} axisType Тип оси
+		 * @returns {C3Region} Настройки региона
+		 */
+		function getRegion(range, axisType) {
+			return {
+				axis: axisType, 
+				label: range.title,
+				start: range.startValue,
+				end: range.finishValue,
+				class: range.cId
 			};
 		}
 
@@ -729,12 +766,27 @@ define(
 			// Дополнительные линии
 			var $gridLineContainer = $chart
 				.find('.c3-xgrid-line, .c3-ygrid-line');
+			var gridLineThemeColor = getThemeValue('referenceLine.label.name', 'color');
+			// Цвет линии
 			$gridLineContainer
 				.children('line')
-				.css('stroke', getThemeValue('referenceLine.label.name', 'color'));
+				.css('stroke', gridLineThemeColor);
+			// Цвет текста
 			$gridLineContainer
 				.children('text')
-				.css('fill', getThemeValue('referenceLine.label.name', 'color'))
+				.css('fill', gridLineThemeColor)
+				.css('font-size', getThemeValue('referenceLine.label.name', 'fontSize'));
+				
+			// Регион
+			var $gridRangeContainer = $chart
+				.find('g.c3-region');
+			var gridRangeThemeColor = getThemeValue('referenceLine.label.name', 'color');
+			// Цвет заливки
+			$gridRangeContainer.children('rect')
+				.css('fill', gridRangeThemeColor);
+			// Цвет подписи
+			$gridRangeContainer.children('text')	
+				.css('fill', gridRangeThemeColor)
 				.css('font-size', getThemeValue('referenceLine.label.name', 'fontSize'));
 		}
 
@@ -747,7 +799,6 @@ define(
 		 * @param {QlikTheme} qlikTheme Тема
 		 */
 		function styleChart($chart, qlikExtension, qlikTheme) {
-
 			// Cерии
 			qlikExtension.qHyperCube.qMeasureInfo
 				.forEach(
@@ -756,12 +807,10 @@ define(
 					}
 				);
 
-			if (qlikExtension.properties != null) {
-				// Дополнительные линии по X
-				styleAxis($chart, qlikExtension.properties.axisX, qlikTheme, 'c3-xgrid');
-				// Дополнительные линии по Y
-				styleAxis($chart, qlikExtension.properties.axisY, qlikTheme, 'c3-ygrid');
-			}
+			// Ось X
+			styleAxis($chart, qlikExtension.properties.axisX, qlikTheme, 'c3-xgrid');
+			// Ось Y
+			styleAxis($chart, qlikExtension.properties.axisY, qlikTheme, 'c3-ygrid');
 		}
 
 		/**
@@ -776,22 +825,28 @@ define(
 				return;
 			}
 
-			if (axis.lines != null) {
-				axis.lines
+			// Стилизация линий
+			axis.lines
 				.forEach(
 					function (line) {
-						return styleAxisGridLine($chart, line, qlikTheme);
+						styleAxisGridLine($chart, line, qlikTheme);
 					}
 				);
-			}
-			
-			if (axis.grid != null) {
-				var dashArray = axis.grid.lineType === 'Solid' ? '0' : '4';
-				$chart
-					.find('line.'+ gridClass)
-					.css('stroke-dasharray', dashArray)
-					.css('stroke-width', axis.grid.width);
-			}
+
+			// Стилизация сетки
+			var dashArray = axis.grid.lineType === 'Solid' ? '0' : '4';
+			$chart
+				.find('line.'+ gridClass)
+				.css('stroke-dasharray', dashArray)
+				.css('stroke-width', axis.grid.width);
+
+			// Стилизация региона
+			axis.ranges
+				.forEach(
+					function (range) {
+						styleAxisGridRange($chart, range, qlikTheme);
+					}
+				);	
 		}
 
 		/**
@@ -860,6 +915,30 @@ define(
 				.css('stroke-dasharray', dashArray)
 				// Толщина линии
 				.css('stroke-width', axisGridLine.width);
+		}
+		
+		/**
+		 * Стилизует регион по оси
+		 * @param {*} $chart jQuery-объект графика
+		 * @param {QlikTheme} qlikTheme Тема
+		 * @param {AxisGridRange} range Регион
+		 */
+		function styleAxisGridRange($chart, range, qlikTheme) {
+			// Контейнер региона
+			var $rangeGroup = $chart.find('g.c3-region.' + range.cId);
+
+			// Цвет заливки
+			var backgroundColor = findColor(range.background, qlikTheme);
+			
+			// Заливка региона
+			$rangeGroup
+				.children('rect')
+				.css('fill', backgroundColor);
+
+			// Подпись региона
+			$rangeGroup
+				.children('text')	
+				.css('fill', backgroundColor);
 		}
 
 		/**
